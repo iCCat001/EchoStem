@@ -274,6 +274,7 @@
   <Text Key="Error_Adding_Genres_To_Now_Playing">在添加风格到正在播放时发生了一个错误，请查看日志文件获取更多信息</Text>
   <Text Key="Error_Adding_Playlists_To_Now_Playing">在添加播放列表到正在播放时发生了一个错误，请查看日志文件获取更多信息</Text>
   <Text Key="Play_All">播放全部</Text>
+  <Text Key="Play_Album">播放专辑</Text>
   <Text Key="Shuffle_All">全部随机</Text>
   <Text Key="See_You_Later">再见！</Text>
   <Text Key="Website">网站</Text>

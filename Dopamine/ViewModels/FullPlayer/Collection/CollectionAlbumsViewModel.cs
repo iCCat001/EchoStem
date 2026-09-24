@@ -1,4 +1,4 @@
-﻿using Digimezzo.Foundation.Core.Settings;
+using Digimezzo.Foundation.Core.Settings;
 using Dopamine.Core.Base;
 using Dopamine.Data;
 using Dopamine.Services.Collection;
@@ -97,7 +97,11 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
         protected async override Task FillListsAsync()
         {
             await this.GetAllAlbumsAsync(this.AlbumOrder);
-            await this.GetTracksAsync(null, null, this.SelectedAlbums, this.TrackOrder);
+
+            // The tracks pane is hidden until an album is selected, so there is no need
+            // to load the whole collection here (this used to feed the always-visible pane).
+            this.TracksCount = 0;
+            this.ClearTracks();
         }
 
         protected async override Task EmptyListsAsync()
@@ -111,7 +115,19 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
             await base.SelectedAlbumsHandlerAsync(parameter);
 
             this.SetTrackOrder("AlbumsTrackOrder");
-            await this.GetTracksAsync(null, null, this.SelectedAlbums, this.TrackOrder);
+
+            if (this.SelectedAlbums != null && this.SelectedAlbums.Count > 0)
+            {
+                await this.GetTracksAsync(null, null, this.SelectedAlbums, this.TrackOrder);
+            }
+            else
+            {
+                // Nothing is selected: the tracks pane is closing. Loading the whole
+                // collection here would stall the UI thread and make the slide-out
+                // animation stutter, so just clear the tracks instead.
+                this.TracksCount = 0;
+                this.ClearTracks();
+            }
         }
 
         protected override void RefreshLanguage()
