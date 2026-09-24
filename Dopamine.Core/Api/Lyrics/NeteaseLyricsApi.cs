@@ -86,7 +86,60 @@ namespace Dopamine.Core.Api.Lyrics
             }
             else
             {
-                return res.tlyric.lyric;
+                //return res.tlyric.lyric;
+                String LyricOutput = "";
+                try
+                {
+                    Dictionary<string, string> LyricOrign = new Dictionary<string, string>();
+                    Dictionary<string, string> LyricTranslate = new Dictionary<string, string>();
+
+                    //遍历分解
+                    foreach (string lyricOrignTemp in res.lrc.lyric.Split('\n'))
+                    {
+                        try
+                        {
+                            string timeStamp = lyricOrignTemp.Split(']')[0];    //时间戳
+                            string lyricContect = lyricOrignTemp.Split(']')[1]; //歌词正文
+
+                            LyricOrign.Add(timeStamp, lyricContect);
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+                    foreach (string lyricTransTemp in res.tlyric.lyric.Split('\n'))
+                    {
+                        try
+                        {
+                            string timeStamp = lyricTransTemp.Split(']')[0];    //时间戳
+                            string lyricContect = lyricTransTemp.Split(']')[1]; //歌词正文
+
+                            LyricTranslate.Add(timeStamp, lyricContect);
+                        }
+                        catch (Exception ex)
+                        {
+
+                        }
+                    }
+
+                    //匹配，以保留原文为基础
+                    foreach (KeyValuePair<string, string> KVLyricOrign in LyricOrign)
+                    {
+                        LyricOutput += KVLyricOrign.Key + ']' + KVLyricOrign.Value;
+                        if (LyricTranslate.ContainsKey(KVLyricOrign.Key))
+                        {
+                            LyricOutput += "%%Trans%%" + LyricTranslate[KVLyricOrign.Key].ToString();
+                        }
+                        LyricOutput += "\n";
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LyricOutput = res.lrc.lyric;    //保留原文
+                }
+
+                return LyricOutput;
             }
         }
 

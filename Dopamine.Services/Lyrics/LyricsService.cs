@@ -78,6 +78,13 @@ namespace Dopamine.Services.Lyrics
                     continue;
                 }
 
+                //C-Cat: 换行显示译文
+                try
+                {
+                    line = line.Replace("%%Trans%%", "\n");
+                }
+                catch (Exception ex) { }
+
                 // Check if the line has characters and is enclosed in brackets (starts with [ and ends with ]).
                 if (!(line.StartsWith("[") && line.LastIndexOf(']') > 0))
                 {

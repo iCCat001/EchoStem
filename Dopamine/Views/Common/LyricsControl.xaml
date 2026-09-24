@@ -83,7 +83,7 @@
             Visibility="{Binding IsEditing, Converter={StaticResource InvertingBooleanToCollapsedConverter}}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Grid Margin="0,0,10,0">
+                                <Grid Margin="0,0,30,0">
                                     <TextBlock
                     FontSize="{Binding DataContext.FontSize, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListBox}}}"
                     Foreground="{DynamicResource Brush_Accent}"
