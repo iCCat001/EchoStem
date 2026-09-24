@@ -39,9 +39,9 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
                 case CollectionPage.Artists:
                     this.regionManager.RequestNavigate(RegionNames.CollectionRegion, typeof(CollectionArtists).FullName);
                     break;
-                case CollectionPage.Genres:
-                    this.regionManager.RequestNavigate(RegionNames.CollectionRegion, typeof(CollectionGenres).FullName);
-                    break;
+                //case CollectionPage.Genres:
+                //    this.regionManager.RequestNavigate(RegionNames.CollectionRegion, typeof(CollectionGenres).FullName);
+                //    break;
                 case CollectionPage.Albums:
                     this.regionManager.RequestNavigate(RegionNames.CollectionRegion, typeof(CollectionAlbums).FullName);
                     break;
@@ -51,9 +51,9 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
                 case CollectionPage.Playlists:
                     this.regionManager.RequestNavigate(RegionNames.CollectionRegion, typeof(CollectionPlaylists).FullName);
                     break;
-                case CollectionPage.Folders:
-                    this.regionManager.RequestNavigate(RegionNames.CollectionRegion, typeof(CollectionFolders).FullName);
-                    break;
+                //case CollectionPage.Folders:
+                //    this.regionManager.RequestNavigate(RegionNames.CollectionRegion, typeof(CollectionFolders).FullName);
+                //    break;
                 default:
                     break;
             }

@@ -26,12 +26,10 @@
 
     public enum CollectionPage
     {
-        Artists = 0,
-        Genres = 1,
-        Albums = 2,
-        Songs = 3,
-        Playlists = 4,
-        Folders = 5
+        Albums = 0,
+        Songs = 1,
+        Artists = 2,
+        Playlists = 3
     }
 
     public enum SettingsPage

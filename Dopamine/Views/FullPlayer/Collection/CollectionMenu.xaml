@@ -25,12 +25,12 @@
         <ContentControl/>
         <dc:Pivot Style="{DynamicResource MenuPivot}"
                   SelectedIndex="{Binding SelectedPage,Converter={StaticResource EnumConverter},ConverterParameter={x:Type enums:CollectionPage}}">
-            <dc:PivotItem Header="{DynamicResource Language_Artists}" Style="{StaticResource MenuPivotItem}"/>
-            <dc:PivotItem Header="{DynamicResource Language_Genres}" Style="{StaticResource MenuPivotItem}"/>
             <dc:PivotItem Header="{DynamicResource Language_Albums}" Style="{StaticResource MenuPivotItem}"/>
             <dc:PivotItem Header="{DynamicResource Language_Songs}" Style="{StaticResource MenuPivotItem}"/>
+            <dc:PivotItem Header="{DynamicResource Language_Artists}" Style="{StaticResource MenuPivotItem}"/>
             <dc:PivotItem Header="{DynamicResource Language_Playlists}" Style="{StaticResource MenuPivotItem}"/>
-            <dc:PivotItem Header="{DynamicResource Language_Folders}" Style="{StaticResource MenuPivotItem}"/>
+            <!--<dc:PivotItem Header="{DynamicResource Language_Genres}" Style="{StaticResource MenuPivotItem}"/>-->
+            <!--<dc:PivotItem Header="{DynamicResource Language_Folders}" Style="{StaticResource MenuPivotItem}"/>-->
         </dc:Pivot>
     </DockPanel>
 </UserControl>
