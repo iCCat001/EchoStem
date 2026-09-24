@@ -32,6 +32,7 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
         private bool isLastFmSignInInProgress;
         private bool checkBoxDownloadArtistInformationChecked;
         private bool checkBoxDownloadLyricsChecked;
+        private bool checkBoxShowLyricsInPlaybackControlsChecked;
         private bool checkBoxChartLyricsChecked;
         private bool checkBoxLoloLyricsChecked;
         private bool checkBoxMetroLyricsChecked;
@@ -166,6 +167,16 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
             {
                 SettingsClient.Set<bool>("Lyrics", "DownloadLyrics", value, true);
                 SetProperty<bool>(ref this.checkBoxDownloadLyricsChecked, value);
+            }
+        }
+
+        public bool CheckBoxShowLyricsInPlaybackControlsChecked
+        {
+            get { return this.checkBoxShowLyricsInPlaybackControlsChecked; }
+            set
+            {
+                SettingsClient.Set<bool>("Lyrics", "ShowInPlaybackControls", value, true);
+                SetProperty<bool>(ref this.checkBoxShowLyricsInPlaybackControlsChecked, value);
             }
         }
 
@@ -329,6 +340,7 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
                 this.checkBoxDownloadArtistInformationChecked = SettingsClient.Get<bool>("Lastfm", "DownloadArtistInformation");
                 this.checkBoxEnableDiscordRichPresence = SettingsClient.Get<bool>("Discord", "EnableDiscordRichPresence");
                 this.checkBoxDownloadLyricsChecked = SettingsClient.Get<bool>("Lyrics", "DownloadLyrics");
+                this.checkBoxShowLyricsInPlaybackControlsChecked = SettingsClient.Get<bool>("Lyrics", "ShowInPlaybackControls");
 
                 string lyricsProviders = SettingsClient.Get<string>("Lyrics", "Providers");
 

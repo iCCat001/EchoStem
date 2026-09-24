@@ -1,17 +1,37 @@
-﻿using Digimezzo.Foundation.Core.Settings;
+using Digimezzo.Foundation.Core.Settings;
 using Dopamine.Core.Helpers;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Dopamine.Core.Api.Lyrics
 {
-    // API from http://moonlib.com/606.html
+    // Public NetEase Cloud Music web API (https://music.163.com).
     public class NeteaseLyricsApi : ILyricsApi
     {
+        private const string apiRootUrl = "https://music.163.com/";
+        private const string apiSearchUrl = "api/cloudsearch/pc";
+        private const string apiLyricsFormat = "api/song/lyric?id={0}&lv=-1&kv=-1&tv=-1";
+
+        internal class SearchModel
+        {
+            public SearchResult result { get; set; }
+
+            internal class SearchResult
+            {
+                public List<Song> songs { get; set; }
+            }
+
+            internal class Song
+            {
+                public long id { get; set; }
+            }
+        }
+
         internal class LyricModel
         {
             public Lrc lrc { get; set; }
@@ -24,133 +44,154 @@ namespace Dopamine.Core.Api.Lyrics
             }
         }
 
-        private ILocalizationInfo info;
-        private const string apiSearchResultLimit = "1";
-
-        private const string apiLyricsFormat = "song/lyric?os=pc&id={0}&lv=-1&tv=-1";
-
-        private const string apiRootUrl = "http://music.163.com/api/";
-        private int timeoutSeconds;
-        private HttpClient httpClient;
-        private bool enableTLyric;
+        private readonly ILocalizationInfo info;
+        private readonly HttpClient httpClient;
+        private readonly bool enableTLyric;
 
         public NeteaseLyricsApi(int timeoutSeconds, ILocalizationInfo info)
         {
-            this.timeoutSeconds = timeoutSeconds;
             this.info = info;
             this.enableTLyric = SettingsClient.Get<string>("Appearance", "Language") == "ZH-CN";
 
-            httpClient = new HttpClient(new HttpClientHandler() {AutomaticDecompression = DecompressionMethods.GZip})
+            var handler = new HttpClientHandler
+            {
+                AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+            };
+
+            this.httpClient = new HttpClient(handler)
             {
                 BaseAddress = new Uri(apiRootUrl)
             };
-            httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate,sdch");
-            httpClient.DefaultRequestHeaders.Add("Accept-Language", "en-US,zh-CN;q=0.8,zh;q=0.6,en;q=0.7");
-            httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
-            httpClient.DefaultRequestHeaders.Add("User-Agent",
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36");
-            httpClient.DefaultRequestHeaders.Add("Referer", "http://music.163.com/");
-            httpClient.DefaultRequestHeaders.Add("Host", "music.163.com");
-            httpClient.DefaultRequestHeaders.Add("Accept",
-                "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8");
+
+            if (timeoutSeconds > 0)
+            {
+                this.httpClient.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
+            }
+
+            this.httpClient.DefaultRequestHeaders.Add("Accept-Encoding", "gzip,deflate");
+            this.httpClient.DefaultRequestHeaders.Add("Accept-Language", "en-US,zh-CN;q=0.8,zh;q=0.6,en;q=0.7");
+            this.httpClient.DefaultRequestHeaders.Add("Accept", "*/*");
+            this.httpClient.DefaultRequestHeaders.Add("Connection", "keep-alive");
+            this.httpClient.DefaultRequestHeaders.Add("User-Agent",
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+            this.httpClient.DefaultRequestHeaders.Add("Referer", "https://music.163.com/");
         }
 
-        private async Task<string> ParseTrackIdAsync(string artist, string title)
+        private async Task<long?> ParseTrackIdAsync(string artist, string title)
         {
             var postContent = new[]
             {
-                new KeyValuePair<string, string>("s", title + "\x20" + artist),
+                new KeyValuePair<string, string>("s", title + " " + artist),
+                new KeyValuePair<string, string>("type", "1"),
                 new KeyValuePair<string, string>("offset", "0"),
-                new KeyValuePair<string, string>("limit", apiSearchResultLimit),
-                new KeyValuePair<string, string>("type", "1")
+                new KeyValuePair<string, string>("limit", "1")
             };
 
-            var response =
-                await (await httpClient.PostAsync("search/pc", new FormUrlEncodedContent(postContent))).Content
-                    .ReadAsStringAsync();
+            string response = await (await this.httpClient.PostAsync(apiSearchUrl, new FormUrlEncodedContent(postContent))).Content.ReadAsStringAsync();
 
-            int start = response.IndexOf("\",\"id\":") + 7;
-            int end = response.IndexOf(",\"position\":", start);
+            if (string.IsNullOrWhiteSpace(response))
+            {
+                return null;
+            }
 
-            return response.Substring(start, end - start);
+            SearchModel search = JsonConvert.DeserializeObject<SearchModel>(response);
+
+            if (search == null || search.result == null || search.result.songs == null || search.result.songs.Count == 0)
+            {
+                return null;
+            }
+
+            return search.result.songs[0].id;
         }
 
-        private async Task<string> ParseLyricsAsync(string trackId)
+        private async Task<string> ParseLyricsAsync(long trackId)
         {
-            string resJson = await httpClient.GetStringAsync(String.Format(apiLyricsFormat, trackId));
-            LyricModel res = JsonConvert.DeserializeObject<LyricModel>(resJson);
+            string response = await this.httpClient.GetStringAsync(string.Format(apiLyricsFormat, trackId));
 
-            if (res.tlyric == null || string.IsNullOrEmpty(res.tlyric.lyric) || !this.enableTLyric)
+            if (string.IsNullOrWhiteSpace(response))
             {
-                return res.lrc.lyric;
+                return string.Empty;
             }
-            else
+
+            LyricModel lyrics = JsonConvert.DeserializeObject<LyricModel>(response);
+
+            if (lyrics == null || lyrics.lrc == null || string.IsNullOrEmpty(lyrics.lrc.lyric))
             {
-                //return res.tlyric.lyric;
-                String LyricOutput = "";
-                try
+                return string.Empty;
+            }
+
+            if (!this.enableTLyric || lyrics.tlyric == null || string.IsNullOrEmpty(lyrics.tlyric.lyric))
+            {
+                return lyrics.lrc.lyric;
+            }
+
+            return MergeTranslation(lyrics.lrc.lyric, lyrics.tlyric.lyric);
+        }
+
+        private static string MergeTranslation(string original, string translation)
+        {
+            Dictionary<string, string> originalLines = ParseTimestampedLyrics(original);
+            Dictionary<string, string> translatedLines = ParseTimestampedLyrics(translation);
+
+            var output = new StringBuilder();
+
+            foreach (KeyValuePair<string, string> line in originalLines)
+            {
+                output.Append(line.Key).Append(']').Append(line.Value);
+
+                if (translatedLines.ContainsKey(line.Key))
                 {
-                    Dictionary<string, string> LyricOrign = new Dictionary<string, string>();
-                    Dictionary<string, string> LyricTranslate = new Dictionary<string, string>();
-
-                    //遍历分解
-                    foreach (string lyricOrignTemp in res.lrc.lyric.Split('\n'))
-                    {
-                        try
-                        {
-                            string timeStamp = lyricOrignTemp.Split(']')[0];    //时间戳
-                            string lyricContect = lyricOrignTemp.Split(']')[1]; //歌词正文
-
-                            LyricOrign.Add(timeStamp, lyricContect);
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
-                    }
-                    foreach (string lyricTransTemp in res.tlyric.lyric.Split('\n'))
-                    {
-                        try
-                        {
-                            string timeStamp = lyricTransTemp.Split(']')[0];    //时间戳
-                            string lyricContect = lyricTransTemp.Split(']')[1]; //歌词正文
-
-                            LyricTranslate.Add(timeStamp, lyricContect);
-                        }
-                        catch (Exception ex)
-                        {
-
-                        }
-                    }
-
-                    //匹配，以保留原文为基础
-                    foreach (KeyValuePair<string, string> KVLyricOrign in LyricOrign)
-                    {
-                        LyricOutput += KVLyricOrign.Key + ']' + KVLyricOrign.Value;
-                        if (LyricTranslate.ContainsKey(KVLyricOrign.Key))
-                        {
-                            LyricOutput += "%%Trans%%" + LyricTranslate[KVLyricOrign.Key].ToString();
-                        }
-                        LyricOutput += "\n";
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LyricOutput = res.lrc.lyric;    //保留原文
+                    output.Append("%%Trans%%").Append(translatedLines[line.Key]);
                 }
 
-                return LyricOutput;
+                output.Append('\n');
             }
+
+            return output.ToString();
+        }
+
+        private static Dictionary<string, string> ParseTimestampedLyrics(string lyrics)
+        {
+            var result = new Dictionary<string, string>();
+
+            if (string.IsNullOrEmpty(lyrics))
+            {
+                return result;
+            }
+
+            foreach (string line in lyrics.Split('\n'))
+            {
+                int bracketIndex = line.IndexOf(']');
+
+                if (bracketIndex <= 0)
+                {
+                    continue;
+                }
+
+                string timestamp = line.Substring(0, bracketIndex);
+                string content = line.Substring(bracketIndex + 1);
+
+                if (!result.ContainsKey(timestamp))
+                {
+                    result[timestamp] = content;
+                }
+            }
+
+            return result;
         }
 
         public string SourceName => this.info.NeteaseLyrics;
 
         public async Task<string> GetLyricsAsync(string artist, string title)
         {
-            var trackId = await ParseTrackIdAsync(artist, title);
-            var result = await ParseLyricsAsync(trackId);
+            long? trackId = await this.ParseTrackIdAsync(artist, title);
 
-            return result;
+            if (trackId == null)
+            {
+                return string.Empty;
+            }
+
+            return await this.ParseLyricsAsync(trackId.Value);
         }
     }
 }

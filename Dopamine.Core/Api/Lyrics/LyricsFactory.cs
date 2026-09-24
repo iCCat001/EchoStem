@@ -1,4 +1,4 @@
-﻿using Digimezzo.Foundation.Core.Logging;
+using Digimezzo.Foundation.Core.Logging;
 using Dopamine.Core.Helpers;
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,11 @@ namespace Dopamine.Core.Api.Lyrics
     public class LyricsFactory
     {
         private readonly IList<ILyricsApi> lyricsApis;
-        private readonly IList<ILyricsApi> lyricsApisPipe;
+        private readonly Random random = new Random();
 
         public LyricsFactory(int timeoutSeconds, string providers, ILocalizationInfo info)
         {
             lyricsApis = new List<ILyricsApi>();
-            lyricsApisPipe = new List<ILyricsApi>();
 
             if (providers.ToLower().Contains("chartlyrics")) lyricsApis.Add(new ChartLyricsApi(timeoutSeconds));
             if (providers.ToLower().Contains("lololyrics")) lyricsApis.Add(new LololyricsApi(timeoutSeconds));
@@ -26,11 +25,13 @@ namespace Dopamine.Core.Api.Lyrics
         public async Task<Lyrics> GetLyricsAsync(string artist, string title)
         {
             Lyrics lyrics = null;
-            foreach (var item in lyricsApis)
-            {
-                lyricsApisPipe.Add(item);
-            }
-            var api = this.GetRandomApi();
+
+            // A fresh pipe per call: the APIs are tried in a random order, each one only
+            // once. Using a local pipe (instead of shared state) also makes concurrent
+            // calls (e.g. background prefetch while the lyrics page is opening) safe.
+            var pipe = new List<ILyricsApi>(this.lyricsApis);
+
+            var api = this.GetRandomApi(pipe);
 
             while (api != null && (lyrics == null || !lyrics.HasText))
             {
@@ -43,22 +44,27 @@ namespace Dopamine.Core.Api.Lyrics
                     LogClient.Error("Error while getting lyrics from '{0}'. Exception: {1}", api.SourceName, ex.Message);
                 }
 
-                api = this.GetRandomApi();
+                api = this.GetRandomApi(pipe);
             }
 
             return lyrics;
         }
 
-        private ILyricsApi GetRandomApi()
+        private ILyricsApi GetRandomApi(IList<ILyricsApi> pipe)
         {
             ILyricsApi api = null;
 
-            if (lyricsApisPipe.Count > 0)
+            if (pipe.Count > 0)
             {
-                var rnd = new Random();
-                int index = rnd.Next(lyricsApisPipe.Count);
-                api = lyricsApisPipe[index];
-                lyricsApisPipe.RemoveAt(index);
+                int index;
+
+                lock (this.random)
+                {
+                    index = this.random.Next(pipe.Count);
+                }
+
+                api = pipe[index];
+                pipe.RemoveAt(index);
             }
 
             return api;

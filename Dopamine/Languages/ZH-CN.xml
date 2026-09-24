@@ -348,6 +348,7 @@
   <Text Key="Add_Lyrics">添加歌词</Text>
   <Text Key="Save_In_Audio_File">保存至文件</Text>
   <Text Key="Download_Lyrics_Automatically">自动获取歌词</Text>
+  <Text Key="Show_Lyrics_In_Playback_Controls">控制栏歌词</Text>
   <Text Key="Download_Artist_Information_From_Lastfm_Automatically">从 Last.fm 自动获取艺术家信息</Text>
   <Text Key="Username">用户名</Text>
   <Text Key="Password">密码</Text>
