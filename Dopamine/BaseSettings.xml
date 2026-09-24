@@ -2,7 +2,7 @@
 <Settings>
   <Namespace Name="Configuration">
     <Setting Name="Version">
-      <Value>119</Value>
+      <Value>120</Value>
     </Setting>
     <Setting Name="IsPortable">
       <Value>False</Value>
@@ -58,7 +58,7 @@
   </Namespace>
   <Namespace Name="CoverSizes">
     <Setting Name="ArtistsCoverSize">
-      <Value>1</Value>
+      <Value>2</Value>
     </Setting>
     <Setting Name="GenresCoverSize">
       <Value>1</Value>
@@ -69,7 +69,7 @@
   </Namespace>
   <Namespace Name="Appearance">
     <Setting Name="EnableLightTheme">
-      <Value>False</Value>
+      <Value>true</Value>
     </Setting>
     <Setting Name="ColorScheme">
       <Value>Blue</Value>
@@ -78,13 +78,13 @@
       <Value>False</Value>
     </Setting>
     <Setting Name="FollowWindowsColor">
-      <Value>False</Value>
+      <Value>true</Value>
     </Setting>
     <Setting Name="FollowAlbumCoverColor">
       <Value>False</Value>
     </Setting>
     <Setting Name="Language">
-      <Value>EN</Value>
+      <Value>ZH-CN</Value>
     </Setting>
     <Setting Name="EnableTransparency">
       <Value>True</Value>
@@ -92,7 +92,7 @@
   </Namespace>
   <Namespace Name="Behaviour">
     <Setting Name="EnableRating">
-      <Value>True</Value>
+      <Value>false</Value>
     </Setting>
     <Setting Name="EnableLove">
       <Value>False</Value>
@@ -107,7 +107,7 @@
       <Value>False</Value>
     </Setting>
     <Setting Name="CloseToTray">
-      <Value>False</Value>
+      <Value>true</Value>
     </Setting>
     <Setting Name="FollowTrack">
       <Value>True</Value>
@@ -152,7 +152,7 @@
       <Value>2</Value>
     </Setting>
     <Setting Name="ShowRemoveFromDisk">
-      <Value>False</Value>
+      <Value>true</Value>
     </Setting>
   </Namespace>
   <Namespace Name="Startup">
@@ -165,7 +165,7 @@
   </Namespace>
   <Namespace Name="Updates">
     <Setting Name="CheckAtStartup">
-      <Value>true</Value>
+      <Value>false</Value>
     </Setting>
     <Setting Name="CheckPeriodically">
       <Value>False</Value>
@@ -209,19 +209,19 @@
       <Value>1</Value>
     </Setting>
     <Setting Name="Shuffle">
-      <Value>False</Value>
+      <Value>true</Value>
     </Setting>
     <Setting Name="ShowProgressInTaskbar">
       <Value>True</Value>
     </Setting>
     <Setting Name="ShowSpectrumAnalyzer">
-      <Value>True</Value>
+      <Value>false</Value>
     </Setting>
     <Setting Name="SpectrumStyle">
       <Value>1</Value>
     </Setting>
     <Setting Name="EnableExternalControl">
-      <Value>False</Value>
+      <Value>true</Value>
     </Setting>
     <Setting Name="LoopWhenShuffle">
       <Value>True</Value>
@@ -252,10 +252,10 @@
   </Namespace>
   <Namespace Name="ColumnWidths">
     <Setting Name="ArtistsLeftPaneWidthPercent">
-      <Value>22</Value>
+      <Value>16</Value>
     </Setting>
     <Setting Name="ArtistsRightPaneWidthPercent">
-      <Value>35</Value>
+      <Value>30</Value>
     </Setting>
     <Setting Name="GenresLeftPaneWidthPercent">
       <Value>22</Value>
@@ -264,7 +264,7 @@
       <Value>35</Value>
     </Setting>
     <Setting Name="AlbumsLeftPaneWidthPercent">
-      <Value>65</Value>
+      <Value>78</Value>
     </Setting>
     <Setting Name="PlaylistsLeftPaneWidthPercent">
       <Value>30</Value>
@@ -286,7 +286,7 @@
   </Namespace>
   <Namespace Name="Indexing">
     <Setting Name="ShowAllFoldersInCollection">
-      <Value>True</Value>
+      <Value>false</Value>
     </Setting>
     <Setting Name="IgnoreRemovedFiles">
       <Value>True</Value>
@@ -322,7 +322,7 @@
   </Namespace>
   <Namespace Name="Discord">
     <Setting Name="EnableDiscordRichPresence">
-      <Value>True</Value>
+      <Value>false</Value>
     </Setting>
   </Namespace>
   <Namespace Name="Lyrics">
@@ -332,6 +332,9 @@
     <Setting Name="CenterLyrics">
       <Value>False</Value>
     </Setting>
+    <Setting Name="ShowInPlaybackControls">
+      <Value>True</Value>
+    </Setting>
     <Setting Name="FontSize">
       <Value>18</Value>
     </Setting>
@@ -339,10 +342,10 @@
       <Value>True</Value>
     </Setting>
     <Setting Name="TimeoutSeconds">
-      <Value>0</Value>
+      <Value>5</Value>
     </Setting>
     <Setting Name="Providers">
-      <Value>lololyrics;lyricwikia;metrolyrics</Value>
+      <Value>neteaselyrics</Value>
     </Setting>
   </Namespace>
   <Namespace Name="Covers">
@@ -357,7 +360,7 @@
   </Namespace>
   <Namespace Name="MediaKeys">
     <Setting Name="UseAppCommandMediaKeys">
-      <Value>False</Value>
+      <Value>true</Value>
     </Setting>
   </Namespace>
 </Settings>

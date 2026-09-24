@@ -13,6 +13,9 @@
         <i:EventTrigger EventName="MouseEnter">
             <i:InvokeCommandAction Command="{Binding PlaylistNotificationMouseEnterCommand}"/>
         </i:EventTrigger>
+        <i:EventTrigger EventName="MouseLeave">
+            <i:InvokeCommandAction Command="{Binding PlaylistNotificationMouseLeaveCommand}"/>
+        </i:EventTrigger>
     </i:Interaction.Triggers>
 
     <Grid>
@@ -50,8 +53,25 @@
                     DockPanel.Dock="Left" 
                     VerticalAlignment="Center" 
                     Foreground="{DynamicResource Brush_Accent}" 
-                    FontSize="14" />
-                <TextBlock Margin="10,0,0,0" Text="{Binding AddedTracksToPlaylistText}" TextTrimming="CharacterEllipsis" Foreground="{DynamicResource Brush_PrimaryText}" VerticalAlignment="Center" />
+                    FontSize="14"
+                    Visibility="{Binding IsShowingLyric, Converter={StaticResource InvertingBooleanToVisibilityConverter}}" />
+                <TextBlock Text="{Binding AddedTracksToPlaylistText}" VerticalAlignment="Center">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Foreground" Value="{DynamicResource Brush_PrimaryText}"/>
+                            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+                            <Setter Property="Margin" Value="10,0,0,0"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsShowingLyric}" Value="True">
+                                    <Setter Property="Foreground" Value="{DynamicResource Brush_Accent}"/>
+                                    <Setter Property="TextAlignment" Value="Center"/>
+                                    <Setter Property="TextTrimming" Value="None"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </DockPanel>
             <Border.Style>
                 <Style>

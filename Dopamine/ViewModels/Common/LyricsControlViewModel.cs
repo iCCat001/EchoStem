@@ -8,6 +8,7 @@ using Dopamine.Core.Prism;
 using Dopamine.Data.Entities;
 using Dopamine.Data.Metadata;
 using Dopamine.Services.I18n;
+using Dopamine.Services.Lyrics;
 using Dopamine.Services.Metadata;
 using Dopamine.Services.Playback;
 using Dopamine.ViewModels.Common.Base;
@@ -26,10 +27,9 @@ namespace Dopamine.ViewModels.Common
     public class LyricsControlViewModel : ContextMenuViewModelBase
     {
         private IContainerProvider container;
-        private ILocalizationInfo info;
         private IMetadataService metadataService;
         private IPlaybackService playbackService;
-        private II18nService i18NService;
+        private ILyricsService lyricsService;
         private LyricsViewModel lyricsViewModel;
         private TrackViewModel previousTrack;
         private int contentSlideInFrom;
@@ -45,7 +45,7 @@ namespace Dopamine.ViewModels.Common
         private int refreshTimerIntervalMilliseconds = 500;
         private bool isNowPlayingPageActive;
         private bool isNowPlayingLyricsPageActive;
-        private LyricsFactory lyricsFactory;
+        private bool forceRefreshLyrics;
 
         public DelegateCommand RefreshLyricsCommand { get; set; }
 
@@ -74,11 +74,10 @@ namespace Dopamine.ViewModels.Common
         public LyricsControlViewModel(IContainerProvider container) : base(container)
         {
             this.container = container;
-            this.info = container.Resolve<ILocalizationInfo>();
             this.metadataService = container.Resolve<IMetadataService>();
             this.playbackService = container.Resolve<IPlaybackService>();
+            this.lyricsService = container.Resolve<ILyricsService>();
             this.eventAggregator = container.Resolve<IEventAggregator>();
-            this.i18NService = container.Resolve<II18nService>();
 
             this.highlightTimer.Interval = this.highlightTimerIntervalMilliseconds;
             this.highlightTimer.Elapsed += HighlightTimer_Elapsed;
@@ -93,9 +92,6 @@ namespace Dopamine.ViewModels.Common
             this.playbackService.PlaybackResumed += (_, __) => this.highlightTimer.Start();
 
             this.metadataService.MetadataChanged += (_) => this.RestartRefreshTimer();
-
-            I18NService_LanguageChanged(null, null);
-            this.i18NService.LanguageChanged += I18NService_LanguageChanged;                  
 
             SettingsClient.SettingChanged += (_, e) =>
             {
@@ -123,7 +119,11 @@ namespace Dopamine.ViewModels.Common
                 this.RestartRefreshTimer();
             });
 
-            this.RefreshLyricsCommand = new DelegateCommand(() => this.RestartRefreshTimer(), () => !this.IsDownloadingLyrics);
+            this.RefreshLyricsCommand = new DelegateCommand(() =>
+            {
+                this.forceRefreshLyrics = true;
+                this.RestartRefreshTimer();
+            }, () => !this.IsDownloadingLyrics);
             ApplicationCommands.RefreshLyricsCommand.RegisterCommand(this.RefreshLyricsCommand);
 
             this.playbackService.PlaybackSuccess += (_, e) =>
@@ -135,12 +135,6 @@ namespace Dopamine.ViewModels.Common
             this.ClearLyrics(null); // Makes sure the loading animation can be shown even at first start
 
             this.RestartRefreshTimer();
-        }
-
-        private void I18NService_LanguageChanged(object sender, EventArgs e)
-        {
-            this.lyricsFactory = new LyricsFactory(SettingsClient.Get<int>("Lyrics", "TimeoutSeconds"),
-                SettingsClient.Get<string>("Lyrics", "Providers"), this.info);
         }
 
         private void RefreshTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -194,91 +188,33 @@ namespace Dopamine.ViewModels.Common
 
             this.StopHighlighting();
 
-            FileMetadata fmd = await this.metadataService.GetFileMetadataAsync(track.Path);
-
-            await Task.Run(() =>
+            // If we're in editing mode, delay changing the lyrics.
+            if (this.LyricsViewModel != null && this.LyricsViewModel.IsEditing)
             {
-                // If we're in editing mode, delay changing the lyrics.
-                if (this.LyricsViewModel != null && this.LyricsViewModel.IsEditing)
-                {
-                    this.updateLyricsAfterEditingTimer.Start();
-                    return;
-                }
+                this.updateLyricsAfterEditingTimer.Start();
+                return;
+            }
 
-                // No FileMetadata available: clear the lyrics.
-                if (fmd == null)
-                {
-                    this.ClearLyrics(track);
-                    return;
-                }
-            });
+            bool forceRefresh = this.forceRefreshLyrics;
+            this.forceRefreshLyrics = false;
 
             try
             {
-                Lyrics lyrics = null;
-                bool mustDownloadLyrics = false;
+                Lyrics lyrics;
 
-                await Task.Run(async () =>
+                if (!forceRefresh && this.lyricsService.TryGetLyrics(track.Path, out lyrics))
                 {
-                    // Try to get lyrics from the audio file
-                    lyrics = new Lyrics(fmd != null && fmd.Lyrics.Value != null ? fmd.Lyrics.Value : String.Empty, string.Empty);
-                    lyrics.SourceType = SourceTypeEnum.Audio;
-
-                    // If the audio file has no lyrics, try to find lyrics in a local lyrics file.
-                    if (!lyrics.HasText)
-                    {
-                        var lrcFile = Path.Combine(Path.GetDirectoryName(fmd.Path), Path.GetFileNameWithoutExtension(fmd.Path) + FileFormats.LRC);
-
-                        if (File.Exists(lrcFile))
-                        {
-                            using (var fs = new FileStream(lrcFile, FileMode.Open, FileAccess.Read))
-                            {
-                                using (var sr = new StreamReader(fs, Encoding.Default))
-                                {
-                                    lyrics = new Lyrics(await sr.ReadToEndAsync(), String.Empty);
-                                    if (lyrics.HasText)
-                                    {
-                                        lyrics.SourceType = SourceTypeEnum.Lrc;
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-
-                        // If we still don't have lyrics and the user enabled automatic download of lyrics: try to download them online.
-                        if (SettingsClient.Get<bool>("Lyrics", "DownloadLyrics"))
-                        {
-                            string artist = fmd.Artists != null && fmd.Artists.Values != null && fmd.Artists.Values.Length > 0 ? fmd.Artists.Values[0] : string.Empty;
-                            string title = fmd.Title != null && fmd.Title.Value != null ? fmd.Title.Value : string.Empty;
-
-                            if (!string.IsNullOrWhiteSpace(artist) & !string.IsNullOrWhiteSpace(title)) mustDownloadLyrics = true;
-                        }
-                    }
-                });
-
-                // No lyrics were found in the file: try to download.
-                if (mustDownloadLyrics)
+                    // The lyrics were prefetched when the track started playing: show them
+                    // immediately, without waiting for any download.
+                    await this.SetLyricsAsync(track, lyrics);
+                }
+                else
                 {
                     this.IsDownloadingLyrics = true;
-
-                    try
-                    {
-                        lyrics = await this.lyricsFactory.GetLyricsAsync(fmd.Artists.Values[0], fmd.Title.Value);
-                        lyrics.SourceType = SourceTypeEnum.Online;
-                    }
-                    catch (Exception ex)
-                    {
-                        LogClient.Error("Could not get lyrics online {0}. Exception: {1}", track.Path, ex.Message);
-                    }
-
+                    lyrics = await this.lyricsService.GetLyricsAsync(track, forceRefresh);
                     this.IsDownloadingLyrics = false;
+                    await this.SetLyricsAsync(track, lyrics);
                 }
-
-                await Task.Run(() =>
-                            {
-                                this.LyricsViewModel = new LyricsViewModel(container, track);
-                                this.LyricsViewModel.SetLyrics(lyrics);
-                            });
             }
             catch (Exception ex)
             {
@@ -289,6 +225,15 @@ namespace Dopamine.ViewModels.Common
             }
 
             this.StartHighlighting();
+        }
+
+        private async Task SetLyricsAsync(TrackViewModel track, Lyrics lyrics)
+        {
+            await Task.Run(() =>
+            {
+                this.LyricsViewModel = new LyricsViewModel(container, track);
+                this.LyricsViewModel.SetLyrics(lyrics);
+            });
         }
 
         private async Task HighlightLyricsLineAsync()

@@ -5,7 +5,7 @@
     <ApiUrl>https://www.digimezzo.com/content/software/updateapi.php?function=addversion</ApiUrl>
   </Publishing>
   <Packaging>
-    <PackageDirectory>C:\Temp\Dopamine</PackageDirectory>
+    <PackageDirectory>D:\Projects\1Developing\EchoStem\Publish</PackageDirectory>
     <Installable>
       <WixBinDirectory>C:\Program Files (x86)\WiX Toolset v3.14\bin</WixBinDirectory>
     </Installable>

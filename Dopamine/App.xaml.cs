@@ -305,6 +305,10 @@ namespace Dopamine
                 );
                 Container.Resolve<IExternalControlService>();
                 Container.Resolve<IRichPresenceService>();
+
+                // Start the lyrics service early, so lyrics are prefetched as soon as a track
+                // starts playing (instead of when the lyrics page is opened).
+                Container.Resolve<ILyricsService>();
             }
 
             void RegisterViews()
