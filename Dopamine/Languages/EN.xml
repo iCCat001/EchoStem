@@ -274,6 +274,7 @@
   <Text Key="Error_Adding_Genres_To_Now_Playing">An error occurred while adding genres to now playing. Please consult the log file for more information.</Text>
   <Text Key="Error_Adding_Playlists_To_Now_Playing">An error occurred while adding playlists to now playing. Please consult the log file for more information.</Text>
   <Text Key="Play_All">Play all</Text>
+  <Text Key="Play_Album">Play album</Text>
   <Text Key="Shuffle_All">Shuffle all</Text>
   <Text Key="See_You_Later">See you later!</Text>
   <Text Key="Website">Website</Text>

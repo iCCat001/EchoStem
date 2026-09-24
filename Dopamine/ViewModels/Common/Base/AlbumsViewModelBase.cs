@@ -66,6 +66,8 @@ namespace Dopamine.ViewModels.Common.Base
 
         public DelegateCommand ShuffleSelectedAlbumsCommand { get; set; }
 
+        public DelegateCommand PlaySelectedAlbumsCommand { get; set; }
+
         public double UpscaledCoverSize => this.CoverSize * Constants.CoverUpscaleFactor;
 
         public bool IsSmallCoverSizeSelected => this.selectedCoverSize == CoverSizeType.Small;
@@ -148,6 +150,7 @@ namespace Dopamine.ViewModels.Common.Base
             // Commands
             this.ToggleAlbumOrderCommand = new DelegateCommand(() => this.ToggleAlbumOrder());
             this.ShuffleSelectedAlbumsCommand = new DelegateCommand(async () => await this.playbackService.EnqueueAlbumsAsync(this.SelectedAlbums, true, false));
+            this.PlaySelectedAlbumsCommand = new DelegateCommand(async () => await this.playbackService.EnqueueAlbumsAsync(this.SelectedAlbums, false, false));
             this.AddAlbumsToPlaylistCommand = new DelegateCommand<string>(async (playlistName) => await this.AddAlbumsToPlaylistAsync(this.SelectedAlbums, playlistName));
             this.EditAlbumCommand = new DelegateCommand(() => this.EditSelectedAlbum(), () => !this.IsIndexing);
             this.AddAlbumsToNowPlayingCommand = new DelegateCommand(async () => await this.AddAlbumsToNowPlayingAsync(this.SelectedAlbums));
