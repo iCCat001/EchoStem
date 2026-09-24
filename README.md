@@ -1,3 +1,14 @@
+# EchoStem
+
+EchoStem is an unofficial, personal, opinionated fork of digimezzo's Dopamine-Windows, customized as a local music player for my own preferences.
+
+> **Note:** The content below is the original README from the upstream project.
+>
+> Original project: [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows)
+
+---
+
+
 ![Dopamine](Dopamine.full.png)
 
 # Dopamine (for Windows)
