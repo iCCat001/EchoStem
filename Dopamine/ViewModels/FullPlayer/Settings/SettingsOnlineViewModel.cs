@@ -33,6 +33,7 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
         private bool checkBoxDownloadArtistInformationChecked;
         private bool checkBoxDownloadLyricsChecked;
         private bool checkBoxShowLyricsInPlaybackControlsChecked;
+        private bool checkBoxSaveOnlineLyricsToLocalChecked;
         private bool checkBoxChartLyricsChecked;
         private bool checkBoxLoloLyricsChecked;
         private bool checkBoxMetroLyricsChecked;
@@ -177,6 +178,16 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
             {
                 SettingsClient.Set<bool>("Lyrics", "ShowInPlaybackControls", value, true);
                 SetProperty<bool>(ref this.checkBoxShowLyricsInPlaybackControlsChecked, value);
+            }
+        }
+
+        public bool CheckBoxSaveOnlineLyricsToLocalChecked
+        {
+            get { return this.checkBoxSaveOnlineLyricsToLocalChecked; }
+            set
+            {
+                SettingsClient.Set<bool>("Lyrics", "SaveOnlineLyricsToLocal", value, true);
+                SetProperty<bool>(ref this.checkBoxSaveOnlineLyricsToLocalChecked, value);
             }
         }
 
@@ -341,6 +352,7 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
                 this.checkBoxEnableDiscordRichPresence = SettingsClient.Get<bool>("Discord", "EnableDiscordRichPresence");
                 this.checkBoxDownloadLyricsChecked = SettingsClient.Get<bool>("Lyrics", "DownloadLyrics");
                 this.checkBoxShowLyricsInPlaybackControlsChecked = SettingsClient.Get<bool>("Lyrics", "ShowInPlaybackControls");
+                this.checkBoxSaveOnlineLyricsToLocalChecked = SettingsClient.Get<bool>("Lyrics", "SaveOnlineLyricsToLocal");
 
                 string lyricsProviders = SettingsClient.Get<string>("Lyrics", "Providers");
 

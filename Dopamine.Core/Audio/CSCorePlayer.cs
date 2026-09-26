@@ -543,6 +543,10 @@ namespace Dopamine.Core.Audio
             public CSCorePlayer player;
             private readonly FftProvider fftProvider;
             private readonly ISoundOut soundOut;
+            private readonly ICollection<EventHandler<SingleBlockReadEventArgs>> inputStreamList;
+            private readonly EventHandler<SingleBlockReadEventArgs> singleBlockReadHandler;
+            private readonly PropertyChangedEventHandler playerPropertyChangedHandler;
+            private bool isRegistered;
 
             public bool IsPlaying => this.player.isPlaying;
 
@@ -550,29 +554,70 @@ namespace Dopamine.Core.Audio
                 ICollection<EventHandler<SingleBlockReadEventArgs>> inputStreamList)
             {
                 this.player = player;
-                this.player.PropertyChanged += (_, __) => PropertyChanged(_, __);
+                this.inputStreamList = inputStreamList;
+
+                this.playerPropertyChangedHandler = (_, __) => PropertyChanged(_, __);
+                this.player.PropertyChanged += this.playerPropertyChangedHandler;
+
                 this.soundOut = player.soundOut;
 
                 fftProvider = new FftProvider(2, FftSize.Fft1024);
 
-                if (channel != SpectrumChannel.Stereo)
+                if (channel == SpectrumChannel.Left)
                 {
-                    if (channel == SpectrumChannel.Left)
-                    {
-                        if (this.player.notificationSource != null) this.player.notificationSource.SingleBlockRead += InputStream_LeftSample;
-                        inputStreamList.Add(InputStream_LeftSample);
-                    }
-                    if (channel == SpectrumChannel.Right)
-                    {
-                        if (this.player.notificationSource != null) this.player.notificationSource.SingleBlockRead += InputStream_RightSample;
-                        inputStreamList.Add(InputStream_RightSample);
-                    }
+                    this.singleBlockReadHandler = InputStream_LeftSample;
+                }
+                else if (channel == SpectrumChannel.Right)
+                {
+                    this.singleBlockReadHandler = InputStream_RightSample;
                 }
                 else
                 {
-                    if (this.player.notificationSource != null) this.player.notificationSource.SingleBlockRead += InputStream_Sample;
-                    inputStreamList.Add(InputStream_Sample);
+                    this.singleBlockReadHandler = InputStream_Sample;
                 }
+
+                this.Register();
+            }
+
+            private void Register()
+            {
+                if (this.isRegistered)
+                {
+                    return;
+                }
+
+                this.isRegistered = true;
+
+                if (this.player.notificationSource != null)
+                {
+                    this.player.notificationSource.SingleBlockRead += this.singleBlockReadHandler;
+                }
+
+                if (!this.inputStreamList.Contains(this.singleBlockReadHandler))
+                {
+                    this.inputStreamList.Add(this.singleBlockReadHandler);
+                }
+            }
+
+            // Removes this player from the audio block pipeline. Without this, every new wrapper
+            // would keep receiving audio blocks forever (CPU and memory would grow during
+            // playback). Called by SpectrumAnalyzer.UnregisterSoundPlayer.
+            public void Unregister()
+            {
+                if (!this.isRegistered)
+                {
+                    return;
+                }
+
+                this.isRegistered = false;
+
+                if (this.player.notificationSource != null)
+                {
+                    this.player.notificationSource.SingleBlockRead -= this.singleBlockReadHandler;
+                }
+
+                this.inputStreamList.Remove(this.singleBlockReadHandler);
+                this.player.PropertyChanged -= this.playerPropertyChangedHandler;
             }
 
             private void InputStream_Sample(object sender, SingleBlockReadEventArgs e)

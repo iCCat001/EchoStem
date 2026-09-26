@@ -569,8 +569,15 @@ namespace Dopamine
             LogClient.Info("### FORCED STOP of {0}, version {1} ###", ProductInformation.ApplicationName, ProcessExecutable.AssemblyVersion());
 
             // Stop playing (This avoids remaining processes in Task Manager)
-            var playbackService = ServiceLocator.Current.GetInstance<IPlaybackService>();
-            playbackService.Stop();
+            try
+            {
+                var playbackService = ServiceLocator.Current.GetInstance<IPlaybackService>();
+                playbackService.Stop();
+            }
+            catch (Exception)
+            {
+                // The service locator is not available when the failure occurs during startup.
+            }
 
             // Emergency save of the settings
             SettingsClient.Write();

@@ -162,7 +162,7 @@ namespace Dopamine.ViewModels.Common
         private void SpectrumStyleFlames()
         {
             this.SpectrumStyle = SpectrumStyle.Flames;
-            this.BlurRadius = 20;
+            this.BlurRadius = 10;
             this.SpectrumBarCount = 40;
             this.SpectrumEllipseWidth = 324;
             this.SpectrumWidth = 162;

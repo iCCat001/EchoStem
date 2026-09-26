@@ -235,7 +235,19 @@ namespace Dopamine.Services.Shell
             // Navigate to content
             this.regionManager.RequestNavigate(RegionNames.PlayerTypeRegion, screenName);
 
+            // Switching to the mini player hides the full player: let those pages release their
+            // retained lists to save memory. They are reloaded when shown again.
+            if (isMiniPlayer)
+            {
+                this.ReleaseInactivePageLists();
+            }
+
             this.canSaveWindowGeometry = true;
+        }
+
+        public void ReleaseInactivePageLists()
+        {
+            this.eventAggregator.GetEvent<ReleaseInactivePageLists>().Publish(null);
         }
 
         private void SetFullPlayer()

@@ -152,12 +152,19 @@
                             </StackPanel>
                         </Button>
                         <Button HorizontalAlignment="Right"
-                                Content="{DynamicResource Language_Add_To_Now_Playing}"
                                 Style="{StaticResource TransparentButton}"
+                                VerticalContentAlignment="Center"
                                 FontSize="13"
                                 Foreground="{DynamicResource Brush_SecondaryText}"
                                 ToolTip="{DynamicResource Language_Add_To_Now_Playing}"
-                                Command="{Binding AddAlbumsToNowPlayingCommand}"/>
+                                Command="{Binding AddAlbumsToNowPlayingCommand}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#xE710;" Style="{StaticResource SegoeAssets}" FontSize="16"
+                                           Margin="0,1,5,0" Foreground="{DynamicResource Brush_SecondaryText}" />
+                                <TextBlock FontSize="13" Text="{DynamicResource Language_Add_To_Now_Playing}"
+                                           Foreground="{DynamicResource Brush_SecondaryText}"/>
+                            </StackPanel>
+                        </Button>
                     </Grid>
                     <dc:MultiSelectListBox x:Name="ListBoxTracks"
                                                          VirtualizingStackPanel.IsVirtualizing="True"

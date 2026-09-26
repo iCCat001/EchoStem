@@ -49,6 +49,8 @@ namespace Dopamine.ViewModels.Common
 
         public DelegateCommand RefreshLyricsCommand { get; set; }
 
+        public DelegateCommand RefreshFromOnlineCommand { get; set; }
+
         public int ContentSlideInFrom
         {
             get { return this.contentSlideInFrom; }
@@ -68,6 +70,7 @@ namespace Dopamine.ViewModels.Common
             {
                 SetProperty<bool>(ref this.isDownloadingLyrics, value);
                 this.RefreshLyricsCommand.RaiseCanExecuteChanged();
+                this.RefreshFromOnlineCommand?.RaiseCanExecuteChanged();
             }
         }
 
@@ -125,6 +128,8 @@ namespace Dopamine.ViewModels.Common
                 this.RestartRefreshTimer();
             }, () => !this.IsDownloadingLyrics);
             ApplicationCommands.RefreshLyricsCommand.RegisterCommand(this.RefreshLyricsCommand);
+
+            this.RefreshFromOnlineCommand = new DelegateCommand(async () => await this.RefreshFromOnlineAsync(), () => !this.IsDownloadingLyrics);
 
             this.playbackService.PlaybackSuccess += (_, e) =>
             {
@@ -234,6 +239,40 @@ namespace Dopamine.ViewModels.Common
                 this.LyricsViewModel = new LyricsViewModel(container, track);
                 this.LyricsViewModel.SetLyrics(lyrics);
             });
+        }
+
+        // Re-fetches the lyrics from the online sources, overwriting the local .lrc file when the
+        // result is found. Invoked by the "get lyrics again from online" button.
+        private async Task RefreshFromOnlineAsync()
+        {
+            TrackViewModel track = this.playbackService.CurrentTrack;
+
+            if (track == null)
+            {
+                return;
+            }
+
+            this.IsDownloadingLyrics = true;
+
+            try
+            {
+                Lyrics lyrics = await this.lyricsService.GetLyricsFromOnlineAsync(track);
+
+                if (lyrics != null && lyrics.HasText)
+                {
+                    this.StopHighlighting();
+                    await this.SetLyricsAsync(track, lyrics);
+                    this.StartHighlighting();
+                }
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("Could not get lyrics from online for Track {0}. Exception: {1}", track.Path, ex.Message);
+            }
+            finally
+            {
+                this.IsDownloadingLyrics = false;
+            }
         }
 
         private async Task HighlightLyricsLineAsync()

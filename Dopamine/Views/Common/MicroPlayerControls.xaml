@@ -9,16 +9,23 @@
              xmlns:prismMvvm="clr-namespace:Prism.Mvvm;assembly=Prism.Wpf"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
+             HorizontalContentAlignment="Stretch"
              prismMvvm:ViewModelLocator.AutoWireViewModel="False">
 
-    <StackPanel Orientation="Horizontal">
-        <ToggleButton x:Name="PlaylistButton" Style="{StaticResource TransparentToggleButton}" Width="30" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="0,0,13,0" ToolTip="{DynamicResource Language_Playlist}" Command="{x:Static cp:ApplicationCommands.MicroPlayerPlaylistButtonCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}">
-            <Grid>
-                <TextBlock Text="&#xEA37;" Style="{StaticResource SegoeAssets}" Foreground="{DynamicResource Brush_PrimaryText}" FontSize="20" Visibility="{Binding IsChecked,ElementName=PlaylistButton,Converter={StaticResource InvertingBooleanToVisibilityConverter}}"/>
-                <TextBlock Text="&#xEA37;" Style="{StaticResource SegoeAssets}" Foreground="{DynamicResource Brush_Accent}" FontSize="20" Visibility="{Binding IsChecked,ElementName=PlaylistButton,Converter={StaticResource BooleanToVisibilityConverter}}"/>
-            </Grid>
-        </ToggleButton>
-        <pv:PlaybackControls Margin="0,0,13,0"/>
-        <commonviews:PopupVolumeControls ToolTip="{DynamicResource Language_Volume}" Width="30" Height="30"/>
-    </StackPanel>
+    <!-- The whole control bar (playlist, playback controls, volume) is the notification/lyrics
+         region, so the lyrics overlay covers all of it. -->
+    <commonviews:PlaybackControlsWithPlaylistNotification HorizontalAlignment="Stretch" LeftAlignLyrics="True" LyricsLeftMargin="20" LyricsRightMargin="15">
+        <commonviews:PlaybackControlsWithPlaylistNotification.ControlsContent>
+            <StackPanel Orientation="Horizontal">
+                <ToggleButton Style="{StaticResource TransparentToggleButton}" Width="30" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="0,0,13,0" ToolTip="{DynamicResource Language_Playlist}" Command="{x:Static cp:ApplicationCommands.MicroPlayerPlaylistButtonCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}">
+                    <Grid>
+                        <TextBlock Text="&#xEA37;" Style="{StaticResource SegoeAssets}" Foreground="{DynamicResource Brush_PrimaryText}" FontSize="20" Visibility="{Binding IsChecked,RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}},Converter={StaticResource InvertingBooleanToVisibilityConverter}}"/>
+                        <TextBlock Text="&#xEA37;" Style="{StaticResource SegoeAssets}" Foreground="{DynamicResource Brush_Accent}" FontSize="20" Visibility="{Binding IsChecked,RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}},Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </Grid>
+                </ToggleButton>
+                <pv:PlaybackControls Margin="0,0,13,0"/>
+                <commonviews:PopupVolumeControls ToolTip="{DynamicResource Language_Volume}" Width="30" Height="30"/>
+            </StackPanel>
+        </commonviews:PlaybackControlsWithPlaylistNotification.ControlsContent>
+    </commonviews:PlaybackControlsWithPlaylistNotification>
 </UserControl>

@@ -349,6 +349,10 @@
   <Text Key="Save_In_Audio_File">Save in audio file</Text>
   <Text Key="Download_Lyrics_Automatically">Download lyrics automatically</Text>
   <Text Key="Show_Lyrics_In_Playback_Controls">Lyrics in the playback controls</Text>
+  <Text Key="Save_Online_Lyrics_To_Local">Save online lyrics to local</Text>
+  <Text Key="Local_Lyrics">Local lyrics</Text>
+  <Text Key="About_Fork_Notice">This is a personal, unofficial fork of Dopamine (digimezzo/Dopamine-Windows), modified for personal use, made by C-Cat and DeepSeek V4.1.</Text>
+  <Text Key="Refetch_Lyrics_From_Online">Get lyrics again from an online source</Text>
   <Text Key="Download_Artist_Information_From_Lastfm_Automatically">Download artist information from Last.fm automatically</Text>
   <Text Key="Username">Username</Text>
   <Text Key="Password">Password</Text>

@@ -22,11 +22,11 @@ using Dopamine.Core.Audio;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace Dopamine.Controls
 {
@@ -43,7 +43,7 @@ namespace Dopamine.Controls
         private const double dbScale = (maxDBValue - minDBValue);
         private const int defaultRefreshInterval = 25;
 
-        private readonly DispatcherTimer animationTimer;
+        private readonly Stopwatch renderStopwatch = new Stopwatch();
         private Canvas spectrumCanvas;
         private ISpectrumPlayer soundPlayer;
         private readonly List<Shape> barShapes = new List<Shape>();
@@ -58,6 +58,7 @@ namespace Dopamine.Controls
         private int[] barIndexMax;
         private int[] barLogScaleIndexMax;
         private int peakFallDelay = 10;
+        private bool isSubscribedToRendering;
 
         public static readonly DependencyProperty AnimationStyleProperty = DependencyProperty.Register("AnimationStyle", typeof(SpectrumAnimationStyle), typeof(SpectrumAnalyzer), new PropertyMetadata(SpectrumAnimationStyle.Nervous, null));
 
@@ -232,7 +233,6 @@ namespace Dopamine.Controls
 
         protected virtual void OnRefreshIntervalChanged(int oldValue, int newValue)
         {
-            animationTimer.Interval = TimeSpan.FromMilliseconds(newValue);
         }
 
         public int RefreshInterval
@@ -254,12 +254,6 @@ namespace Dopamine.Controls
 
         public SpectrumAnalyzer()
         {
-            this.animationTimer = new DispatcherTimer(DispatcherPriority.ApplicationIdle)
-            {
-                Interval = TimeSpan.FromMilliseconds(defaultRefreshInterval)
-            };
-
-            this.animationTimer.Tick += animationTimer_Tick;
         }
 
         public override void OnApplyTemplate()
@@ -278,8 +272,6 @@ namespace Dopamine.Controls
         protected override void OnRender(DrawingContext dc)
         {
             base.OnRender(dc);
-            this.UpdateBarLayout();
-            this.UpdateSpectrum();
         }
 
         protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
@@ -294,20 +286,53 @@ namespace Dopamine.Controls
             this.UnregisterSoundPlayer();
 
             this.soundPlayer = soundPlayer;
-            this.soundPlayer.PropertyChanged += soundPlayer_PropertyChanged;
             this.UpdateBarLayout();
-            this.animationTimer.Start();
+            this.StartRendering();
         }
 
         public void UnregisterSoundPlayer()
         {
-            this.animationTimer.Stop();
+            this.StopRendering();
 
             if (soundPlayer != null)
             {
-                this.soundPlayer.PropertyChanged -= soundPlayer_PropertyChanged;
+                this.soundPlayer.Unregister();
                 this.soundPlayer = null;
             }
+        }
+
+        private void StartRendering()
+        {
+            if (this.isSubscribedToRendering)
+            {
+                return;
+            }
+
+            this.isSubscribedToRendering = true;
+            this.renderStopwatch.Restart();
+            CompositionTarget.Rendering += CompositionTarget_Rendering;
+        }
+
+        private void StopRendering()
+        {
+            if (!this.isSubscribedToRendering)
+            {
+                return;
+            }
+
+            this.isSubscribedToRendering = false;
+            CompositionTarget.Rendering -= CompositionTarget_Rendering;
+        }
+
+        private void CompositionTarget_Rendering(object sender, EventArgs e)
+        {
+            if (this.renderStopwatch.ElapsedMilliseconds < this.RefreshInterval)
+            {
+                return;
+            }
+
+            this.renderStopwatch.Restart();
+            this.UpdateSpectrum();
         }
 
         private void UpdateSpectrum()
@@ -393,17 +418,16 @@ namespace Dopamine.Controls
                             this.channelPeakData[barIndex] = (float)(peakYPos + (this.peakFallDelay * this.channelPeakData[barIndex])) / ((float)(this.peakFallDelay + 1));
                         }
 
-                        double xCoord = this.BarSpacing + (this.BarWidth * barIndex) + (this.BarSpacing * barIndex) + 1;
+                        double scaleY = height > 0 ? Math.Min(barHeight / height, 1.0) : 0;
+                        double peakScaleY = height > 0 ? Math.Min(this.channelPeakData[barIndex] / height, 1.0) : 0;
 
                         switch (this.AnimationStyle)
                         {
                             case SpectrumAnimationStyle.Nervous:
-                                this.barShapes[barIndex].Margin = new Thickness(xCoord, (height - 1) - barHeight, 0, 0);
-                                this.barShapes[barIndex].Height = barHeight;
+                                ((ScaleTransform)this.barShapes[barIndex].RenderTransform).ScaleY = scaleY;
                                 break;
                             case SpectrumAnimationStyle.Gentle:
-                                this.barShapes[barIndex].Margin = new Thickness(xCoord, (height - 1) - this.channelPeakData[barIndex], 0, 0);
-                                this.barShapes[barIndex].Height = this.channelPeakData[barIndex];
+                                ((ScaleTransform)this.barShapes[barIndex].RenderTransform).ScaleY = peakScaleY;
                                 break;
                             default:
                                 break;
@@ -425,7 +449,7 @@ namespace Dopamine.Controls
                     return;
                 }
 
-                this.animationTimer.Stop();
+                // When paused and all bars have fallen to zero, there is nothing left to draw.
             }
             catch (IndexOutOfRangeException)
             {
@@ -482,36 +506,22 @@ namespace Dopamine.Controls
             for (int i = 0; i < actualBarCount; i++)
             {
                 double xCoord = this.BarSpacing + (this.BarWidth * i) + (this.BarSpacing * i) + 1;
-                Rectangle barRectangle = new Rectangle()
+                var barRectangle = new Rectangle()
                 {
-                    Margin = new Thickness(xCoord, height, 0, 0),
                     Width = this.BarWidth,
-                    Height = 0,
-                    Fill = this.BarBackground
+                    Height = height > 0 ? height : 1,
+                    Fill = this.BarBackground,
+                    RenderTransformOrigin = new Point(0.5, 1),
+                    RenderTransform = new ScaleTransform(1, 0)
                 };
+
+                Canvas.SetLeft(barRectangle, xCoord);
+                Canvas.SetTop(barRectangle, 0);
 
                 this.barShapes.Add(barRectangle);
             }
 
             foreach (Shape shape in barShapes) this.spectrumCanvas.Children.Add(shape);
-        }
-
-        private void soundPlayer_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case "IsPlaying":
-                    if (this.soundPlayer.IsPlaying && !this.animationTimer.IsEnabled)
-                    {
-                        this.animationTimer.Start();
-                    }
-                    break;
-            }
-        }
-
-        private void animationTimer_Tick(object sender, EventArgs e)
-        {
-            this.UpdateSpectrum();
         }
 
         private void spectrumCanvas_SizeChanged(object sender, SizeChangedEventArgs e)

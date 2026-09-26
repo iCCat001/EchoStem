@@ -11,15 +11,20 @@
              d:DesignHeight="300" d:DesignWidth="300"
              prismMvvm:ViewModelLocator.AutoWireViewModel="False">
 
-    <!-- Playback controls -->
-    <StackPanel Panel.ZIndex="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom" Height="70">
-        <ToggleButton x:Name="PlaylistButton" Style="{StaticResource TransparentToggleButton}" Width="30" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Center" Margin="0,0,13,0" ToolTip="{DynamicResource Language_Playlist}" Command="{x:Static cp:ApplicationCommands.CoverPlayerPlaylistButtonCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}">
-            <Grid>
-                <TextBlock Text="&#xEA37;" Style="{StaticResource SegoeAssets}" Foreground="{DynamicResource Brush_PrimaryText}" FontSize="20" Visibility="{Binding IsChecked,ElementName=PlaylistButton,Converter={StaticResource InvertingBooleanToVisibilityConverter}}"/>
-                <TextBlock Text="&#xEA37;" Style="{StaticResource SegoeAssets}" Foreground="{DynamicResource Brush_Accent}" FontSize="20" Visibility="{Binding IsChecked,ElementName=PlaylistButton,Converter={StaticResource BooleanToVisibilityConverter}}"/>
-            </Grid>
-        </ToggleButton>
-        <pv:PlaybackControls Margin="0,0,13,0"/>
-        <commonviews:PopupVolumeControls Width="30" Height="30" ToolTip="{DynamicResource Language_Volume}" VerticalAlignment="Center"/>
-    </StackPanel>
+    <!-- The whole control bar (playlist, playback controls, volume) is the notification/lyrics
+         region, so the lyrics overlay covers all of it. -->
+    <commonviews:PlaybackControlsWithPlaylistNotification Panel.ZIndex="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Height="70">
+        <commonviews:PlaybackControlsWithPlaylistNotification.ControlsContent>
+            <StackPanel Orientation="Horizontal">
+                <ToggleButton Style="{StaticResource TransparentToggleButton}" Width="30" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" VerticalAlignment="Center" Margin="0,0,13,0" ToolTip="{DynamicResource Language_Playlist}" Command="{x:Static cp:ApplicationCommands.CoverPlayerPlaylistButtonCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}">
+                    <Grid>
+                        <TextBlock Text="&#xEA37;" Style="{StaticResource SegoeAssets}" Foreground="{DynamicResource Brush_PrimaryText}" FontSize="20" Visibility="{Binding IsChecked,RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}},Converter={StaticResource InvertingBooleanToVisibilityConverter}}"/>
+                        <TextBlock Text="&#xEA37;" Style="{StaticResource SegoeAssets}" Foreground="{DynamicResource Brush_Accent}" FontSize="20" Visibility="{Binding IsChecked,RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}},Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </Grid>
+                </ToggleButton>
+                <pv:PlaybackControls Margin="0,0,13,0"/>
+                <commonviews:PopupVolumeControls Width="30" Height="30" ToolTip="{DynamicResource Language_Volume}" VerticalAlignment="Center"/>
+            </StackPanel>
+        </commonviews:PlaybackControlsWithPlaylistNotification.ControlsContent>
+    </commonviews:PlaybackControlsWithPlaylistNotification>
 </UserControl>

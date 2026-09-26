@@ -122,7 +122,7 @@
                 <commonviews:PlaybackInfoControl DockPanel.Dock="Top" Height="50" Width="286" Margin="20,10,0,0" TitleFontSize="22" TitleFontWeight="Light" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <Grid>
                     <commonviews:SpectrumAnalyzerControl x:Name="SpectrumAnalyzer" Panel.ZIndex="0" VerticalAlignment="Bottom" HorizontalAlignment="Left"/>
-                    <commonviews:MicroPlayerControls Panel.ZIndex="1" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                    <commonviews:MicroPlayerControls Panel.ZIndex="1" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
                 </Grid>
             </DockPanel>
         </DockPanel>

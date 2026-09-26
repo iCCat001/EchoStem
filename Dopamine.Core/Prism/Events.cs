@@ -56,4 +56,13 @@ namespace Dopamine.Core.Prism
     public class ToggleArtistOrderCommand : PubSubEvent<object>
     {
     }
+
+    /// <summary>
+    /// Requests pages which are currently not shown to release their retained lists, to save
+    /// memory (e.g. when switching to the mini player or minimizing to the tray). They are
+    /// reloaded when shown again.
+    /// </summary>
+    public class ReleaseInactivePageLists : PubSubEvent<object>
+    {
+    }
 }
