@@ -20,7 +20,7 @@ namespace Dopamine.ViewModels.Common
         private ICacheService cacheService;
         private IMetadataService metadataService;
         private SlideDirection slideDirection;
-        private byte[] previousArtwork;
+        private long? previousArtworkLength;
         private byte[] artwork;
 
         public CoverArtViewModel CoverArtViewModel
@@ -71,7 +71,9 @@ namespace Dopamine.ViewModels.Common
 
             await Task.Run(async () =>
             {
-                this.previousArtwork = this.artwork;
+                // Only the length of the previous artwork is remembered (instead of keeping the
+                // whole byte array), so a single cover image is held in memory at a time.
+                this.previousArtworkLength = this.artwork != null ? this.artwork.LongLength : (long?)null;
 
                 // No track selected: clear cover art.
                 if (track == null)
@@ -92,17 +94,19 @@ namespace Dopamine.ViewModels.Common
                     LogClient.Error("Could not get artwork for Track {0}. Exception: {1}", track.Path, ex.Message);
                 }
 
-                this.artwork = artwork;
+                long? artworkLength = artwork != null ? artwork.LongLength : (long?)null;
 
-                // Verify if the artwork changed
-                if ((this.artwork != null & this.previousArtwork != null) && (this.artwork.LongLength == this.previousArtwork.LongLength))
+                // Verify if the artwork changed (by length, as before).
+                if (this.previousArtworkLength != null & artworkLength != null && this.previousArtworkLength == artworkLength)
                 {
                     return;
                 }
-                else if (this.artwork == null & this.previousArtwork == null & this.CoverArtViewModel != null)
+                else if (this.previousArtworkLength == null & artworkLength == null & this.CoverArtViewModel != null)
                 {
                     return;
                 }
+
+                this.artwork = artwork;
 
                 if (artwork != null)
                 {

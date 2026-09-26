@@ -18,6 +18,12 @@ namespace Dopamine.Services.Shell
 
         void CheckIfTabletMode(bool isInitializing);
 
+        /// <summary>
+        /// Asks the pages which are not currently shown to release their retained lists (to save
+        /// memory). They are reloaded when shown again.
+        /// </summary>
+        void ReleaseInactivePageLists();
+
         void SaveWindowLocation(double top, double left, WindowState state);
 
         void SaveWindowState(WindowState state);

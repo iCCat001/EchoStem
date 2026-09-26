@@ -52,6 +52,15 @@ namespace Dopamine.ViewModels.Common
 
         protected async override Task LoadedCommandAsync()
         {
+            this.MarkPageLoaded();
+
+            // The tracks are kept when leaving the page, so they only need to be loaded once.
+            // Loading them again on every visit would reset the scroll position.
+            if (this.listsLoaded)
+            {
+                return;
+            }
+
             // Wait for the UI to slide in
             await Task.Delay(Constants.NowPlayingListLoadDelay);  
 
@@ -69,6 +78,8 @@ namespace Dopamine.ViewModels.Common
                     await this.GetTracksAsync();
                 }
             };
+
+            this.listsLoaded = true;
         }
 
         public void DragOver(IDropInfo dropInfo)

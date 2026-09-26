@@ -50,6 +50,12 @@ namespace Dopamine.ViewModels.Common.Base
         private ObservableCollection<TrackViewModel> tracks;
         private CollectionViewSource tracksCvs;
         private IList<TrackViewModel> selectedTracks;
+        protected bool listsLoaded;
+        private bool isPageLoaded;
+        private System.Timers.Timer listsReleaseTimer;
+
+        // After this delay of not being shown, a page releases its retained lists to save memory.
+        private const int ListsReleaseDelaySeconds = 300;
 
         public TrackViewModel PreviousPlayingTrack { get; set; }
 
@@ -118,6 +124,13 @@ namespace Dopamine.ViewModels.Common.Base
             };
 
             this.playbackService.PlaybackCountersChanged += PlaybackService_PlaybackCountersChanged;
+
+            this.listsReleaseTimer = new System.Timers.Timer(ListsReleaseDelaySeconds * 1000.0) { AutoReset = false };
+            this.listsReleaseTimer.Elapsed += (_, __) => this.ReleaseListsIfUnused();
+
+            // Release the lists on demand (e.g. when switching to the mini player or minimizing
+            // to the tray), but only when this page is not currently shown.
+            this.eventAggregator.GetEvent<ReleaseInactivePageLists>().Subscribe(_ => this.ReleaseListsIfUnused());
         }
 
         protected virtual async void MetadataChangedHandlerAsync(MetadataChangedEventArgs e)
@@ -538,14 +551,64 @@ namespace Dopamine.ViewModels.Common.Base
 
         protected async override Task LoadedCommandAsync()
         {
+            this.MarkPageLoaded();
+
+            // The lists are kept when leaving the page, so they only need to be filled once.
+            // Filling them again on every visit would reset the scroll position.
+            if (this.listsLoaded)
+            {
+                return;
+            }
+
             await Task.Delay(Constants.CommonListLoadDelay);  // Wait for the UI to slide in
             await this.FillListsAsync(); // Fill all the lists
+
+            this.listsLoaded = true;
         }
 
-        protected async override Task UnloadedCommandAsync()
+        protected override Task UnloadedCommandAsync()
         {
-            this.EmptyListsAsync(); // Empty all the lists
-            GC.Collect(); // For the memory maniacs
+            this.MarkPageUnloaded();
+
+            // Intentionally do not empty the lists here: keeping them preserves the scroll
+            // position and the selection when navigating back to this page. They are released
+            // after the page has not been shown for a while (see ReleaseListsIfUnused).
+            return Task.CompletedTask;
+        }
+
+        protected void MarkPageLoaded()
+        {
+            this.isPageLoaded = true;
+            this.listsReleaseTimer?.Stop();
+        }
+
+        protected void MarkPageUnloaded()
+        {
+            this.isPageLoaded = false;
+            this.listsReleaseTimer?.Stop();
+            this.listsReleaseTimer?.Start();
+        }
+
+        // Releases the retained lists of a page which has not been shown for a while, to give its
+        // memory back. The page is reloaded when shown again.
+        private void ReleaseListsIfUnused()
+        {
+            try
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    if (this.isPageLoaded || !this.listsLoaded)
+                    {
+                        return;
+                    }
+
+                    this.EmptyListsAsync();
+                    this.listsLoaded = false;
+                });
+            }
+            catch
+            {
+            }
         }
 
         protected override void EditSelectedTracks()

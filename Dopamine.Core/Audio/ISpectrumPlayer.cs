@@ -27,5 +27,10 @@ namespace Dopamine.Core.Audio
         bool IsPlaying { get; }
         bool GetFFTData(ref float[] fftDataBuffer);
         int GetFFTFrequencyIndex(int frequency);
+
+        /// <summary>
+        /// Stops feeding this player with audio blocks and releases its subscriptions.
+        /// </summary>
+        void Unregister();
     }
 }

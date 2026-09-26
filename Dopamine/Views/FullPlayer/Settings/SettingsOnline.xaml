@@ -109,6 +109,8 @@
             <dc:Windows10ToggleSwitch x:Name="CheckBoxDownloadLyrics" Margin="0,10,0,0" HorizontalAlignment="Left" FontSize="12" OnLabel="{DynamicResource Language_Yes}" OffLabel="{DynamicResource Language_No}" Foreground="{DynamicResource Brush_PrimaryText}" Accent="{DynamicResource Brush_Accent}" IsChecked="{Binding CheckBoxDownloadLyricsChecked}"/>
             <TextBlock Margin="0,20,0,0" Text="{DynamicResource Language_Show_Lyrics_In_Playback_Controls}" Foreground="{DynamicResource Brush_PrimaryText}"/>
             <dc:Windows10ToggleSwitch x:Name="CheckBoxShowLyricsInPlaybackControls" Margin="0,10,0,0" HorizontalAlignment="Left" FontSize="12" OnLabel="{DynamicResource Language_Yes}" OffLabel="{DynamicResource Language_No}" Foreground="{DynamicResource Brush_PrimaryText}" Accent="{DynamicResource Brush_Accent}" IsChecked="{Binding CheckBoxShowLyricsInPlaybackControlsChecked}"/>
+            <TextBlock Margin="0,20,0,0" Text="{DynamicResource Language_Save_Online_Lyrics_To_Local}" Foreground="{DynamicResource Brush_PrimaryText}"/>
+            <dc:Windows10ToggleSwitch x:Name="CheckBoxSaveOnlineLyricsToLocal" Margin="0,10,0,0" HorizontalAlignment="Left" FontSize="12" OnLabel="{DynamicResource Language_Yes}" OffLabel="{DynamicResource Language_No}" Foreground="{DynamicResource Brush_PrimaryText}" Accent="{DynamicResource Brush_Accent}" IsChecked="{Binding CheckBoxSaveOnlineLyricsToLocalChecked}"/>
             <StackPanel Margin="0,20,0,0" IsHitTestVisible="{Binding CheckBoxDownloadLyricsChecked}">
                 <TextBlock Text="{DynamicResource Language_Lyrics_Download_Timeout}" Foreground="{DynamicResource Brush_PrimaryText}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,15,0,0">

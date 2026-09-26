@@ -36,10 +36,11 @@ namespace Dopamine.Core.Base
         public static double CoverLargeSize = 180;
         public static double TrackCoverSize = 40;
 
-        // We're forcing PathToImageConverter to create thumbnails that are 2.5 larger than what will
-        // be displayed at Windows Desktop scaling of 100%. That way, when the Windows Desktop scaling
-        // is set to 250%, images won't need to be upscaled by Windows and they'll remain sharp.
-        public static readonly double CoverUpscaleFactor = 2.5;
+        // We're forcing PathToImageConverter to create thumbnails that are larger than what will
+        // be displayed at Windows Desktop scaling of 100%, so they stay sharp on high DPI screens.
+        // Kept modest (1.5) to limit the memory used by the decoded cover bitmaps, which matters
+        // for large collections.
+        public static readonly double CoverUpscaleFactor = 1.5;
         public static readonly int CoverQualityPercent = 80;
 
         // Headphone icon

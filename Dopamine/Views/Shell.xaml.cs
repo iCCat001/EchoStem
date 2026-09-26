@@ -117,6 +117,9 @@ namespace Dopamine.Views
                 {
                     LogClient.Error("Could not hide main window from ALT-TAB menu. Exception: {0}", ex.Message);
                 }
+
+                // Save memory: pages which are no longer visible release their retained lists.
+                this.shellService.ReleaseInactivePageLists();
             }
             else
             {
@@ -414,6 +417,9 @@ namespace Dopamine.Views
                     {
                         LogClient.Error("Could not hide main window from ALT-TAB menu. Exception: {0}", ex.Message);
                     }
+
+                    // Save memory: pages which are no longer visible release their retained lists.
+                    this.shellService.ReleaseInactivePageLists();
                 }
             }
             else

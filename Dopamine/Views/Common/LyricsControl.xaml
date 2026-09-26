@@ -281,7 +281,7 @@
                 <StackPanel Margin="20,0,0,0" Orientation="Horizontal" 
                             Visibility="{Binding LyricsViewModel.SourceType, Converter={StaticResource LyricSourceVisibilityConverter}, ConverterParameter={x:Static lyrics:SourceTypeEnum.Lrc}}">
                     <TextBlock VerticalAlignment="Center" FontSize="17" Foreground="{DynamicResource Brush_SecondaryText}" Style="{StaticResource SegoeAssets}" Text="&#xE73E;" />
-                    <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource Brush_SecondaryText}" Text="{DynamicResource Language_Lyrics_File}" />
+                    <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource Brush_SecondaryText}" Text="{DynamicResource Language_Local_Lyrics}" />
                 </StackPanel>
                 <!-- Source: online -->
                 <StackPanel Margin="20,0,0,0" Orientation="Horizontal" 
@@ -290,6 +290,19 @@
                     <TextBlock Margin="5,0,0,0" VerticalAlignment="Center" Foreground="{DynamicResource Brush_SecondaryText}" Text="{Binding LyricsViewModel.Lyrics.Source}" />
                 </StackPanel>
             </Grid>
+            <!-- Re-fetch the lyrics from the online sources -->
+            <Button Margin="20,10,20,0" HorizontalAlignment="Left"
+                    Style="{StaticResource TransparentButton}"
+                    Command="{Binding RefreshFromOnlineCommand}"
+                    ToolTip="{DynamicResource Language_Refetch_Lyrics_From_Online}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE72C;" Style="{StaticResource SegoeAssets}" FontSize="17"
+                               VerticalAlignment="Center" Foreground="{DynamicResource Brush_SecondaryText}" />
+                    <TextBlock Margin="5,0,0,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush_SecondaryText}"
+                               Text="{DynamicResource Language_Refetch_Lyrics_From_Online}" />
+                </StackPanel>
+            </Button>
         </StackPanel>
         <!--  Lyrics  -->
         <ContentControl Margin="10,20,0,0" Content="{Binding LyricsViewModel}" />

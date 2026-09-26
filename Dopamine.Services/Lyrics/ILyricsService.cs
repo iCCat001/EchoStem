@@ -22,6 +22,13 @@ namespace Dopamine.Services.Lyrics
         bool TryGetLyrics(string path, out LyricsModel lyrics);
 
         /// <summary>
+        /// Forces a fetch from the online lyrics sources, ignoring any local lyrics. When lyrics
+        /// are found they are stored as the local .lrc file (overwriting it when it already
+        /// exists) and the cache is updated.
+        /// </summary>
+        Task<LyricsModel> GetLyricsFromOnlineAsync(TrackViewModel track);
+
+        /// <summary>
         /// Starts fetching lyrics in the background (audio tags, local .lrc file, then online)
         /// and caches the result, so they are available immediately when needed.
         /// </summary>

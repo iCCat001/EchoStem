@@ -211,6 +211,7 @@
     <Compile Include="Converters\InvertingBooleanConverter.cs" />
     <Compile Include="Converters\LoveConverter.cs" />
     <Compile Include="Converters\LyricSourceVisibilityConverter.cs" />
+    <Compile Include="Converters\LyricsContentMarginConverter.cs" />
     <Compile Include="Converters\NullImageConverter.cs" />
     <Compile Include="Converters\PathToImageConverter.cs" />
     <Compile Include="Converters\PercentSizeConverter.cs" />

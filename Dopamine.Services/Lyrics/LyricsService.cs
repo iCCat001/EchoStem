@@ -1,4 +1,4 @@
-using Digimezzo.Foundation.Core.Logging;
+﻿using Digimezzo.Foundation.Core.Logging;
 using Digimezzo.Foundation.Core.Settings;
 using Dopamine.Core.Api.Lyrics;
 using Dopamine.Core.Base;
@@ -25,6 +25,14 @@ namespace Dopamine.Services.Lyrics
     {
         // Upper bound for the lyrics cache, to avoid unbounded growth during long sessions.
         private const int MaxCachedLyrics = 100;
+
+        // The internal marker which separates a lyric line from its translation. Local .lrc files
+        // store both lines separately (bilingual .lrc format) instead of this marker.
+        private const string TranslationMarker = "%%Trans%%";
+
+        // Legacy: an invisible separator which used to be written to .lrc files. Kept so files
+        // created by a previous version still read correctly.
+        private const string LegacyTranslationSeparator = "\u2063"; // INVISIBLE SEPARATOR
 
         private readonly IMetadataService metadataService;
         private readonly IPlaybackService playbackService;
@@ -194,6 +202,66 @@ namespace Dopamine.Services.Lyrics
             });
         }
 
+        public async Task<LyricsModel> GetLyricsFromOnlineAsync(TrackViewModel track)
+        {
+            if (track == null)
+            {
+                return new LyricsModel();
+            }
+
+            FileMetadata fmd = await this.metadataService.GetFileMetadataAsync(track.Path);
+
+            if (fmd == null)
+            {
+                return new LyricsModel();
+            }
+
+            string artist = fmd.Artists != null && fmd.Artists.Values != null && fmd.Artists.Values.Length > 0 ? fmd.Artists.Values[0] : string.Empty;
+            string title = fmd.Title != null && fmd.Title.Value != null ? fmd.Title.Value : string.Empty;
+
+            if (string.IsNullOrWhiteSpace(artist) || string.IsNullOrWhiteSpace(title))
+            {
+                return new LyricsModel();
+            }
+
+            LyricsModel onlineLyrics = null;
+
+            try
+            {
+                onlineLyrics = await this.lyricsFactory.GetLyricsAsync(artist, title);
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("Could not get lyrics online for Track {0}. Exception: {1}", track.Path, ex.Message);
+            }
+
+            if (onlineLyrics == null || !onlineLyrics.HasText)
+            {
+                return new LyricsModel();
+            }
+
+            onlineLyrics.SourceType = SourceTypeEnum.Online;
+
+            // Force the local .lrc file to be replaced. When it does not exist yet, only create
+            // it when saving online lyrics locally is enabled.
+            string lrcFile = Path.Combine(Path.GetDirectoryName(fmd.Path), Path.GetFileNameWithoutExtension(fmd.Path) + FileFormats.LRC);
+
+            if (System.IO.File.Exists(lrcFile) || SettingsClient.Get<bool>("Lyrics", "SaveOnlineLyricsToLocal"))
+            {
+                await this.SaveLyricsToLrcFileAsync(lrcFile, track.Path, onlineLyrics.Text);
+            }
+
+            // Update the cache so the freshly fetched lyrics are used immediately.
+            if (this.lyricsCache.Count >= MaxCachedLyrics)
+            {
+                this.lyricsCache.Clear();
+            }
+
+            this.lyricsCache[track.Path] = onlineLyrics;
+
+            return onlineLyrics;
+        }
+
         private async Task<LyricsModel> AcquireAndCacheAsync(TrackViewModel track)
         {
             LyricsModel lyrics = await this.AcquireLyricsAsync(track);
@@ -219,31 +287,26 @@ namespace Dopamine.Services.Lyrics
                 return lyrics;
             }
 
-            // 1. Lyrics stored in the audio file tags.
-            lyrics = new LyricsModel(
-                fmd.Lyrics != null && fmd.Lyrics.Value != null ? fmd.Lyrics.Value : string.Empty,
-                string.Empty,
-                SourceTypeEnum.Audio);
+            string lrcFile = Path.Combine(Path.GetDirectoryName(fmd.Path), Path.GetFileNameWithoutExtension(fmd.Path) + FileFormats.LRC);
 
-            // 2. A local .lrc file with the same name next to the audio file.
-            if (!lyrics.HasText)
+            // 1. A local .lrc file with the same name next to the audio file. This has the
+            //    highest priority: when it exists, it is used as the lyrics.
+            if (System.IO.File.Exists(lrcFile))
             {
                 try
                 {
-                    string lrcFile = Path.Combine(Path.GetDirectoryName(fmd.Path), Path.GetFileNameWithoutExtension(fmd.Path) + FileFormats.LRC);
-
-                    if (System.IO.File.Exists(lrcFile))
+                    using (var fs = new FileStream(lrcFile, FileMode.Open, FileAccess.Read))
                     {
-                        using (var fs = new FileStream(lrcFile, FileMode.Open, FileAccess.Read))
+                        // UTF-8 (with BOM) is detected automatically; BOM-less files keep using
+                        // the system default encoding.
+                        using (var sr = new StreamReader(fs, Encoding.Default, true))
                         {
-                            using (var sr = new StreamReader(fs, Encoding.Default))
-                            {
-                                var lrcLyrics = new LyricsModel(await sr.ReadToEndAsync(), string.Empty, SourceTypeEnum.Lrc);
+                            string rawText = await sr.ReadToEndAsync();
+                            var lrcLyrics = new LyricsModel(MergeTranslations(rawText), string.Empty, SourceTypeEnum.Lrc);
 
-                                if (lrcLyrics.HasText)
-                                {
-                                    lyrics = lrcLyrics;
-                                }
+                            if (lrcLyrics.HasText)
+                            {
+                                lyrics = lrcLyrics;
                             }
                         }
                     }
@@ -252,6 +315,15 @@ namespace Dopamine.Services.Lyrics
                 {
                     LogClient.Error("Could not read the local lyrics file for Track {0}. Exception: {1}", track.Path, ex.Message);
                 }
+            }
+
+            // 2. Lyrics stored in the audio file tags.
+            if (!lyrics.HasText)
+            {
+                lyrics = new LyricsModel(
+                    fmd.Lyrics != null && fmd.Lyrics.Value != null ? fmd.Lyrics.Value : string.Empty,
+                    string.Empty,
+                    SourceTypeEnum.Audio);
             }
 
             // 3. Online lyrics, when automatic download is enabled.
@@ -270,6 +342,13 @@ namespace Dopamine.Services.Lyrics
                         {
                             onlineLyrics.SourceType = SourceTypeEnum.Online;
                             lyrics = onlineLyrics;
+
+                            // Optionally store the downloaded lyrics as a local .lrc file, so that
+                            // they are used directly (and shown as "Local lyrics") next time.
+                            if (SettingsClient.Get<bool>("Lyrics", "SaveOnlineLyricsToLocal"))
+                            {
+                                await this.SaveLyricsToLrcFileAsync(lrcFile, track.Path, onlineLyrics.Text);
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -280,6 +359,126 @@ namespace Dopamine.Services.Lyrics
             }
 
             return lyrics;
+        }
+
+        private async Task SaveLyricsToLrcFileAsync(string lrcFile, string trackPath, string lyricsText)
+        {
+            try
+            {
+                using (var fs = new FileStream(lrcFile, FileMode.Create, FileAccess.Write))
+                {
+                    using (var sw = new StreamWriter(fs, new UTF8Encoding(true)))
+                    {
+                        await sw.WriteAsync(SplitTranslations(lyricsText));
+                    }
+                }
+
+                LogClient.Info("Saved the online lyrics to the local file {0} for Track {1}", lrcFile, trackPath);
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("Could not save the online lyrics to the local file {0} for Track {1}. Exception: {2}", lrcFile, trackPath, ex.Message);
+            }
+        }
+
+        // Splits lines like "[00:21.062]original%%Trans%%translation" into two bilingual .lrc
+        // lines sharing the same timestamp. The .lrc file stays human readable, without any
+        // special separator character.
+        private static string SplitTranslations(string lyricsText)
+        {
+            string normalized = lyricsText.Replace("\r\n", "\n").Replace('\r', '\n');
+            var output = new List<string>();
+
+            foreach (string line in normalized.Split('\n'))
+            {
+                int markerIndex = line.IndexOf(TranslationMarker, StringComparison.Ordinal);
+
+                if (markerIndex < 0)
+                {
+                    output.Add(line);
+                    continue;
+                }
+
+                string original = line.Substring(0, markerIndex);
+                string translation = line.Substring(markerIndex + TranslationMarker.Length);
+                string timestamp = GetLeadingTimestamp(line);
+
+                if (timestamp != null)
+                {
+                    output.Add(original);
+                    output.Add(timestamp + translation);
+                }
+                else
+                {
+                    output.Add(original + " " + translation);
+                }
+            }
+
+            return string.Join("\n", output);
+        }
+
+        // Merges consecutive .lrc lines sharing the same timestamp back into the internal
+        // "original%%Trans%%translation" form.
+        private static string MergeTranslations(string rawText)
+        {
+            string normalized = rawText
+                .Replace(LegacyTranslationSeparator, TranslationMarker)
+                .Replace("\r\n", "\n")
+                .Replace('\r', '\n');
+            string[] lines = normalized.Split('\n');
+            var output = new List<string>();
+
+            int i = 0;
+            while (i < lines.Length)
+            {
+                string timestamp = GetLeadingTimestamp(lines[i]);
+
+                if (timestamp != null && i + 1 < lines.Length && GetLeadingTimestamp(lines[i + 1]) == timestamp)
+                {
+                    output.Add(lines[i] + TranslationMarker + lines[i + 1].Substring(timestamp.Length));
+                    i += 2;
+                }
+                else
+                {
+                    output.Add(lines[i]);
+                    i++;
+                }
+            }
+
+            return string.Join("\n", output);
+        }
+
+        // Returns the leading run of time like timestamps (e.g. "[00:21.062]" or
+        // "[00:01][00:02]"), or null when the line does not start with one (e.g. [ar:...]).
+        private static string GetLeadingTimestamp(string line)
+        {
+            if (string.IsNullOrEmpty(line) || line[0] != '[')
+            {
+                return null;
+            }
+
+            int index = 0;
+
+            while (index < line.Length && line[index] == '[')
+            {
+                int close = line.IndexOf(']', index);
+
+                if (close < 0)
+                {
+                    return null;
+                }
+
+                string inner = line.Substring(index + 1, close - index - 1);
+
+                if (!Regex.IsMatch(inner, @"^\d+:\d+(\.\d+)?$"))
+                {
+                    return null;
+                }
+
+                index = close + 1;
+            }
+
+            return index > 0 ? line.Substring(0, index) : null;
         }
 
         private int GetNumberOfFollowingEmptyLines(ref PeekStringReader reader)

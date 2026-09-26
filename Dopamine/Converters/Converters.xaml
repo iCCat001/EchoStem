@@ -21,4 +21,5 @@
   <local:EnumConverter x:Key="EnumConverter" />
   <local:BooleanToCenterTextAlignmentConverter x:Key="BooleanToCenterTextAlignmentConverter" />
   <local:BooleanToCenterHorizontalAlignmentConverter x:Key="BooleanToCenterHorizontalAlignmentConverter" />
+  <local:LyricsContentMarginConverter x:Key="LyricsContentMarginConverter" />
 </ResourceDictionary>

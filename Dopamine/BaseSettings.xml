@@ -2,7 +2,7 @@
 <Settings>
   <Namespace Name="Configuration">
     <Setting Name="Version">
-      <Value>120</Value>
+      <Value>121</Value>
     </Setting>
     <Setting Name="IsPortable">
       <Value>False</Value>
@@ -333,6 +333,9 @@
       <Value>False</Value>
     </Setting>
     <Setting Name="ShowInPlaybackControls">
+      <Value>True</Value>
+    </Setting>
+    <Setting Name="SaveOnlineLyricsToLocal">
       <Value>True</Value>
     </Setting>
     <Setting Name="FontSize">
