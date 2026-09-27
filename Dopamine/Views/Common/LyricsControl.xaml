@@ -78,6 +78,7 @@
             BorderThickness="0"
             ItemsSource="{Binding LyricsLines}"
             Loaded="LyricsListBox_Loaded"
+            ScrollViewer.CanContentScroll="False"
             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
             ScrollViewer.VerticalScrollBarVisibility="Auto"
             Visibility="{Binding IsEditing, Converter={StaticResource InvertingBooleanToCollapsedConverter}}">
