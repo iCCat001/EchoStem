@@ -243,6 +243,7 @@
     <Compile Include="Update\UpdateService.cs" />
     <Compile Include="Utils\EntityUtils.cs" />
     <Compile Include="Utils\ScrollUtils.cs" />
+    <Compile Include="Utils\ScrollViewerAnimation.cs" />
     <Compile Include="Utils\SemanticZoomUtils.cs" />
     <Compile Include="Win32Input\AppCommandKeyboardHookManager.cs" />
     <Compile Include="Win32Input\IKeyboardHookManager.cs" />

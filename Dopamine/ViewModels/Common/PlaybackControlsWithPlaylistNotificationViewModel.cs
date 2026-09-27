@@ -42,6 +42,7 @@ namespace Dopamine.ViewModels.Common
         private readonly int lyricLineTimerIntervalMilliseconds = 250;
 
         private bool suppressLyrics;
+        private bool isPlaybackPaused;
         private bool isMessageActive;
         private string currentLyricLine;
         private string displayedLyricLine;
@@ -165,7 +166,17 @@ namespace Dopamine.ViewModels.Common
             this.lyricLineTimer.Elapsed += (_, __) => this.OnLyricLineTimerElapsed();
             this.lyricLineTimer.Start();
 
-            this.playbackService.PlaybackSuccess += (_, __) => this.LoadLyricsForCurrentTrack();
+            this.playbackService.PlaybackSuccess += (_, __) =>
+            {
+                this.isPlaybackPaused = false;
+                this.LoadLyricsForCurrentTrack();
+            };
+
+            this.playbackService.PlaybackPaused += (_, __) => this.OnPlaybackPaused();
+            this.playbackService.PlaybackResumed += (_, __) => this.OnPlaybackResumed();
+
+            // If the app starts with a paused track, treat it as paused right away.
+            this.isPlaybackPaused = !this.playbackService.IsPlaying && !this.playbackService.IsStopped && this.playbackService.CurrentTrack != null;
 
             if (this.playbackService.CurrentTrack != null)
             {
@@ -216,13 +227,35 @@ namespace Dopamine.ViewModels.Common
             this.UpdateLyricsAvailability();
         }
 
+        // While paused, hide the lyric and show the playback controls again (like hovering the
+        // controls does).
+        private void OnPlaybackPaused()
+        {
+            this.lyricsResumeTimer.Stop();
+            this.isPlaybackPaused = true;
+
+            if (!this.isMessageActive)
+            {
+                this.HideOverlay();
+            }
+        }
+
+        // Resuming is handled like the mouse leaving the controls: the lyric comes back after the
+        // same delay.
+        private void OnPlaybackResumed()
+        {
+            this.isPlaybackPaused = false;
+            this.lyricsResumeTimer.Stop();
+            this.lyricsResumeTimer.Start();
+        }
+
         private void RefreshLyricsPageActive()
         {
             this.isLyricsPageActive = this.isNowPlayingPageActive && this.isNowPlayingLyricsSubPageActive;
             this.UpdateLyricsAvailability();
         }
 
-        private bool IsLyricsDisplaySuppressed => this.suppressLyrics || this.isLyricsPageActive || !this.showLyricsInPlaybackControls;
+        private bool IsLyricsDisplaySuppressed => this.suppressLyrics || this.isPlaybackPaused || this.isLyricsPageActive || !this.showLyricsInPlaybackControls;
 
         // Hides the lyric overlay when it is no longer allowed, or shows the current line when
         // it becomes allowed again.
@@ -236,10 +269,9 @@ namespace Dopamine.ViewModels.Common
 
             if (this.IsLyricsDisplaySuppressed)
             {
-                if (this.IsShowingLyric)
-                {
-                    this.HideOverlay();
-                }
+                // Also hides an expired notification, which would otherwise stay visible (e.g.
+                // when the playback is paused, so no lyric replaces it).
+                this.HideOverlay();
             }
             else if (!string.IsNullOrEmpty(this.currentLyricLine))
             {
@@ -341,7 +373,13 @@ namespace Dopamine.ViewModels.Common
             this.lyricsTrackPath = path;
             this.lyricsLines = null;
             this.currentLyricLine = null;
-            this.displayedLyricLine = null;
+
+            // Clear the previous track's lyric immediately, so it does not stay visible until
+            // the new track's lyrics are loaded (or forever, when the new track has no lyrics).
+            if (!this.isMessageActive)
+            {
+                this.HideOverlay();
+            }
 
             try
             {

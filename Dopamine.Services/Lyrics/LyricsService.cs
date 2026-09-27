@@ -34,6 +34,13 @@ namespace Dopamine.Services.Lyrics
         // created by a previous version still read correctly.
         private const string LegacyTranslationSeparator = "\u2063"; // INVISIBLE SEPARATOR
 
+        // NetEase returns this placeholder instead of real lyrics for instrumental tracks. It is
+        // still shown as the lyrics, but must not be written to a local .lrc file.
+        private const string InstrumentalPlaceholder = "纯音乐，请欣赏";
+        private const string InstrumentalPlaceholderAlternative = "纯音乐,请欣赏";
+
+        private static readonly Regex LyricTimestampRegex = new Regex(@"\[\d+:\d+(?:[.:]\d+)?\]", RegexOptions.Compiled);
+
         private readonly IMetadataService metadataService;
         private readonly IPlaybackService playbackService;
         private readonly II18nService i18nService;
@@ -248,7 +255,10 @@ namespace Dopamine.Services.Lyrics
 
             if (System.IO.File.Exists(lrcFile) || SettingsClient.Get<bool>("Lyrics", "SaveOnlineLyricsToLocal"))
             {
-                await this.SaveLyricsToLrcFileAsync(lrcFile, track.Path, onlineLyrics.Text);
+                if (!IsInstrumentalPlaceholder(onlineLyrics.Text))
+                {
+                    await this.SaveLyricsToLrcFileAsync(lrcFile, track.Path, onlineLyrics.Text);
+                }
             }
 
             // Update the cache so the freshly fetched lyrics are used immediately.
@@ -345,7 +355,7 @@ namespace Dopamine.Services.Lyrics
 
                             // Optionally store the downloaded lyrics as a local .lrc file, so that
                             // they are used directly (and shown as "Local lyrics") next time.
-                            if (SettingsClient.Get<bool>("Lyrics", "SaveOnlineLyricsToLocal"))
+                            if (SettingsClient.Get<bool>("Lyrics", "SaveOnlineLyricsToLocal") && !IsInstrumentalPlaceholder(onlineLyrics.Text))
                             {
                                 await this.SaveLyricsToLrcFileAsync(lrcFile, track.Path, onlineLyrics.Text);
                             }
@@ -359,6 +369,21 @@ namespace Dopamine.Services.Lyrics
             }
 
             return lyrics;
+        }
+
+        // Detects the NetEase "纯音乐，请欣赏" placeholder, which means the track has no lyrics.
+        // Such lyrics are still displayed, but never written to a local .lrc file.
+        private static bool IsInstrumentalPlaceholder(string lyricsText)
+        {
+            if (string.IsNullOrWhiteSpace(lyricsText))
+            {
+                return false;
+            }
+
+            string stripped = LyricTimestampRegex.Replace(lyricsText, string.Empty);
+            stripped = Regex.Replace(stripped, @"\s", string.Empty);
+
+            return stripped == InstrumentalPlaceholder || stripped == InstrumentalPlaceholderAlternative;
         }
 
         private async Task SaveLyricsToLrcFileAsync(string lrcFile, string trackPath, string lyricsText)

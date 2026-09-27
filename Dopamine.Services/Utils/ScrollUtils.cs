@@ -191,12 +191,57 @@ namespace Dopamine.Services.Utils
 
             try
             {
-                ScrollToListBoxItem(box, itemObject, true);
+                ScrollToListBoxItemCenteredVertically(box, itemObject);
             }
             catch (Exception)
             {
                 throw;
             }
+        }
+
+        // Scrolls the given ListBox so that the item is vertically centered in the viewport.
+        public static void ScrollToListBoxItemCenteredVertically(ListBox box, object itemObject)
+        {
+            if (box == null || itemObject == null)
+            {
+                return;
+            }
+
+            ScrollViewer scrollViewer = (ScrollViewer)VisualTreeUtils.GetDescendantByType(box, typeof(ScrollViewer));
+
+            if (scrollViewer == null)
+            {
+                return;
+            }
+
+            // Virtualized items which are out of view don't have a container yet: bring the item
+            // into view first, so its container gets generated.
+            if (box.ItemContainerGenerator.ContainerFromItem(itemObject) == null)
+            {
+                box.ScrollIntoView(itemObject);
+                box.UpdateLayout();
+            }
+
+            FrameworkElement listBoxItem = (FrameworkElement)box.ItemContainerGenerator.ContainerFromItem(itemObject);
+
+            if (listBoxItem == null)
+            {
+                return;
+            }
+
+            GeneralTransform transform = listBoxItem.TransformToAncestor(scrollViewer);
+            double itemTopInViewport = transform.Transform(new Point(0, 0)).Y;
+            double itemTopInContent = scrollViewer.VerticalOffset + itemTopInViewport;
+
+            double targetOffset = itemTopInContent + (listBoxItem.ActualHeight / 2.0) - (scrollViewer.ViewportHeight / 2.0);
+
+            double maxOffset = scrollViewer.ExtentHeight - scrollViewer.ViewportHeight;
+            if (maxOffset < 0) maxOffset = 0;
+            if (targetOffset < 0) targetOffset = 0;
+            if (targetOffset > maxOffset) targetOffset = maxOffset;
+
+            // Animate the scroll instead of jumping to the new offset.
+            ScrollViewerAnimation.ScrollToVerticalOffset(scrollViewer, targetOffset, 350);
         }
     }
 }
