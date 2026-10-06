@@ -127,6 +127,37 @@ namespace Dopamine.Services.Dialog
             return returnValue;
         }
 
+        public bool ShowCustomDialog(object icon, int iconSize, string title, UserControl content, int width, int height, bool canResize, bool autoSize, bool showTitle, bool showCancelButton, string okText, string cancelText, Func<Task<bool>> callback, string extraButtonText, Func<Task<bool>> extraButtonCallback)
+        {
+            bool returnValue = false;
+
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                CustomDialog dialog = null;
+
+                if (icon is int)
+                {
+                    dialog = new CustomDialog(iconCharCode: (int)icon, iconSize: iconSize, title: title, content: content, width: width, height: height, canResize: canResize, autoSize: autoSize, showTitle: showTitle, showCancelButton: showCancelButton, okText: okText, cancelText: cancelText, callback: callback, extraButtonText: extraButtonText, extraButtonCallback: extraButtonCallback);
+                }
+                else if (icon is UserControl)
+                {
+                    dialog = new CustomDialog(icon: (UserControl)icon, title: title, content: content, width: width, height: height, canResize: canResize, autoSize: autoSize, showTitle: showTitle, showCancelButton: showCancelButton, okText: okText, cancelText: cancelText, callback: callback, extraButtonText: extraButtonText, extraButtonCallback: extraButtonCallback);
+                }
+
+                if (dialog != null)
+                {
+                    this.ShowDialog(dialog);
+
+                    if (dialog.DialogResult.HasValue & dialog.DialogResult.Value)
+                    {
+                        returnValue = true;
+                    }
+                }
+            });
+
+            return returnValue;
+        }
+
         public bool ShowInputDialog(int iconCharCode, int iconSize, string title, string content, string okText, string cancelText, ref string responeText)
         {
             bool returnValue = false;

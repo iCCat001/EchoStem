@@ -1,4 +1,6 @@
-﻿using Dopamine.Core.Api.Lastfm;
+﻿using Digimezzo.Foundation.Core.Settings;
+using Dopamine.Core.Api.Lastfm;
+using Dopamine.Core.Api.Netease;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -49,6 +51,19 @@ namespace Dopamine.Services.InfoDownload
             }
 
             return null;
+        }
+
+        public async Task<NeteaseTrackMetadata> GetNeteaseTrackMetadataAsync(string artist, string title)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                return null;
+            }
+
+            int timeoutSeconds = SettingsClient.Get<int>("Lyrics", "TimeoutSeconds");
+            var api = new NeteaseMetadataApi(timeoutSeconds > 0 ? timeoutSeconds : 10);
+
+            return await api.GetMetadataAsync(artist, title);
         }
     }
 }

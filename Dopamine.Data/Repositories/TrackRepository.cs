@@ -375,6 +375,37 @@ namespace Dopamine.Data.Repositories
 
             return isUpdateSuccess;
         }
+
+        public async Task<bool> AddTrackAsync(Track track)
+        {
+            bool isAddSuccess = false;
+
+            await Task.Run(() =>
+            {
+                try
+                {
+                    using (var conn = this.factory.GetConnection())
+                    {
+                        try
+                        {
+                            conn.Insert(track);
+
+                            isAddSuccess = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            LogClient.Error("Could not add the Track with path='{0}'. Exception: {1}", track.Path, ex.Message);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogClient.Error("Could not connect to the database. Exception: {0}", ex.Message);
+                }
+            });
+
+            return isAddSuccess;
+        }
         public async Task<bool> UpdateTrackFileInformationAsync(string path)
         {
             bool updateSuccess = false;

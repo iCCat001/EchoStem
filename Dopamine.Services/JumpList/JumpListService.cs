@@ -30,9 +30,9 @@ namespace Dopamine.Services.JumpList
 
                     this.jumpList.JumpItems.Add(new JumpTask
                     {
-                        Title = ResourceUtils.GetString("Language_Donate"),
+                        Title = ResourceUtils.GetString("Language_Donate_To_Original_Project_Task"),
                         Arguments = "/donate " + ContactInformation.DonateLink,
-                        Description = "",
+                        Description = ResourceUtils.GetString("Language_Donate_To_Original_Project"),
                         IconResourcePath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), Defaults.IconsLibrary + ".dll"),
                         ApplicationPath = Assembly.GetEntryAssembly().Location,
                         IconResourceIndex = 0

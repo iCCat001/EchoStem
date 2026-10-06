@@ -54,6 +54,9 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
                 case SettingsPage.Blacklist:
                     this.regionManager.RequestNavigate(RegionNames.SettingsRegion, typeof(SettingsBlacklist).FullName);
                     break;
+                case SettingsPage.Features:
+                    this.regionManager.RequestNavigate(RegionNames.SettingsRegion, typeof(SettingsFeatures).FullName);
+                    break;
                 default:
                     break;
             }

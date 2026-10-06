@@ -5,6 +5,8 @@ using NAudio.Vorbis;
 using NAudio.Wave;
 using NLayer.NAudioSupport;
 using System;
+using System.Collections.Generic;
+using System.IO;
 
 namespace Dopamine.Core.Audio
 {
@@ -19,6 +21,13 @@ namespace Dopamine.Core.Audio
     {
         private readonly bool hasMediaFoundationSupport;
 
+        // Wrapper formats which must be unwrapped before decoding (e.g. NetEase NCM). Add new
+        // formats here; the rest of the pipeline does not need to change.
+        private readonly IList<IAudioContainer> containers = new List<IAudioContainer>
+        {
+            new NcmContainer()
+        };
+
         private static readonly object mediaFoundationLock = new object();
         private static bool mediaFoundationStarted;
 
@@ -32,6 +41,26 @@ namespace Dopamine.Core.Audio
             if (string.IsNullOrWhiteSpace(filename))
             {
                 throw new ArgumentNullException(nameof(filename));
+            }
+
+            // Unwrap container formats (they hide a normal FLAC/MP3 stream inside).
+            foreach (IAudioContainer container in this.containers)
+            {
+                if (container.IsContainer(filename))
+                {
+                    string payloadExtension;
+                    Stream payload = container.OpenPayload(filename, out payloadExtension);
+
+                    WaveStream payloadStream = this.TryOpenPayloadManaged(payload, payloadExtension);
+
+                    if (payloadStream != null)
+                    {
+                        return payloadStream;
+                    }
+
+                    payload.Dispose();
+                    throw new NotSupportedException($"No decoder is available for the payload of '{filename}'.");
+                }
             }
 
             WaveStream stream = this.TryOpenWithMediaFoundation(filename);
@@ -107,6 +136,47 @@ namespace Dopamine.Core.Audio
             catch (Exception)
             {
                 // Fall through: no decoder is available for this file.
+            }
+
+            return null;
+        }
+
+        // Decodes a payload which was unwrapped from a container, using stream based readers.
+        private WaveStream TryOpenPayloadManaged(Stream payload, string extension)
+        {
+            try
+            {
+                if (extension == FileFormats.FLAC)
+                {
+                    return new FlacReader(payload);
+                }
+
+                if (extension == FileFormats.MP3)
+                {
+                    Mp3FileReaderBase.FrameDecompressorBuilder frameDecompressorBuilder =
+                        format => new Mp3FrameDecompressor(format);
+
+                    return new Mp3FileReaderBase(payload, frameDecompressorBuilder);
+                }
+
+                if (extension == FileFormats.OGG)
+                {
+                    return new VorbisWaveReader(payload);
+                }
+
+                if (extension == FileFormats.WAV)
+                {
+                    return new WaveFileReader(payload);
+                }
+
+                if (extension == FileFormats.AIFF || extension == FileFormats.AIF)
+                {
+                    return new AiffFileReader(payload);
+                }
+            }
+            catch (Exception)
+            {
+                // Fall through: no decoder is available for this payload.
             }
 
             return null;

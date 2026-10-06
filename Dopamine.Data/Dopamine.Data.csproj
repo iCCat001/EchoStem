@@ -104,6 +104,7 @@
     <Compile Include="ISQLiteConnectionFactory.cs" />
     <Compile Include="MetaDataUtils.cs" />
     <Compile Include="Metadata\FileMetadata.cs" />
+    <Compile Include="Metadata\NcmConverter.cs" />
     <Compile Include="Metadata\MetadataArtworkValue.cs" />
     <Compile Include="Metadata\MetadataRatingValue.cs" />
     <Compile Include="Metadata\MetadataValue.cs" />

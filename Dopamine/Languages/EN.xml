@@ -2,6 +2,7 @@
 <Language Code="EN" Name="English">
   <Text Key="ISO639-1">EN</Text>
   <Text Key="Ok">Ok</Text>
+  <Text Key="Ncm_Write_Not_Supported">NCM format files don't support writing</Text>
   <Text Key="Cancel">Cancel</Text>
   <Text Key="Close">Close</Text>
   <Text Key="Yes">Yes</Text>
@@ -31,7 +32,9 @@
   <Text Key="Version">Version</Text>
   <Text Key="Do_You_Like_Dopamine">Do you like Dopamine? Please click here to donate. Thank you!</Text>
   <Text Key="Donate">Donate</Text>
-  <Text Key="Donate_With_PayPal">Donate with PayPal</Text>
+  <Text Key="Donate_With_PayPal">Donate to the original Dopamine project with PayPal</Text>
+  <Text Key="Donate_To_Original_Project">Donations go to the original author (Digimezzo) and the original Dopamine project, not to this personal fork.</Text>
+  <Text Key="Donate_To_Original_Project_Task">Donate to the original project</Text>
   <Text Key="File_Types">File types</Text>
   <Text Key="File_Types_Description">These file types are supported: MP3, WMA, OGG, FLAC, M4A (AAC), AAC, WAV, OPUS, AIFF, APE.</Text>
   <Text Key="Keyboard_Shortcuts">Keyboard shortcuts</Text>
@@ -468,6 +471,18 @@
   <Text Key="Added_Track_To_Blacklist">Added {numberoftracks} song to the blacklist</Text>
   <Text Key="Added_Tracks_To_Blacklist">Added {numberoftracks} songs the blacklist</Text>
   <Text Key="Blacklist">Blacklist</Text>
+  <Text Key="Features">Features</Text>
+  <Text Key="Non_Public_Experimental_Features">Non-public experimental features</Text>
+  <Text Key="Enable_Non_Public_Experimental_Features">Enable non-public experimental features. These are unfinished or unofficial, and may not work as expected.</Text>
+  <Text Key="Enter_Password">Enter password</Text>
+  <Text Key="Ncm_Write_Not_Supported">NCM format files don't support writing</Text>
+  <Text Key="Convert_Ncm_To_Public_Format">Convert NCM to a public format</Text>
+  <Text Key="Ncm_Converted_To">The file was converted to {path}</Text>
+  <Text Key="Error_Converting_Ncm">The NCM file could not be converted. It may be corrupt, or a file with that name may already exist.</Text>
+  <Text Key="Get_From_Netease">Get from NetEase Cloud Music</Text>
+  <Text Key="Get_Lyrics_From_Online">Get lyrics from an online source</Text>
+  <Text Key="Save_And_Replace_Ncm">Save and replace NCM file</Text>
+  <Text Key="Netease_No_Result">No matching song was found on NetEase Cloud Music.</Text>
   <Text Key="Songs_In_Blacklist_Will_Be_Skipped">Songs that are in the blacklist will be skipped during playback.</Text>
   <Text Key="Remove_This_Track_From_Blacklist">Remove this song from the blacklist</Text>
   <Text Key="Confirm_Remove_Track_From_Blacklist">Are you sure you want to remove this song from the blacklist?</Text>

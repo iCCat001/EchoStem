@@ -29,6 +29,7 @@
             </Border>
             <DockPanel x:Name="DialogContent">
                 <StackPanel Margin="20" Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right">
+                    <Button x:Name="ButtonExtra" Style="{StaticResource RegularButtonAccent}" Margin="0,0,10,0" Visibility="Collapsed" Click="ButtonExtra_Click"/>
                     <Button x:Name="ButtonOK" Style="{StaticResource RegularButtonAccent}" IsDefault="True" Click="ButtonOK_Click"/>
                     <Button x:Name="ButtonCancel" Style="{StaticResource RegularButton}" IsCancel="True" Margin="10,0,0,0" Click="ButtonCancel_Click"/>
                 </StackPanel>

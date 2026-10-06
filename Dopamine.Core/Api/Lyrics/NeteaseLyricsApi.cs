@@ -1,5 +1,6 @@
-using Digimezzo.Foundation.Core.Settings;
+﻿using Digimezzo.Foundation.Core.Settings;
 using Dopamine.Core.Helpers;
+using Dopamine.Core.Utils;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -29,6 +30,13 @@ namespace Dopamine.Core.Api.Lyrics
             internal class Song
             {
                 public long id { get; set; }
+                public string name { get; set; }
+                public List<SongArtist> ar { get; set; }
+            }
+
+            internal class SongArtist
+            {
+                public string name { get; set; }
             }
         }
 
@@ -79,12 +87,27 @@ namespace Dopamine.Core.Api.Lyrics
 
         private async Task<long?> ParseTrackIdAsync(string artist, string title)
         {
+            // Searching for "title artist" can rank a different (often same-artist) song first,
+            // so look at several results and require an exact title match. If no result matches the
+            // title, retry with the title alone.
+            long? trackId = await this.SearchTrackIdAsync(title + " " + artist, title, artist, false);
+
+            if (trackId == null)
+            {
+                trackId = await this.SearchTrackIdAsync(title, title, artist, true);
+            }
+
+            return trackId;
+        }
+
+        private async Task<long?> SearchTrackIdAsync(string searchText, string title, string artist, bool returnFirstIfNoTitleMatch)
+        {
             var postContent = new[]
             {
-                new KeyValuePair<string, string>("s", title + " " + artist),
+                new KeyValuePair<string, string>("s", searchText),
                 new KeyValuePair<string, string>("type", "1"),
                 new KeyValuePair<string, string>("offset", "0"),
-                new KeyValuePair<string, string>("limit", "1")
+                new KeyValuePair<string, string>("limit", "10")
             };
 
             string response = await (await this.httpClient.PostAsync(apiSearchUrl, new FormUrlEncodedContent(postContent))).Content.ReadAsStringAsync();
@@ -101,7 +124,41 @@ namespace Dopamine.Core.Api.Lyrics
                 return null;
             }
 
-            return search.result.songs[0].id;
+            string normalizedTitle = MatchUtils.NormalizeText(title);
+            string normalizedArtist = MatchUtils.NormalizeText(artist);
+            long? titleMatch = null;
+
+            foreach (SearchModel.Song song in search.result.songs)
+            {
+                if (MatchUtils.NormalizeText(song.name) != normalizedTitle)
+                {
+                    continue;
+                }
+
+                // Prefer a result whose artist also matches.
+                if (song.ar != null && normalizedArtist.Length > 0)
+                {
+                    foreach (SearchModel.SongArtist songArtist in song.ar)
+                    {
+                        if (MatchUtils.NormalizeText(songArtist.name) == normalizedArtist)
+                        {
+                            return song.id;
+                        }
+                    }
+                }
+
+                if (titleMatch == null)
+                {
+                    titleMatch = song.id;
+                }
+            }
+
+            if (titleMatch != null)
+            {
+                return titleMatch;
+            }
+
+            return returnFirstIfNoTitleMatch ? search.result.songs[0].id : (long?)null;
         }
 
         private async Task<string> ParseLyricsAsync(long trackId)
