@@ -17,6 +17,7 @@ namespace Dopamine.Core.Base
         public static string AIF = ".aif";
         public static string AIFF = ".aiff";
         public static string APE = ".ape";
+        public static string NCM = ".ncm";
 
         // Lyrics extensions
         public static string LRC = ".lrc";
@@ -51,7 +52,8 @@ namespace Dopamine.Core.Base
             FileFormats.OPUS,
             FileFormats.AIF,
             FileFormats.AIFF,
-            FileFormats.APE
+            FileFormats.APE,
+            FileFormats.NCM
         };
 
         public static string[] SupportedStaticPlaylistExtensions = {

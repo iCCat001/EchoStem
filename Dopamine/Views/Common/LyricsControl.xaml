@@ -304,6 +304,20 @@
                                Text="{DynamicResource Language_Refetch_Lyrics_From_Online}" />
                 </StackPanel>
             </Button>
+            <!-- Convert the currently playing NCM file to a public format (non-public experimental feature) -->
+            <Button Margin="20,10,20,0" HorizontalAlignment="Left"
+                    Style="{StaticResource TransparentButton}"
+                    Command="{Binding ConvertNcmCommand}"
+                    Visibility="{Binding IsConvertNcmVisible, Converter={StaticResource BooleanToVisibilityConverter}}"
+                    ToolTip="{DynamicResource Language_Convert_Ncm_To_Public_Format}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE8AB;" Style="{StaticResource SegoeAssets}" FontSize="17"
+                               VerticalAlignment="Center" Foreground="{DynamicResource Brush_SecondaryText}" />
+                    <TextBlock Margin="5,0,0,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush_SecondaryText}"
+                               Text="{DynamicResource Language_Convert_Ncm_To_Public_Format}" />
+                </StackPanel>
+            </Button>
         </StackPanel>
         <!--  Lyrics  -->
         <ContentControl Margin="10,20,0,0" Content="{Binding LyricsViewModel}" />

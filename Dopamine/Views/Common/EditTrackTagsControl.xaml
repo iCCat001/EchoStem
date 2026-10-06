@@ -46,6 +46,12 @@
             <Button 
                         Style="{StaticResource RegularButton}" 
                         Margin="0,15,0,0" 
+                        Content="{DynamicResource Language_Get_From_Netease}" 
+                        ToolTip="{DynamicResource Language_Get_From_Netease}" 
+                        Command="{Binding GetFromNeteaseCommand}"/>
+            <Button 
+                        Style="{StaticResource RegularButton}" 
+                        Margin="0,10,0,0" 
                         Content="{Binding Source={StaticResource ExportProxy}, Path=Data, Converter={StaticResource AddEllipsisConverter}}" 
                         ToolTip="{DynamicResource Language_Export_The_Image}"
                         Command="{Binding ExportArtworkCommand}"/>

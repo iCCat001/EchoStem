@@ -344,6 +344,7 @@ namespace Dopamine
                 containerRegistry.Register<object, SettingsPlayback>(typeof(SettingsPlayback).FullName);
                 containerRegistry.Register<object, SettingsStartup>(typeof(SettingsStartup).FullName);
                 containerRegistry.Register<object, SettingsBlacklist>(typeof(SettingsBlacklist).FullName);
+                containerRegistry.Register<object, SettingsFeatures>(typeof(SettingsFeatures).FullName);
 
                 // Information
                 containerRegistry.Register<object, InformationMenu>(typeof(InformationMenu).FullName);

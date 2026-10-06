@@ -2,6 +2,7 @@
 <Language Code="ZH-CN" Name="Chinese (Simplified)">
   <Text Key="ISO639-1">ZH</Text>
   <Text Key="Ok">确认</Text>
+  <Text Key="Ncm_Write_Not_Supported">NCM格式文件不支持写入</Text>
   <Text Key="Cancel">取消</Text>
   <Text Key="Close">关闭</Text>
   <Text Key="Yes">是</Text>
@@ -31,7 +32,9 @@
   <Text Key="Version">版本</Text>
   <Text Key="Do_You_Like_Dopamine">你喜欢 Dopamine 吗？请点击捐赠，谢谢!</Text>
   <Text Key="Donate">捐赠</Text>
-  <Text Key="Donate_With_PayPal">使用 PayPal 捐赠</Text>
+  <Text Key="Donate_With_PayPal">通过 PayPal 捐赠给 Dopamine 原项目</Text>
+  <Text Key="Donate_To_Original_Project">捐赠将给予 Dopamine 的原作者（Digimezzo）及原项目，而非这个个人 fork。</Text>
+  <Text Key="Donate_To_Original_Project_Task">捐赠给原项目</Text>
   <Text Key="File_Types">文件类型</Text>
   <Text Key="File_Types_Description">支持以下文件类型: MP3, WMA, OGG, FLAC, M4A (AAC), AAC, WAV, OPUS, AIFF, APE</Text>
   <Text Key="Keyboard_Shortcuts">键盘快捷方式</Text>
@@ -468,6 +471,18 @@
   <Text Key="Added_Track_To_Blacklist">已将 {numberoftracks} 首歌曲添加到黑名单中</Text>
   <Text Key="Added_Tracks_To_Blacklist">已将 {numberoftracks} 首歌曲添加到黑名单中</Text>
   <Text Key="Blacklist">黑名单</Text>
+  <Text Key="Features">功能</Text>
+  <Text Key="Non_Public_Experimental_Features">非公开实验性功能</Text>
+  <Text Key="Enable_Non_Public_Experimental_Features">启用非公开实验性功能。这些功能尚未完成或并非官方功能，可能无法按预期工作。</Text>
+  <Text Key="Enter_Password">请输入密码</Text>
+  <Text Key="Ncm_Write_Not_Supported">NCM格式文件不支持写入</Text>
+  <Text Key="Convert_Ncm_To_Public_Format">转换NCM到公开格式</Text>
+  <Text Key="Ncm_Converted_To">文件已转换到 {path}</Text>
+  <Text Key="Error_Converting_Ncm">无法转换该NCM文件。文件可能已损坏，或目标文件已存在。</Text>
+  <Text Key="Get_From_Netease">从网易云音乐获取</Text>
+  <Text Key="Get_Lyrics_From_Online">从在线歌词源获取</Text>
+  <Text Key="Save_And_Replace_Ncm">保存并替换NCM文件</Text>
+  <Text Key="Netease_No_Result">在网易云音乐中未找到匹配的歌曲。</Text>
   <Text Key="Songs_In_Blacklist_Will_Be_Skipped">黑名单中的歌曲在播放时将被跳过。</Text>
   <Text Key="Remove_This_Track_From_Blacklist">将这首歌从黑名单中移除</Text>
   <Text Key="Confirm_Remove_Track_From_Blacklist">你确定要把这首歌从黑名单中移除吗？</Text>

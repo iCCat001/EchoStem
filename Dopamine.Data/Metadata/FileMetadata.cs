@@ -1,4 +1,5 @@
-﻿using Dopamine.Core.Base;
+﻿using Dopamine.Core.Audio;
+using Dopamine.Core.Base;
 using Dopamine.Core.Extensions;
 using System;
 using System.Linq;
@@ -9,6 +10,8 @@ namespace Dopamine.Data.Metadata
     public class FileMetadata
     {
         private TagLib.File file;
+        private NcmMetadata ncmMetadata;
+        private string filePath;
         private MetadataValue title;
         private MetadataValue album;
         private MetadataValue albumArtists;
@@ -28,17 +31,40 @@ namespace Dopamine.Data.Metadata
         public FileMetadata(string filePath)
         {
             ByteVector.UseBrokenLatin1Behavior = true; // Otherwise Latin1 is used as default, which causes characters in various languages being displayed wrong.
-            this.file = TagLib.File.Create(filePath);
+
+            this.filePath = filePath;
+
+            // NCM files are encrypted containers: TagLib can't read them. Their metadata and
+            // artwork live in the (decryptable) NetEase header, so read those instead.
+            if (NcmFile.IsNcmFile(filePath))
+            {
+                this.ncmMetadata = new NcmFile(filePath).Metadata;
+            }
+            else
+            {
+                this.file = TagLib.File.Create(filePath);
+            }
         }
 
-        public string Path => this.file.Name;
+        /// <summary>True for container formats (NCM) whose tags can't be written back to the file.</summary>
+        private bool IsNcm => this.ncmMetadata != null;
 
-        public string SafePath => this.file.Name.ToSafePath();
+        /// <summary>True when metadata can be written back to the file on disk.</summary>
+        public bool SupportsWriting => !this.IsNcm;
+
+        public string Path => this.file != null ? this.file.Name : this.filePath;
+
+        public string SafePath => this.Path.ToSafePath();
 
         public int BitRate
         {
             get
             {
+                if (this.IsNcm)
+                {
+                    return this.ncmMetadata.Bitrate;
+                }
+
                 // Workaround for a bug in taglibsharp. The Duration field  
                 // must be set before the correct AudioBitrate is returned.
                 TimeSpan dummy = this.file.Properties.Duration;
@@ -46,24 +72,31 @@ namespace Dopamine.Data.Metadata
             }
         }
 
-        public int SampleRate => this.file.Properties.AudioSampleRate;
+        public int SampleRate => this.IsNcm ? 44100 : this.file.Properties.AudioSampleRate;
 
-        public TimeSpan Duration => this.file.Properties.Duration;
+        public TimeSpan Duration => this.IsNcm ? TimeSpan.FromMilliseconds(this.ncmMetadata.Duration) : this.file.Properties.Duration;
 
-        public string Type => !string.IsNullOrEmpty(this.file.MimeType) && this.file.MimeType.Split('/').Count() > 1 ? this.file.MimeType.Split('/')[1].ToUpper() : string.Empty;
+        public string Type => this.IsNcm
+            ? (string.IsNullOrEmpty(this.ncmMetadata.Format) ? "NCM" : this.ncmMetadata.Format.ToUpper())
+            : (!string.IsNullOrEmpty(this.file.MimeType) && this.file.MimeType.Split('/').Count() > 1 ? this.file.MimeType.Split('/')[1].ToUpper() : string.Empty);
 
-        public string MimeType => this.file.MimeType;
+        public string MimeType => this.IsNcm
+            ? "audio/" + (string.IsNullOrEmpty(this.ncmMetadata.Format) ? "ncm" : this.ncmMetadata.Format.ToLower())
+            : this.file.MimeType;
 
         public MetadataValue Title
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(this.ncmMetadata.Name);
                 if (this.title == null) this.title = new MetadataValue(this.file.Tag.Title);
 
                 return this.title;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.title = value;
@@ -76,11 +109,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(this.ncmMetadata.Album);
                 if (this.album == null) this.album = new MetadataValue(this.file.Tag.Album);
                 return this.album;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.album = value;
@@ -93,11 +129,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return this.GetNcmArtists();
                 if (this.albumArtists == null) this.albumArtists = new MetadataValue(this.file.Tag.AlbumArtists);
                 return this.albumArtists;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.albumArtists = value;
@@ -110,11 +149,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return this.GetNcmArtists();
                 if (this.artists == null) this.artists = new MetadataValue(this.file.Tag.Performers);
                 return this.artists;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.artists = value;
@@ -127,12 +169,15 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(string.Empty);
                 if (this.genres == null)
                     this.genres = new MetadataValue(this.file.Tag.Genres);
                 return this.genres;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.genres = value;
@@ -145,11 +190,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(string.Empty);
                 if (this.comment == null) this.comment = new MetadataValue(this.file.Tag.Comment);
                 return this.comment;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.comment = value;
@@ -162,11 +210,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(string.Empty);
                 if (this.grouping == null) this.grouping = new MetadataValue(this.file.Tag.Grouping);
                 return this.grouping;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.grouping = value;
@@ -179,11 +230,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(string.Empty);
                 if (this.year == null) this.year = new MetadataValue(this.file.Tag.Year);
                 return this.year;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.year = value;
@@ -196,11 +250,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(string.Empty);
                 if (this.trackNumber == null) this.trackNumber = new MetadataValue(this.file.Tag.Track);
                 return this.trackNumber;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.trackNumber = value;
@@ -213,11 +270,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(string.Empty);
                 if (this.trackCount == null) this.trackCount = new MetadataValue(this.file.Tag.TrackCount);
                 return this.trackCount;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.trackCount = value;
@@ -230,11 +290,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(string.Empty);
                 if (this.discNumber == null) this.discNumber = new MetadataValue(this.file.Tag.Disc);
                 return this.discNumber;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.discNumber = value;
@@ -247,11 +310,14 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(string.Empty);
                 if (this.discCount == null) this.discCount = new MetadataValue(this.file.Tag.DiscCount);
                 return this.discCount;
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.discCount = value;
@@ -264,6 +330,11 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm)
+                {
+                    return new MetadataRatingValue();
+                }
+
                 if (System.IO.Path.GetExtension(this.file.Name.ToLower()) == FileFormats.MP3)
                 {
                     Tag tag = this.file.GetTag(TagTypes.Id3v2);
@@ -305,6 +376,8 @@ namespace Dopamine.Data.Metadata
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.rating = value;
@@ -327,6 +400,11 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm)
+                {
+                    return new MetadataArtworkValue(this.ncmMetadata.Cover);
+                }
+
                 if (this.artworkData == null)
                 {
                     // TODO: there can be more than 1 picture in a file. Should we loop and get the first non-zero picture?
@@ -337,6 +415,8 @@ namespace Dopamine.Data.Metadata
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.artworkData = value;
@@ -350,7 +430,7 @@ namespace Dopamine.Data.Metadata
                     {
                         var pic = new Picture();
                         pic.Type = PictureType.Other;
-                        pic.MimeType = "image/jpeg";
+                        pic.MimeType = DetectImageMimeType(value.Value);
                         pic.Description = "Cover";
                         pic.Data = value.Value;
 
@@ -364,6 +444,8 @@ namespace Dopamine.Data.Metadata
         {
             get
             {
+                if (this.IsNcm) return new MetadataValue(string.Empty);
+
                 if (this.lyrics == null)
                 {
                     this.lyrics = new MetadataValue(this.file.Tag.Lyrics);
@@ -373,6 +455,8 @@ namespace Dopamine.Data.Metadata
             }
             set
             {
+                if (this.IsNcm) return;
+
                 if (value.IsValueChanged)
                 {
                     this.lyrics = value;
@@ -383,6 +467,12 @@ namespace Dopamine.Data.Metadata
 
         public void Save()
         {
+            if (this.IsNcm)
+            {
+                // NCM files are encrypted containers: their tags can't be written back.
+                return;
+            }
+
             try
             {
                 this.file.Save();
@@ -391,6 +481,27 @@ namespace Dopamine.Data.Metadata
             {
                 throw;
             }
+        }
+
+        private MetadataValue GetNcmArtists()
+        {
+            string[] artists = string.IsNullOrWhiteSpace(this.ncmMetadata.Artist)
+                ? new string[0]
+                : this.ncmMetadata.Artist.Split('/').Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).ToArray();
+
+            return new MetadataValue(artists);
+        }
+
+        // NetEase cover art is often a PNG even though the URL ends in ".jpg", so detect the real
+        // type instead of assuming JPEG.
+        private static string DetectImageMimeType(byte[] imageData)
+        {
+            if (imageData != null && imageData.Length >= 4 && imageData[0] == 0x89 && imageData[1] == 0x50 && imageData[2] == 0x4E && imageData[3] == 0x47)
+            {
+                return "image/png";
+            }
+
+            return "image/jpeg";
         }
 
         public override bool Equals(object obj)

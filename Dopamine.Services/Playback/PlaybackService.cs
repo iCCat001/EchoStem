@@ -388,7 +388,15 @@ namespace Dopamine.Services.Playback
 
         public async Task StopIfPlayingAsync(TrackViewModel track)
         {
-            if (track.SafePath.Equals(this.CurrentTrack.SafePath))
+            TrackViewModel currentTrack = this.CurrentTrack;
+
+            // Nothing is playing: there is no file handle to release.
+            if (track == null || currentTrack == null)
+            {
+                return;
+            }
+
+            if (track.SafePath.Equals(currentTrack.SafePath))
             {
                 if (this.Queue.Count == 1)
                 {

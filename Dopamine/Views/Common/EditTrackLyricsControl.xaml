@@ -7,7 +7,21 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <DockPanel>
-        <TextBlock DockPanel.Dock="Top" Text="{DynamicResource Language_Lyrics}" Foreground="{DynamicResource Brush_PrimaryText}" Margin="0,0,0,5"/>
+        <DockPanel DockPanel.Dock="Top" Margin="0,0,0,5">
+            <!-- Get the lyrics from an online source and put them in the box below. -->
+            <Button DockPanel.Dock="Right" Style="{StaticResource TransparentButton}"
+                    Command="{Binding GetLyricsFromOnlineCommand}"
+                    ToolTip="{DynamicResource Language_Get_Lyrics_From_Online}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE72C;" Style="{StaticResource SegoeAssets}" FontSize="15"
+                               VerticalAlignment="Center" Foreground="{DynamicResource Brush_SecondaryText}" />
+                    <TextBlock Margin="5,0,0,0" VerticalAlignment="Center"
+                               Foreground="{DynamicResource Brush_SecondaryText}"
+                               Text="{DynamicResource Language_Get_Lyrics_From_Online}" />
+                </StackPanel>
+            </Button>
+            <TextBlock Text="{DynamicResource Language_Lyrics}" Foreground="{DynamicResource Brush_PrimaryText}" VerticalAlignment="Center"/>
+        </DockPanel>
         <pc:AccentTextBox VerticalContentAlignment="Top" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Auto" Text="{Binding Lyrics.Value,UpdateSourceTrigger=PropertyChanged}" ShowAccent="{Binding Lyrics.IsValueChanged}"/>
     </DockPanel>
 </UserControl>

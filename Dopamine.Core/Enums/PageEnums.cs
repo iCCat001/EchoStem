@@ -39,7 +39,8 @@
         Playback = 2,
         Startup = 3,
         Online = 4,
-        Blacklist = 5
+        Blacklist = 5,
+        Features = 6
     }
 
     public enum InformationPage

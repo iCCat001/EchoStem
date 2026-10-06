@@ -41,6 +41,9 @@ namespace Dopamine.Services.Lyrics
 
         private static readonly Regex LyricTimestampRegex = new Regex(@"\[\d+:\d+(?:[.:]\d+)?\]", RegexOptions.Compiled);
 
+        // LRC tags at the start of a line: timestamps ([00:12.34]) and metadata ([ti:], [ar:], ...).
+        private static readonly Regex LrcTagRegex = new Regex(@"^\s*(?:\[[^\]]*\]\s*)+", RegexOptions.Compiled);
+
         private readonly IMetadataService metadataService;
         private readonly IPlaybackService playbackService;
         private readonly II18nService i18nService;
@@ -270,6 +273,56 @@ namespace Dopamine.Services.Lyrics
             this.lyricsCache[track.Path] = onlineLyrics;
 
             return onlineLyrics;
+        }
+
+        public async Task<string> GetPlainOnlineLyricsAsync(string artist, string title)
+        {
+            if (string.IsNullOrWhiteSpace(artist) || string.IsNullOrWhiteSpace(title))
+            {
+                return string.Empty;
+            }
+
+            LyricsModel lyrics = null;
+
+            try
+            {
+                lyrics = await this.lyricsFactory.GetLyricsAsync(artist, title);
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("Could not get online lyrics for '{0} - {1}'. Exception: {2}", artist, title, ex.Message);
+            }
+
+            return lyrics != null && lyrics.HasText ? ToPlainLyricsText(lyrics.Text) : string.Empty;
+        }
+
+        // Converts LRC lyrics to plain text: removes the LRC tags (timestamps, ...) and turns the
+        // translation marker into a line break, so the translation is kept on its own line.
+        private static string ToPlainLyricsText(string lyrics)
+        {
+            if (string.IsNullOrWhiteSpace(lyrics))
+            {
+                return string.Empty;
+            }
+
+            var builder = new StringBuilder();
+
+            foreach (string rawLine in lyrics.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n'))
+            {
+                string line = LrcTagRegex.Replace(rawLine, string.Empty).Replace(TranslationMarker, "\n").Replace(LegacyTranslationSeparator, "\n");
+
+                foreach (string part in line.Split('\n'))
+                {
+                    string trimmed = part.Trim();
+
+                    if (trimmed.Length > 0)
+                    {
+                        builder.AppendLine(trimmed);
+                    }
+                }
+            }
+
+            return builder.ToString().TrimEnd();
         }
 
         private async Task<LyricsModel> AcquireAndCacheAsync(TrackViewModel track)

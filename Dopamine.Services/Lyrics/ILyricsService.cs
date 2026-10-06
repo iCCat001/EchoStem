@@ -1,4 +1,4 @@
-using Dopamine.Services.Entities;
+﻿using Dopamine.Services.Entities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using LyricsModel = Dopamine.Core.Api.Lyrics.Lyrics;
@@ -27,6 +27,13 @@ namespace Dopamine.Services.Lyrics
         /// exists) and the cache is updated.
         /// </summary>
         Task<LyricsModel> GetLyricsFromOnlineAsync(TrackViewModel track);
+
+        /// <summary>
+        /// Fetches the lyrics from the online sources without any side effect (nothing is written to
+        /// disk and the cache is left untouched) and returns them as plain text, with LRC tags
+        /// (timestamps, ...) removed. Used to fill the lyrics tag in the song information editor.
+        /// </summary>
+        Task<string> GetPlainOnlineLyricsAsync(string artist, string title);
 
         /// <summary>
         /// Starts fetching lyrics in the background (audio tags, local .lrc file, then online)

@@ -1,20 +1,25 @@
 ﻿using Digimezzo.Foundation.Core.Logging;
 using Digimezzo.Foundation.Core.Settings;
+using Digimezzo.Foundation.Core.Utils;
 using Dopamine.Core.Api.Lyrics;
+using Dopamine.Core.Audio;
 using Dopamine.Core.Base;
 using Dopamine.Core.Enums;
 using Dopamine.Core.Helpers;
 using Dopamine.Core.Prism;
 using Dopamine.Data.Entities;
 using Dopamine.Data.Metadata;
+using Dopamine.Services.Dialog;
 using Dopamine.Services.I18n;
 using Dopamine.Services.Lyrics;
 using Dopamine.Services.Metadata;
 using Dopamine.Services.Playback;
 using Dopamine.ViewModels.Common.Base;
+using Dopamine.Views.Common;
 using Prism.Commands;
 using Prism.Events;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,6 +35,7 @@ namespace Dopamine.ViewModels.Common
         private IMetadataService metadataService;
         private IPlaybackService playbackService;
         private ILyricsService lyricsService;
+        private IDialogService dialogService;
         private LyricsViewModel lyricsViewModel;
         private TrackViewModel previousTrack;
         private int contentSlideInFrom;
@@ -46,10 +52,13 @@ namespace Dopamine.ViewModels.Common
         private bool isNowPlayingPageActive;
         private bool isNowPlayingLyricsPageActive;
         private bool forceRefreshLyrics;
+        private bool isConvertNcmVisible;
 
         public DelegateCommand RefreshLyricsCommand { get; set; }
 
         public DelegateCommand RefreshFromOnlineCommand { get; set; }
+
+        public DelegateCommand ConvertNcmCommand { get; set; }
 
         public int ContentSlideInFrom
         {
@@ -74,12 +83,27 @@ namespace Dopamine.ViewModels.Common
             }
         }
 
+        /// <summary>
+        /// True when the (non-public) experimental features are enabled and the currently playing
+        /// track is an NCM file. In that case the "convert to a public format" button is shown.
+        /// </summary>
+        public bool IsConvertNcmVisible
+        {
+            get { return this.isConvertNcmVisible; }
+            set
+            {
+                SetProperty<bool>(ref this.isConvertNcmVisible, value);
+                this.ConvertNcmCommand?.RaiseCanExecuteChanged();
+            }
+        }
+
         public LyricsControlViewModel(IContainerProvider container) : base(container)
         {
             this.container = container;
             this.metadataService = container.Resolve<IMetadataService>();
             this.playbackService = container.Resolve<IPlaybackService>();
             this.lyricsService = container.Resolve<ILyricsService>();
+            this.dialogService = container.Resolve<IDialogService>();
             this.eventAggregator = container.Resolve<IEventAggregator>();
 
             this.highlightTimer.Interval = this.highlightTimerIntervalMilliseconds;
@@ -104,6 +128,10 @@ namespace Dopamine.ViewModels.Common
                     {
                         this.RestartRefreshTimer();
                     }
+                }
+                else if (SettingsClient.IsSettingChanged(e, "Features", "NonPublicExperimentalServices"))
+                {
+                    this.UpdateConvertNcmVisibility();
                 }
             };
 
@@ -131,13 +159,18 @@ namespace Dopamine.ViewModels.Common
 
             this.RefreshFromOnlineCommand = new DelegateCommand(async () => await this.RefreshFromOnlineAsync(), () => !this.IsDownloadingLyrics);
 
+            this.ConvertNcmCommand = new DelegateCommand(async () => await this.ConvertNcmAsync(), () => this.IsConvertNcmVisible);
+
             this.playbackService.PlaybackSuccess += (_, e) =>
             {
                 this.ContentSlideInFrom = e.IsPlayingPreviousTrack ? -30 : 30;
+                this.UpdateConvertNcmVisibility();
                 this.RestartRefreshTimer();
             };
 
             this.ClearLyrics(null); // Makes sure the loading animation can be shown even at first start
+
+            this.UpdateConvertNcmVisibility();
 
             this.RestartRefreshTimer();
         }
@@ -273,6 +306,60 @@ namespace Dopamine.ViewModels.Common
             {
                 this.IsDownloadingLyrics = false;
             }
+        }
+
+        private void UpdateConvertNcmVisibility()
+        {
+            TrackViewModel track = this.playbackService.CurrentTrack;
+
+            this.IsConvertNcmVisible =
+                SettingsClient.Get<bool>("Features", "NonPublicExperimentalServices")
+                && track != null
+                && NcmFile.IsNcmFile(track.Path);
+        }
+
+        // Opens the song information editor in NCM convert mode: the tags are pre-filled from the
+        // NCM file and, on save, the file is converted to a public format (optionally replacing the
+        // original .ncm). Invoked by the "convert NCM to a public format" button.
+        private Task ConvertNcmAsync()
+        {
+            TrackViewModel track = this.playbackService.CurrentTrack;
+
+            // Re-check both conditions at click time: the feature may have been turned off, or the
+            // playing track may have changed, since the button was shown.
+            if (track == null
+                || !SettingsClient.Get<bool>("Features", "NonPublicExperimentalServices")
+                || !NcmFile.IsNcmFile(track.Path))
+            {
+                this.UpdateConvertNcmVisibility();
+                return Task.CompletedTask;
+            }
+
+            EditTrack view = this.container.Resolve<EditTrack>();
+            EditTrackViewModel viewModel = this.container.Resolve<Func<IList<string>, EditTrackViewModel>>()(new List<string> { track.Path });
+            viewModel.IsNcmConvertMode = true;
+            view.DataContext = viewModel;
+
+            this.dialogService.ShowCustomDialog(
+                0xe104,
+                14,
+                ResourceUtils.GetString("Language_Edit_Song"),
+                view,
+                620,
+                660,
+                false,
+                false,
+                false,
+                true,
+                ResourceUtils.GetString("Language_Ok"),
+                ResourceUtils.GetString("Language_Cancel"),
+                viewModel.SaveTracksAsync,
+                ResourceUtils.GetString("Language_Save_And_Replace_Ncm"),
+                viewModel.SaveAndReplaceNcmAsync);
+
+            this.UpdateConvertNcmVisibility();
+
+            return Task.CompletedTask;
         }
 
         private async Task HighlightLyricsLineAsync()

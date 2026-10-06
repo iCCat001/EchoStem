@@ -113,6 +113,24 @@ namespace Dopamine.ViewModels.Common.Base
             this.ExportArtworkCommand.RaiseCanExecuteChanged();
         }
 
+        // Downloads the artwork at the given URL (e.g. a NetEase cover) and shows it as the current
+        // artwork, marking it as changed so it gets written on save. The image is used exactly as
+        // served online: it must not be resized or re-encoded, so the full-size original is stored.
+        protected async Task UpdateArtworkFromUrlAsync(string urlString)
+        {
+            if (string.IsNullOrEmpty(urlString))
+            {
+                return;
+            }
+
+            string temporaryFile = await this.cacheService.DownloadFileToTemporaryCacheAsync(urlString);
+
+            if (!string.IsNullOrEmpty(temporaryFile))
+            {
+                this.UpdateArtwork(System.IO.File.ReadAllBytes(temporaryFile));
+            }
+        }
+
         protected async Task DownloadArtworkAsync(string title, IList<string> artists, string alternateTitle = "", IList<string> alternateArtists = null)
         {
             this.IsBusy = true;
