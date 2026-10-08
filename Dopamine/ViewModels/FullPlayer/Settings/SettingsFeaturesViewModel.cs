@@ -12,6 +12,7 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
     {
         private IDialogService dialogService;
         private bool checkBoxNonPublicServicesChecked;
+        private bool checkBoxTouchOptimizationChecked;
 
         public bool CheckBoxNonPublicServicesChecked
         {
@@ -50,6 +51,17 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
         {
             this.dialogService = dialogService;
             this.checkBoxNonPublicServicesChecked = SettingsClient.Get<bool>("Features", "NonPublicExperimentalServices");
+            this.checkBoxTouchOptimizationChecked = SettingsClient.Get<bool>("Features", "TouchOptimization");
+        }
+
+        public bool CheckBoxTouchOptimizationChecked
+        {
+            get { return this.checkBoxTouchOptimizationChecked; }
+            set
+            {
+                SettingsClient.Set<bool>("Features", "TouchOptimization", value, true);
+                SetProperty<bool>(ref this.checkBoxTouchOptimizationChecked, value);
+            }
         }
 
         private bool PromptForPassword()

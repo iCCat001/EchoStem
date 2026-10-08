@@ -52,6 +52,8 @@
         </Setter>
     </Style>
 
+    <!-- Vertical thumb: the visible bar keeps a fixed, thin width, while the surrounding ScrollBar
+         can be wider to provide a larger touch target. -->
     <Style x:Key="ScrollBarThumb" TargetType="{x:Type Thumb}">
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -62,17 +64,13 @@
                 <ControlTemplate TargetType="{x:Type Thumb}">
                     <Border 
                         Name="Border"
-          CornerRadius="0" 
+          CornerRadius="0"
+          Width="{DynamicResource Touch_ScrollBarThumbThickness}"
+          HorizontalAlignment="Center"
           Background="{TemplateBinding Background}"
           BorderBrush="{TemplateBinding BorderBrush}"
           BorderThickness="0" />
                     <ControlTemplate.Triggers>
-                        <!--<Trigger Property="IsMouseOver" Value="false">
-                            <Setter TargetName="Border" Property="Opacity" Value="0.5" />
-                        </Trigger>-->
-                        <!--<Trigger Property="IsMouseOver" Value="true">
-                            <Setter TargetName="Border" Property="Opacity" Value="1.0" />
-                        </Trigger>-->
                         <EventTrigger RoutedEvent="UIElement.MouseEnter">
                             <BeginStoryboard>
                                 <Storyboard>
@@ -87,6 +85,36 @@
                                 </Storyboard>
                             </BeginStoryboard>
                         </EventTrigger>
+                        <Trigger Property="IsDragging" Value="true">
+                            <Setter TargetName="Border" Property="Opacity" Value="0.7" />
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Opacity" Value="0.5"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Horizontal thumb: same idea, with a fixed, thin height. -->
+    <Style x:Key="ScrollBarThumbHorizontal" TargetType="{x:Type Thumb}">
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="OverridesDefaultStyle" Value="true"/>
+        <Setter Property="IsTabStop" Value="false"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Thumb}">
+                    <Border 
+                        Name="Border"
+          CornerRadius="0"
+          Height="{DynamicResource Touch_ScrollBarThumbThickness}"
+          VerticalAlignment="Center"
+          Background="{TemplateBinding Background}"
+          BorderBrush="{TemplateBinding BorderBrush}"
+          BorderThickness="0" />
+                    <ControlTemplate.Triggers>
                         <Trigger Property="IsDragging" Value="true">
                             <Setter TargetName="Border" Property="Opacity" Value="0.7" />
                         </Trigger>
@@ -190,7 +218,7 @@
                 </Track.DecreaseRepeatButton>
                 <Track.Thumb>
                     <Thumb 
-          Style="{StaticResource ScrollBarThumb}" 
+          Style="{StaticResource ScrollBarThumbHorizontal}" 
           Margin="0,0,0,0"  
           Background="{DynamicResource Brush_Accent}"
           BorderBrush="{DynamicResource Brush_Accent}" />
@@ -219,12 +247,12 @@
         <Style.Triggers>
             <Trigger Property="Orientation" Value="Horizontal">
                 <Setter Property="Width" Value="Auto"/>
-                <Setter Property="Height" Value="5" />
+                <Setter Property="Height" Value="{DynamicResource Touch_ScrollBarWidth}" />
                 <Setter Property="Template" Value="{StaticResource HorizontalScrollBar}" />
             </Trigger>
             <Trigger Property="Orientation" Value="Vertical">
                 <Setter Property="Height" Value="Auto" />
-                <Setter Property="Width" Value="5"/>
+                <Setter Property="Width" Value="{DynamicResource Touch_ScrollBarWidth}"/>
                 <Setter Property="Template" Value="{StaticResource VerticalScrollBar}" />
             </Trigger>
         </Style.Triggers>
@@ -245,26 +273,18 @@
                             <RowDefinition Height="Auto" />
                         </Grid.RowDefinitions>
                         <ScrollContentPresenter Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="{TemplateBinding Padding}" CanContentScroll="{TemplateBinding ScrollViewer.CanContentScroll}"/>
-                        <ScrollBar Name="PART_VerticalScrollBar" Grid.Column="1" Opacity="0" Value="{TemplateBinding ScrollViewer.VerticalOffset}" Maximum="{TemplateBinding ScrollViewer.ScrollableHeight}" ViewportSize="{TemplateBinding ScrollViewer.ViewportHeight}" Visibility="{TemplateBinding ScrollViewer.ComputedVerticalScrollBarVisibility}" />
-                        <ScrollBar Name="PART_HorizontalScrollBar" Grid.Row="1" Opacity="0" Orientation="Horizontal" Value="{TemplateBinding ScrollViewer.HorizontalOffset}" Maximum="{TemplateBinding ScrollViewer.ScrollableWidth}" ViewportSize="{TemplateBinding ScrollViewer.ViewportWidth}" Visibility="{TemplateBinding ScrollViewer.ComputedHorizontalScrollBarVisibility}" />
+                        <ScrollBar Name="PART_VerticalScrollBar" Grid.Column="1" Opacity="{DynamicResource Touch_ScrollBarOpacity}" Value="{TemplateBinding ScrollViewer.VerticalOffset}" Maximum="{TemplateBinding ScrollViewer.ScrollableHeight}" ViewportSize="{TemplateBinding ScrollViewer.ViewportHeight}" Visibility="{TemplateBinding ScrollViewer.ComputedVerticalScrollBarVisibility}" />
+                        <ScrollBar Name="PART_HorizontalScrollBar" Grid.Row="1" Opacity="{DynamicResource Touch_ScrollBarOpacity}" Orientation="Horizontal" Value="{TemplateBinding ScrollViewer.HorizontalOffset}" Maximum="{TemplateBinding ScrollViewer.ScrollableWidth}" ViewportSize="{TemplateBinding ScrollViewer.ViewportWidth}" Visibility="{TemplateBinding ScrollViewer.ComputedHorizontalScrollBarVisibility}" />
                     </Grid>
                     <ControlTemplate.Triggers>
-                        <EventTrigger RoutedEvent="UIElement.MouseEnter">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Duration="{x:Static base:Constants.MouseEnterDuration}" Storyboard.TargetName="PART_VerticalScrollBar" To="1" Storyboard.TargetProperty="Opacity" />
-                                    <DoubleAnimation Duration="{x:Static base:Constants.MouseEnterDuration}" Storyboard.TargetName="PART_HorizontalScrollBar" To="1" Storyboard.TargetProperty="Opacity" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
-                        <EventTrigger RoutedEvent="UIElement.MouseLeave">
-                            <BeginStoryboard>
-                                <Storyboard>
-                                    <DoubleAnimation Duration="{x:Static base:Constants.MouseLeaveDuration}" Storyboard.TargetName="PART_VerticalScrollBar" To="0" Storyboard.TargetProperty="Opacity" />
-                                    <DoubleAnimation Duration="{x:Static base:Constants.MouseLeaveDuration}" Storyboard.TargetName="PART_HorizontalScrollBar" To="0" Storyboard.TargetProperty="Opacity" />
-                                </Storyboard>
-                            </BeginStoryboard>
-                        </EventTrigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="PART_VerticalScrollBar" Property="Opacity" Value="1" />
+                            <Setter TargetName="PART_HorizontalScrollBar" Property="Opacity" Value="1" />
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter TargetName="PART_VerticalScrollBar" Property="Opacity" Value="{DynamicResource Touch_ScrollBarOpacity}" />
+                            <Setter TargetName="PART_HorizontalScrollBar" Property="Opacity" Value="{DynamicResource Touch_ScrollBarOpacity}" />
+                        </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
@@ -286,32 +306,24 @@
             <Button Command="{x:Static DataGrid.SelectAllCommand}" Focusable="false" Style="{DynamicResource {ComponentResourceKey ResourceId=DataGridSelectAllButtonStyle, TypeInTargetAssembly={x:Type DataGrid}}}" Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.All}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}" Width="{Binding CellsPanelHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
             <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter" Grid.Column="1" Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.Column}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
             <ScrollContentPresenter x:Name="PART_ScrollContentPresenter" Margin="{TemplateBinding Padding}" CanContentScroll="{TemplateBinding CanContentScroll}" Grid.ColumnSpan="2" Grid.Row="1"/>
-            <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="2" Opacity="0" Maximum="{TemplateBinding ScrollableHeight}" Orientation="Vertical" Grid.Row="1" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}"/>
+            <ScrollBar x:Name="PART_VerticalScrollBar" Grid.Column="2" Opacity="{DynamicResource Touch_ScrollBarOpacity}" Maximum="{TemplateBinding ScrollableHeight}" Orientation="Vertical" Grid.Row="1" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportHeight}"/>
             <Grid Grid.Column="1" Grid.Row="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="{Binding NonFrozenColumnsViewportHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type DataGrid}}}"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <ScrollBar x:Name="PART_HorizontalScrollBar" Grid.Column="1" Opacity="0" Maximum="{TemplateBinding ScrollableWidth}" Orientation="Horizontal" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}"/>
+                <ScrollBar x:Name="PART_HorizontalScrollBar" Grid.Column="1" Opacity="{DynamicResource Touch_ScrollBarOpacity}" Maximum="{TemplateBinding ScrollableWidth}" Orientation="Horizontal" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" ViewportSize="{TemplateBinding ViewportWidth}"/>
             </Grid>
         </Grid>
         <ControlTemplate.Triggers>
-            <EventTrigger RoutedEvent="UIElement.MouseEnter">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <DoubleAnimation Duration="0:0:0.15" Storyboard.TargetName="PART_VerticalScrollBar" To="1" Storyboard.TargetProperty="Opacity" />
-                        <DoubleAnimation Duration="0:0:0.15" Storyboard.TargetName="PART_HorizontalScrollBar" To="1" Storyboard.TargetProperty="Opacity" />
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
-            <EventTrigger RoutedEvent="UIElement.MouseLeave">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <DoubleAnimation Duration="0:0:0.15" Storyboard.TargetName="PART_VerticalScrollBar" To="0" Storyboard.TargetProperty="Opacity" />
-                        <DoubleAnimation Duration="0:0:0.15" Storyboard.TargetName="PART_HorizontalScrollBar" To="0" Storyboard.TargetProperty="Opacity" />
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="PART_VerticalScrollBar" Property="Opacity" Value="1" />
+                <Setter TargetName="PART_HorizontalScrollBar" Property="Opacity" Value="1" />
+            </Trigger>
+            <Trigger Property="IsMouseOver" Value="False">
+                <Setter TargetName="PART_VerticalScrollBar" Property="Opacity" Value="{DynamicResource Touch_ScrollBarOpacity}" />
+                <Setter TargetName="PART_HorizontalScrollBar" Property="Opacity" Value="{DynamicResource Touch_ScrollBarOpacity}" />
+            </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
 </ResourceDictionary>

@@ -127,6 +127,15 @@ namespace Dopamine.Core.Utils
                 }
             }
 
+            // Merge Chinese with the Latin alphabet: prefix the string with the pinyin initial of
+            // its first character, so Chinese sorts and groups under A-Z instead of under "#".
+            string pinyinInitial = PinyinUtils.GetPinyinInitial(returnString);
+
+            if (!string.IsNullOrEmpty(pinyinInitial))
+            {
+                return pinyinInitial + returnString;
+            }
+
             return returnString;
         }
 

@@ -229,19 +229,79 @@ namespace Dopamine.Services.Utils
                 return;
             }
 
-            GeneralTransform transform = listBoxItem.TransformToAncestor(scrollViewer);
+            ScrollItemCenteredVertically(scrollViewer, listBoxItem);
+        }
+
+        // Scrolls the given DataGrid so that the item is vertically centered in the viewport.
+        public static void ScrollToDataGridItemCenteredVertically(DataGrid grid, object itemObject)
+        {
+            if (grid == null || itemObject == null)
+            {
+                return;
+            }
+
+            ScrollViewer scrollViewer = (ScrollViewer)VisualTreeUtils.GetDescendantByType(grid, typeof(ScrollViewer));
+
+            if (scrollViewer == null)
+            {
+                return;
+            }
+
+            if (grid.ItemContainerGenerator.ContainerFromItem(itemObject) == null)
+            {
+                grid.ScrollIntoView(itemObject);
+                grid.UpdateLayout();
+            }
+
+            FrameworkElement row = (FrameworkElement)grid.ItemContainerGenerator.ContainerFromItem(itemObject);
+
+            if (row == null)
+            {
+                return;
+            }
+
+            ScrollItemCenteredVertically(scrollViewer, row);
+        }
+
+        // Animates the ScrollViewer so that the item is vertically centered in the viewport
+        // (clamped to the top/bottom of the list when centering is not possible).
+        private static void ScrollItemCenteredVertically(ScrollViewer scrollViewer, FrameworkElement item)
+        {
+            GeneralTransform transform = item.TransformToAncestor(scrollViewer);
             double itemTopInViewport = transform.Transform(new Point(0, 0)).Y;
             double itemTopInContent = scrollViewer.VerticalOffset + itemTopInViewport;
 
-            double targetOffset = itemTopInContent + (listBoxItem.ActualHeight / 2.0) - (scrollViewer.ViewportHeight / 2.0);
+            double targetOffset = itemTopInContent + (item.ActualHeight / 2.0) - (scrollViewer.ViewportHeight / 2.0);
 
             double maxOffset = scrollViewer.ExtentHeight - scrollViewer.ViewportHeight;
             if (maxOffset < 0) maxOffset = 0;
             if (targetOffset < 0) targetOffset = 0;
             if (targetOffset > maxOffset) targetOffset = maxOffset;
 
-            // Animate the scroll instead of jumping to the new offset.
             ScrollViewerAnimation.ScrollToVerticalOffset(scrollViewer, targetOffset, 350);
+        }
+
+        public static async Task ScrollToPlayingTrackCenteredAsync(DataGrid grid)
+        {
+            if (grid == null) return;
+
+            object itemObject = null;
+
+            await Task.Run(() =>
+            {
+                for (int i = 0; i <= grid.Items.Count - 1; i++)
+                {
+                    if (((TrackViewModel)grid.Items[i]).IsPlaying)
+                    {
+                        itemObject = grid.Items[i];
+                        break;
+                    }
+                }
+            });
+
+            if (itemObject == null) return;
+
+            ScrollToDataGridItemCenteredVertically(grid, itemObject);
         }
     }
 }

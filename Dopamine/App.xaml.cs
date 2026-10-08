@@ -298,6 +298,17 @@ namespace Dopamine
                 Container.Resolve<II18nService>().ApplyLanguageAsync(SettingsClient.Get<string>("Appearance", "Language"));
                 Container.Resolve<IAppearanceService>().ApplyTheme(SettingsClient.Get<bool>("Appearance", "EnableLightTheme"));
 
+                // Touch optimization: application-wide resource values used by the styles.
+                TouchOptimization.Apply();
+
+                SettingsClient.SettingChanged += (_, e) =>
+                {
+                    if (SettingsClient.IsSettingChanged(e, "Features", "TouchOptimization"))
+                    {
+                        TouchOptimization.Apply();
+                    }
+                };
+
                 Container.Resolve<IAppearanceService>().ApplyColorSchemeAsync(
                     SettingsClient.Get<string>("Appearance", "ColorScheme"),
                     SettingsClient.Get<bool>("Appearance", "FollowWindowsColor"),

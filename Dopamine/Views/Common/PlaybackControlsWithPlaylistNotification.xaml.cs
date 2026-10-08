@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using Dopamine.ViewModels.Common;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace Dopamine.Views.Common
 {
@@ -61,6 +63,18 @@ namespace Dopamine.Views.Common
         public PlaybackControlsWithPlaylistNotification()
         {
             InitializeComponent();
+        }
+
+        // Touch optimization: a tap on the bar reveals the playback controls (it must not hit the
+        // button which happens to be underneath the finger); a further tap keeps them visible.
+        private void UserControl_PreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var viewModel = this.DataContext as PlaybackControlsWithPlaylistNotificationViewModel;
+
+            if (viewModel != null && viewModel.HandleTouchTap())
+            {
+                e.Handled = true;
+            }
         }
     }
 }

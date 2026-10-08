@@ -1,6 +1,7 @@
-using Dopamine.Views.Common.Base;
+﻿using Dopamine.Views.Common.Base;
 using Dopamine.Core.Prism;
 using Dopamine.Services.Entities;
+using Dopamine.Services.Utils;
 using Digimezzo.Foundation.WPF.Controls;
 using Prism.Commands;
 using System;
@@ -52,9 +53,39 @@ namespace Dopamine.Views.FullPlayer.Collection
             // Commands
             this.ViewInExplorerCommand = new DelegateCommand(() => this.ViewInExplorer(this.ListBoxTracks));
             this.JumpToPlayingTrackCommand = new DelegateCommand(async () => await this.ScrollToPlayingTrackAsync(this.ListBoxTracks));
+            this.LocatePlayingAlbumCommand = new DelegateCommand(() => this.LocatePlayingAlbum());
 
             // PubSub Events
             this.eventAggregator.GetEvent<ScrollToPlayingTrack>().Subscribe(async (_) => await this.ScrollToPlayingTrackAsync(this.ListBoxTracks));
+        }
+
+        public DelegateCommand LocatePlayingAlbumCommand { get; set; }
+
+        // Scrolls the album wall to the album which is currently playing (centered when possible).
+        private void LocatePlayingAlbum()
+        {
+            if (this.playbackService == null || this.playbackService.CurrentTrack == null)
+            {
+                return;
+            }
+
+            string albumKey = this.playbackService.CurrentTrack.Track.AlbumKey;
+
+            if (string.IsNullOrEmpty(albumKey))
+            {
+                return;
+            }
+
+            foreach (object item in this.ListBoxAlbums.Items)
+            {
+                var album = item as AlbumViewModel;
+
+                if (album != null && string.Equals(album.AlbumKey, albumKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    ScrollUtils.ScrollToListBoxItemCenteredVertically(this.ListBoxAlbums, album);
+                    return;
+                }
+            }
         }
 
         private void RootGrid_Loaded(object sender, RoutedEventArgs e)

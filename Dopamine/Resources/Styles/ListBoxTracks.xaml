@@ -172,10 +172,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListBoxItem}">
                     <Grid>
-                        <Border x:Name="MouseHoverHelper" Height="32" Background="{DynamicResource Brush_ItemHovered}" Opacity="0"/>
+                        <Border x:Name="MouseHoverHelper" Height="{DynamicResource Touch_ListRowHeight}" Background="{DynamicResource Brush_ItemHovered}" Opacity="0"/>
                         <Border Background="{TemplateBinding Background}"
                                 Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ScrollContentPresenter}}}">
-                            <DockPanel Height="32" Margin="10,0,10,0">
+                            <DockPanel Height="{DynamicResource Touch_ListRowHeight}" Margin="10,0,10,0">
                                 <DockPanel.ToolTip>
                                     <ToolTip>
                                         <StackPanel>

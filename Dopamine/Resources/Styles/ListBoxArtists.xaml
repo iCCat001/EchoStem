@@ -103,10 +103,10 @@
                         </Button>
                         <!-- Artist -->
                         <Grid>
-                            <Border x:Name="MouseHoverHelper" Height="32" Background="{DynamicResource Brush_ItemHovered}" Opacity="0"/>
+                            <Border x:Name="MouseHoverHelper" Height="{DynamicResource Touch_ListRowHeight}" Background="{DynamicResource Brush_ItemHovered}" Opacity="0"/>
                             <Border 
                                 Background="{TemplateBinding Background}" 
-                                Height="32"
+                                Height="{DynamicResource Touch_ListRowHeight}"
                                 Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ScrollContentPresenter}}}">
                                 <TextBlock 
                                     Text="{Binding ArtistName}"
