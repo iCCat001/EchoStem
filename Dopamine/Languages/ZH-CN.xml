@@ -279,6 +279,8 @@
   <Text Key="Play_All">播放全部</Text>
   <Text Key="Play_Album">播放专辑</Text>
   <Text Key="Shuffle_All">全部随机</Text>
+  <Text Key="Locate_Playing_Track">定位正在播放歌曲</Text>
+  <Text Key="Locate_Playing_Album">定位正在播放专辑</Text>
   <Text Key="See_You_Later">再见！</Text>
   <Text Key="Website">网站</Text>
   <Text Key="Social_Networks">社交网络</Text>
@@ -474,6 +476,8 @@
   <Text Key="Features">功能</Text>
   <Text Key="Non_Public_Experimental_Features">非公开实验性功能</Text>
   <Text Key="Enable_Non_Public_Experimental_Features">启用非公开实验性功能。这些功能尚未完成或并非官方功能，可能无法按预期工作。</Text>
+  <Text Key="Touch_Optimization">触摸优化</Text>
+  <Text Key="Enable_Touch_Optimization">针对触摸输入优化界面。例如：正在播放页面的播放控制栏会保持常显，而不会自动隐藏。</Text>
   <Text Key="Enter_Password">请输入密码</Text>
   <Text Key="Ncm_Write_Not_Supported">NCM格式文件不支持写入</Text>
   <Text Key="Convert_Ncm_To_Public_Format">转换NCM到公开格式</Text>

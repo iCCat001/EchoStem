@@ -279,6 +279,8 @@
   <Text Key="Play_All">Play all</Text>
   <Text Key="Play_Album">Play album</Text>
   <Text Key="Shuffle_All">Shuffle all</Text>
+  <Text Key="Locate_Playing_Track">Locate playing song</Text>
+  <Text Key="Locate_Playing_Album">Locate playing album</Text>
   <Text Key="See_You_Later">See you later!</Text>
   <Text Key="Website">Website</Text>
   <Text Key="Social_Networks">Social networks</Text>
@@ -474,6 +476,8 @@
   <Text Key="Features">Features</Text>
   <Text Key="Non_Public_Experimental_Features">Non-public experimental features</Text>
   <Text Key="Enable_Non_Public_Experimental_Features">Enable non-public experimental features. These are unfinished or unofficial, and may not work as expected.</Text>
+  <Text Key="Touch_Optimization">Touch optimization</Text>
+  <Text Key="Enable_Touch_Optimization">Optimize the interface for touch input. For example, the playback controls on the 'Now playing' screen stay visible instead of hiding automatically.</Text>
   <Text Key="Enter_Password">Enter password</Text>
   <Text Key="Ncm_Write_Not_Supported">NCM format files don't support writing</Text>
   <Text Key="Convert_Ncm_To_Public_Format">Convert NCM to a public format</Text>

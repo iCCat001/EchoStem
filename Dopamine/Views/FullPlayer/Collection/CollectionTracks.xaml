@@ -33,6 +33,17 @@
                                        Foreground="{DynamicResource Brush_SecondaryText}"/>
                 </StackPanel>
             </Button>
+            <Button x:Name="LocatePlayingTrackButton" DockPanel.Dock="Right" Margin="0,0,15,0" FontSize="13"
+                                Style="{StaticResource TransparentButton}" 
+                                VerticalContentAlignment="Center" ToolTip="{DynamicResource Language_Locate_Playing_Track}" 
+                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=JumpToPlayingTrackCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE707;" Style="{StaticResource SegoeAssets}" FontSize="16"
+                                       Margin="0,1,5,0" Foreground="{DynamicResource Brush_SecondaryText}" />
+                    <TextBlock FontSize="13" Text="{DynamicResource Language_Locate_Playing_Track}"
+                                       Foreground="{DynamicResource Brush_SecondaryText}"/>
+                </StackPanel>
+            </Button>
             <TextBlock Text="{DynamicResource Language_Songs}" FontSize="13" Margin="10,0,0,0"
                                Foreground="{DynamicResource Brush_PrimaryText}" />
         </DockPanel>
@@ -136,12 +147,6 @@
                         <TextBlock Text="{DynamicResource Language_Album}"/>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
-                <!-- Genre -->
-                <DataGridTextColumn Width="2*" SortMemberPath="Genre" CellStyle="{StaticResource DataGridCellPrimaryWithEllipsis}" IsReadOnly="True" Binding="{Binding Genre}" Visibility="{Binding (FrameworkElement.DataContext).GenreVisible,RelativeSource={x:Static RelativeSource.Self},Converter={StaticResource BooleanToCollapsedConverter}}">
-                    <DataGridTextColumn.Header>
-                        <TextBlock Text="{DynamicResource Language_Genre}"/>
-                    </DataGridTextColumn.Header>
-                </DataGridTextColumn>
                 <!-- Time (SortDuration is used to correctly sort by Length, otherwise sorting goes like this: 1:00, 10:00, 2:00, 20:00) -->
                 <DataGridTextColumn Width="*" SortMemberPath="SortDuration" CellStyle="{StaticResource DataGridCellSecondaryWithEllipsis}" IsReadOnly="True" Binding="{Binding Duration}" Visibility="{Binding (FrameworkElement.DataContext).LengthVisible,RelativeSource={x:Static RelativeSource.Self},Converter={StaticResource BooleanToCollapsedConverter}}">
                     <DataGridTextColumn.Header>
@@ -188,12 +193,6 @@
                 <DataGridTextColumn Width="*" SortMemberPath="SortTrackNumber" CellStyle="{StaticResource DataGridCellSecondaryWithEllipsis}" IsReadOnly="True" Binding="{Binding FormattedTrackNumber}" Visibility="{Binding (FrameworkElement.DataContext).TrackNumberVisible,RelativeSource={x:Static RelativeSource.Self},Converter={StaticResource BooleanToCollapsedConverter}}">
                     <DataGridTextColumn.Header>
                         <TextBlock Text="#"/>
-                    </DataGridTextColumn.Header>
-                </DataGridTextColumn>
-                <!-- Year -->
-                <DataGridTextColumn Width="1.5*" SortMemberPath="Year" CellStyle="{StaticResource DataGridCellSecondaryWithEllipsis}" IsReadOnly="True" Binding="{Binding Year}" Visibility="{Binding (FrameworkElement.DataContext).YearVisible,RelativeSource={x:Static RelativeSource.Self},Converter={StaticResource BooleanToCollapsedConverter}}">
-                    <DataGridTextColumn.Header>
-                        <TextBlock Text="{DynamicResource Language_Year}"/>
                     </DataGridTextColumn.Header>
                 </DataGridTextColumn>
                 <!-- Bitrate (SortBitrate is used to sort by Bitrate number, not by the string with "kbps") -->

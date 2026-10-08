@@ -37,9 +37,9 @@
                     <DockPanel Background="{TemplateBinding Background}" 
                                Width="{Binding Path=ActualWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ScrollContentPresenter}}}">
                         <Grid>
-                            <Border x:Name="MouseHoverHelper" Height="32" Background="{DynamicResource Brush_ItemHovered}" Opacity="0"/>
-                            <Border x:Name="DragBorder" Panel.ZIndex="0" Background="{DynamicResource Brush_ItemHovered}" Height="32" Opacity="0"/>
-                            <Border Panel.ZIndex="1" Height="32" Margin="10,0,10,0">
+                            <Border x:Name="MouseHoverHelper" Height="{DynamicResource Touch_ListRowHeight}" Background="{DynamicResource Brush_ItemHovered}" Opacity="0"/>
+                            <Border x:Name="DragBorder" Panel.ZIndex="0" Background="{DynamicResource Brush_ItemHovered}" Height="{DynamicResource Touch_ListRowHeight}" Opacity="0"/>
+                            <Border Panel.ZIndex="1" Height="{DynamicResource Touch_ListRowHeight}" Margin="10,0,10,0">
                                 <DockPanel>
                                     <Button x:Name="DeletePlaylistButton"
                                             Visibility="Collapsed"

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Digimezzo.Foundation.Core.Settings;
+using System;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
@@ -8,6 +9,8 @@ namespace Dopamine.Views.NowPlaying
     public partial class NowPlaying : UserControl
     {
         private Timer hideControlsTimer = new Timer();
+        private bool touchOptimization;
+        private bool isSubscribed;
 
         public bool CanShowControls
         {
@@ -24,18 +27,78 @@ namespace Dopamine.Views.NowPlaying
 
             this.hideControlsTimer.Interval = 2000;
             this.hideControlsTimer.Elapsed += new ElapsedEventHandler(this.CleanupNowPlayingHandler);
+
+            // Subscribe when loaded and release the subscriptions when unloaded, so repeated
+            // navigations don't leak this view.
+            this.Loaded += this.LoadedHandler;
+            this.Unloaded += this.UnloadedHandler;
+
+            this.UpdateTouchOptimization();
             this.ShowControls();
+        }
+
+        private void LoadedHandler(object sender, RoutedEventArgs e)
+        {
+            if (this.isSubscribed)
+            {
+                return;
+            }
+
+            this.isSubscribed = true;
+
+            SettingsClient.SettingChanged += this.SettingChangedHandler;
+
+            this.UpdateTouchOptimization();
+            this.ShowControls();
+        }
+
+        private void UnloadedHandler(object sender, RoutedEventArgs e)
+        {
+            if (!this.isSubscribed)
+            {
+                return;
+            }
+
+            this.isSubscribed = false;
+
+            SettingsClient.SettingChanged -= this.SettingChangedHandler;
+            this.hideControlsTimer.Stop();
+        }
+
+        private void SettingChangedHandler(object sender, SettingChangedEventArgs e)
+        {
+            if (SettingsClient.IsSettingChanged(e, "Features", "TouchOptimization"))
+            {
+                this.UpdateTouchOptimization();
+                this.ShowControls();
+            }
+        }
+
+        private void UpdateTouchOptimization()
+        {
+            this.touchOptimization = Utils.TouchOptimization.IsEnabled;
         }
 
         private void ShowControls()
         {
             this.hideControlsTimer.Stop();
             this.CanShowControls = true;
-            this.hideControlsTimer.Start();
+
+            // With touch optimization, the controls must stay visible: on a touch screen they can't
+            // be revealed by moving a mouse pointer into the control area.
+            if (!this.touchOptimization)
+            {
+                this.hideControlsTimer.Start();
+            }
         }
 
         public void CleanupNowPlayingHandler(object sender, ElapsedEventArgs e)
         {
+            if (this.touchOptimization)
+            {
+                return;
+            }
+
             this.Dispatcher.BeginInvoke(new Action(() =>
             {
                 if (!this.BackButton.IsMouseOver)

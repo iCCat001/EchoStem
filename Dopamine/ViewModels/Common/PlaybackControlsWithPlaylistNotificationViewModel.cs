@@ -1,4 +1,4 @@
-using Digimezzo.Foundation.Core.Settings;
+﻿using Digimezzo.Foundation.Core.Settings;
 using Digimezzo.Foundation.Core.Utils;
 using Dopamine.Core.Api.Lyrics;
 using Dopamine.Core.Enums;
@@ -54,6 +54,11 @@ namespace Dopamine.ViewModels.Common
         private bool isNowPlayingLyricsSubPageActive;
         private bool isLyricsPageActive;
 
+        // Touch optimization: the controls are revealed by a tap and hide again after a delay.
+        private bool touchOptimization;
+        private readonly Timer controlsHideTimer;
+        private readonly int controlsHideSeconds = 5;
+
         public DelegateCommand PlaylistNotificationMouseEnterCommand { get; set; }
         public DelegateCommand PlaylistNotificationMouseLeaveCommand { get; set; }
 
@@ -84,6 +89,7 @@ namespace Dopamine.ViewModels.Common
             this.eventAggregator = eventAggregator;
 
             this.showLyricsInPlaybackControls = SettingsClient.Get<bool>("Lyrics", "ShowInPlaybackControls");
+            this.touchOptimization = SettingsClient.Get<bool>("Features", "TouchOptimization");
             this.isNowPlayingPageActive = SettingsClient.Get<bool>("FullPlayer", "IsNowPlayingSelected");
             this.isNowPlayingLyricsSubPageActive = ((NowPlayingSubPage)SettingsClient.Get<int>("FullPlayer", "SelectedNowPlayingSubPage")) == NowPlayingSubPage.Lyrics;
             this.isLyricsPageActive = this.isNowPlayingPageActive && this.isNowPlayingLyricsSubPageActive;
@@ -94,6 +100,15 @@ namespace Dopamine.ViewModels.Common
                 {
                     this.showLyricsInPlaybackControls = (bool)e.Entry.Value;
                     this.UpdateLyricsAvailability();
+                }
+                else if (SettingsClient.IsSettingChanged(e, "Features", "TouchOptimization"))
+                {
+                    this.touchOptimization = (bool)e.Entry.Value;
+
+                    if (!this.touchOptimization)
+                    {
+                        this.controlsHideTimer?.Stop();
+                    }
                 }
             };
 
@@ -161,6 +176,12 @@ namespace Dopamine.ViewModels.Common
             };
             this.lyricsResumeTimer.Elapsed += (_, __) => this.OnLyricsResume();
 
+            this.controlsHideTimer = new Timer
+            {
+                Interval = TimeSpan.FromSeconds(this.controlsHideSeconds).TotalMilliseconds
+            };
+            this.controlsHideTimer.Elapsed += (_, __) => this.OnControlsHideTimerElapsed();
+
             // Keeps track of the current lyric line and shows it when allowed.
             this.lyricLineTimer = new Timer { Interval = this.lyricLineTimerIntervalMilliseconds };
             this.lyricLineTimer.Elapsed += (_, __) => this.OnLyricLineTimerElapsed();
@@ -206,6 +227,13 @@ namespace Dopamine.ViewModels.Common
 
         private void OnMouseEnter()
         {
+            // With touch optimization, hovering is not available: the controls are revealed by a
+            // tap instead (see HandleTouchTap).
+            if (this.touchOptimization)
+            {
+                return;
+            }
+
             // Immediately show the playback controls again.
             this.showAddedTracksToPlaylistTextTimer.Stop();
             this.isMessageActive = false;
@@ -216,8 +244,61 @@ namespace Dopamine.ViewModels.Common
 
         private void OnMouseLeave()
         {
+            if (this.touchOptimization)
+            {
+                return;
+            }
+
             this.lyricsResumeTimer.Stop();
             this.lyricsResumeTimer.Start();
+        }
+
+        /// <summary>
+        /// Touch optimization: handles a tap on the control bar. When the lyric is currently shown,
+        /// the tap only reveals the playback controls (the caller must swallow it so it does not hit
+        /// the button under the finger) and returns true. When the controls are already shown, the
+        /// timer which hides them again is restarted and false is returned (the tap reaches the
+        /// button).
+        /// </summary>
+        public bool HandleTouchTap()
+        {
+            if (!this.touchOptimization)
+            {
+                return false;
+            }
+
+            if (!this.suppressLyrics)
+            {
+                this.showAddedTracksToPlaylistTextTimer.Stop();
+                this.isMessageActive = false;
+                this.lyricsResumeTimer.Stop();
+                this.suppressLyrics = true;
+                this.HideOverlay();
+                this.RestartControlsHideTimer();
+                return true;
+            }
+
+            this.RestartControlsHideTimer();
+            return false;
+        }
+
+        private void RestartControlsHideTimer()
+        {
+            this.controlsHideTimer.Stop();
+            this.controlsHideTimer.Start();
+        }
+
+        private void OnControlsHideTimerElapsed()
+        {
+            this.controlsHideTimer.Stop();
+
+            if (!this.touchOptimization)
+            {
+                return;
+            }
+
+            this.suppressLyrics = false;
+            this.UpdateLyricsAvailability();
         }
 
         private void OnLyricsResume()

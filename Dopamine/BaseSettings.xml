@@ -2,7 +2,7 @@
 <Settings>
   <Namespace Name="Configuration">
     <Setting Name="Version">
-      <Value>122</Value>
+      <Value>123</Value>
     </Setting>
     <Setting Name="IsPortable">
       <Value>False</Value>
@@ -368,6 +368,9 @@
   </Namespace>
   <Namespace Name="Features">
     <Setting Name="NonPublicExperimentalServices">
+      <Value>false</Value>
+    </Setting>
+    <Setting Name="TouchOptimization">
       <Value>false</Value>
     </Setting>
   </Namespace>

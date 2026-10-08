@@ -1,4 +1,4 @@
-<baseviews:TracksViewBase x:Class="Dopamine.Views.FullPlayer.Collection.CollectionAlbums"
+﻿<baseviews:TracksViewBase x:Class="Dopamine.Views.FullPlayer.Collection.CollectionAlbums"
                           xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                           xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                           xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -43,6 +43,17 @@
                             <TextBlock Text="&#xE8B1;" Style="{StaticResource SegoeAssets}" FontSize="16"
                                        Margin="0,1,5,0" Foreground="{DynamicResource Brush_SecondaryText}" />
                             <TextBlock FontSize="13" Text="{DynamicResource Language_Shuffle_All}"
+                                       Foreground="{DynamicResource Brush_SecondaryText}"/>
+                        </StackPanel>
+                    </Button>
+                    <Button x:Name="LocatePlayingAlbumButton" DockPanel.Dock="Right" Margin="20,0,0,0" FontSize="13" 
+                                Style="{StaticResource TransparentButton}" 
+                                VerticalContentAlignment="Center" ToolTip="{DynamicResource Language_Locate_Playing_Album}" 
+                                Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type UserControl}}, Path=LocatePlayingAlbumCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE707;" Style="{StaticResource SegoeAssets}" FontSize="16"
+                                       Margin="0,1,5,0" Foreground="{DynamicResource Brush_SecondaryText}" />
+                            <TextBlock FontSize="13" Text="{DynamicResource Language_Locate_Playing_Album}"
                                        Foreground="{DynamicResource Brush_SecondaryText}"/>
                         </StackPanel>
                     </Button>
@@ -98,8 +109,21 @@
             </Grid.RenderTransform>
             <Border Width="{Binding CoverSize, Converter={StaticResource PercentSizeConverter}, ConverterParameter=250}"
                     Height="{Binding CoverSize, Converter={StaticResource PercentSizeConverter}, ConverterParameter=250}"
-                    BorderThickness="1"
-                    BorderBrush="{DynamicResource Brush_Accent}">
+                    BorderThickness="1">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="BorderBrush" Value="{DynamicResource Brush_Accent}" />
+                        <Style.Triggers>
+                            <!-- Hide the accent border for albums without artwork (otherwise an empty border is shown). -->
+                            <DataTrigger Binding="{Binding FloatingCoverArtworkPath, RelativeSource={RelativeSource AncestorType={x:Type baseviews:TracksViewBase}}}" Value="{x:Null}">
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding FloatingCoverArtworkPath, RelativeSource={RelativeSource AncestorType={x:Type baseviews:TracksViewBase}}}" Value="">
+                                <Setter Property="BorderBrush" Value="Transparent" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="50" Opacity="0.85" ShadowDepth="0" />
                 </Border.Effect>
