@@ -164,6 +164,7 @@ namespace Dopamine.ViewModels.Common
                 Artist = string.Empty,
                 Album = string.Empty,
                 Year = string.Empty,
+                Quality = string.Empty,
                 CurrentTime = string.Empty,
                 TotalTime = string.Empty
             };
@@ -198,6 +199,7 @@ namespace Dopamine.ViewModels.Common
                         Artist = track.ArtistName,
                         Album = track.AlbumTitle,
                         Year = track.Year,
+                        Quality = track.Quality,
                         CurrentTime = FormatUtils.FormatTime(new TimeSpan(0)),
                         TotalTime = FormatUtils.FormatTime(new TimeSpan(0))
                     };

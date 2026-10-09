@@ -39,6 +39,14 @@
                            FontWeight="{Binding AlbumFontWeight,ElementName=ThisControl}" 
                            TextAlignment="{Binding TextAlignment,ElementName=ThisControl}" 
                            Foreground="{DynamicResource Brush_SecondaryText}"/>
+                <!-- Audio quality: format · bitrate · sample rate -->
+                <TextBlock Visibility="{Binding ShowQualityInfo,ElementName=ThisControl,Converter={StaticResource BooleanToCollapsedConverter}}"
+                           Text="{Binding Quality}" TextTrimming="CharacterEllipsis" 
+                           Margin="0,4,0,0"
+                           FontSize="{Binding QualityFontSize,ElementName=ThisControl}" 
+                           FontWeight="{Binding ArtistFontWeight,ElementName=ThisControl}" 
+                           TextAlignment="{Binding TextAlignment,ElementName=ThisControl}" 
+                           Foreground="{DynamicResource Brush_SecondaryText}"/>
             </StackPanel>
         </DataTemplate>
     </UserControl.Resources>

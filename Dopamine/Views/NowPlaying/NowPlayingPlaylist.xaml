@@ -75,7 +75,7 @@
                     <DropShadowEffect ShadowDepth="0" BlurRadius="20" Color="{DynamicResource Color_Black}" Opacity="{DynamicResource Opacity_CoverArtShadow}"/>
                 </Border.Effect>
             </Border>
-            <commonviews:PlaybackInfoControl Height="85" Margin="20,0,20,0" TitleFontSize="22" TitleFontWeight="Light" ShowAlbumInfo="True"/>
+            <commonviews:PlaybackInfoControl Height="85" Margin="20,0,20,0" TitleFontSize="22" TitleFontWeight="Light" ShowAlbumInfo="True" ShowQualityInfo="True"/>
         </StackPanel>
         <!-- List -->
         <commonviews:NowPlayingControl Margin="20,20,0,0"/>

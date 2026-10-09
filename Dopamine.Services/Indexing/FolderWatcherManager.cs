@@ -45,7 +45,12 @@ namespace Dopamine.Services.Indexing
                         // When the folder exists, but access is denied, creating the FileSystemWatcher throws an exception.
                         var watcher = new GentleFolderWatcher(fol.Path, true, 2000);
                         watcher.FolderChanged += Watcher_FolderChanged;
-                        this.watchers.Add(watcher);
+
+                        lock (this.watchers)
+                        {
+                            this.watchers.Add(watcher);
+                        }
+
                         watcher.Resume();
                     }
                     catch (Exception ex)
@@ -58,18 +63,29 @@ namespace Dopamine.Services.Indexing
 
         public async Task StopWatchingAsync()
         {
-            if (this.watchers.Count == 0)
+            // Take a snapshot and clear the shared list under a lock. The watchers are disposed on
+            // a background thread. Without this, a concurrent StartWatchingAsync which adds to the
+            // list while the loop below runs could make the index go out of range (and crash the
+            // app through the unhandled exception handler).
+            List<GentleFolderWatcher> watchersToStop;
+
+            lock (this.watchers)
             {
-                return;
+                if (this.watchers.Count == 0)
+                {
+                    return;
+                }
+
+                watchersToStop = new List<GentleFolderWatcher>(this.watchers);
+                this.watchers.Clear();
             }
 
             await Task.Run(() =>
             {
-                for (int i = this.watchers.Count - 1; i >= 0; i--)
+                foreach (GentleFolderWatcher watcher in watchersToStop)
                 {
-                    this.watchers[i].FolderChanged -= Watcher_FolderChanged;
-                    this.watchers[i].Dispose();
-                    this.watchers.RemoveAt(i);
+                    watcher.FolderChanged -= Watcher_FolderChanged;
+                    watcher.Dispose();
                 }
             });
         }

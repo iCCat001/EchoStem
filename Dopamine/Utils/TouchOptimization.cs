@@ -55,6 +55,17 @@ namespace Dopamine.Utils
 
             // Tooltips are hover-triggered: they are useless on a touch screen.
             resources["Touch_ToolTipVisibility"] = on ? Visibility.Collapsed : Visibility.Visible;
+
+            // On a touch screen, panning the songs list makes rows pass under the finger, which
+            // highlights many rows (hover) and marks them selected. Hide both colors in touch mode.
+            // When touch optimization is off, the original theme brushes are used (copied here, and
+            // refreshed by Apply() whenever the theme changes).
+            resources["Touch_DataGridRowHoverBrush"] = on
+                ? (Brush)Brushes.Transparent
+                : (Application.Current.TryFindResource("Brush_ItemHovered") as Brush);
+            resources["Touch_DataGridRowSelectedBrush"] = on
+                ? (Brush)Brushes.Transparent
+                : (Application.Current.TryFindResource("Brush_ItemSelected") as Brush);
         }
 
         /// <summary>

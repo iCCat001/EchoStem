@@ -265,9 +265,10 @@
                 </Border.Effect>
             </Border>
             <commonviews:PlaybackInfoControl
-        Height="50"
+        Height="72"
         Margin="20,0,20,0"
         ShowAlbumInfo="False"
+        ShowQualityInfo="True"
         TitleFontSize="22"
         TitleFontWeight="Light" />
             <!-- Lyrics source -->

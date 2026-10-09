@@ -229,7 +229,42 @@ namespace Dopamine.Services.Utils
                 return;
             }
 
-            ScrollItemCenteredVertically(scrollViewer, listBoxItem);
+            ScrollItemCenteredVertically(scrollViewer, listBoxItem, box.Items.IndexOf(itemObject), box.Items.Count);
+        }
+
+        /// <summary>
+        /// Scrolls a ListBox which lays its items out in a uniform grid (a wrapping panel, e.g. the
+        /// album wall) so that the item at <paramref name="itemIndex"/> is vertically centered.
+        /// The offsets of such a panel are in pixels; computing the position from the tile geometry
+        /// works even when the item's container has not been generated yet (out of view), where
+        /// ContainerFromItem would return null.
+        /// </summary>
+        public static void ScrollToListBoxGridIndexCenteredVertically(ListBox box, int itemIndex, double itemWidth, double itemHeight)
+        {
+            if (box == null || itemIndex < 0 || itemWidth <= 0 || itemHeight <= 0)
+            {
+                return;
+            }
+
+            ScrollViewer scrollViewer = (ScrollViewer)VisualTreeUtils.GetDescendantByType(box, typeof(ScrollViewer));
+
+            if (scrollViewer == null)
+            {
+                return;
+            }
+
+            double columns = Math.Floor(scrollViewer.ExtentWidth / itemWidth);
+            if (columns < 1) columns = 1;
+
+            double row = Math.Floor(itemIndex / columns);
+            double targetOffset = row * itemHeight + (itemHeight / 2.0) - (scrollViewer.ViewportHeight / 2.0);
+
+            double maxOffset = scrollViewer.ExtentHeight - scrollViewer.ViewportHeight;
+            if (maxOffset < 0) maxOffset = 0;
+            if (targetOffset < 0) targetOffset = 0;
+            if (targetOffset > maxOffset) targetOffset = maxOffset;
+
+            ScrollViewerAnimation.ScrollToVerticalOffset(scrollViewer, targetOffset, 350);
         }
 
         // Scrolls the given DataGrid so that the item is vertically centered in the viewport.
@@ -260,18 +295,41 @@ namespace Dopamine.Services.Utils
                 return;
             }
 
-            ScrollItemCenteredVertically(scrollViewer, row);
+            ScrollItemCenteredVertically(scrollViewer, row, grid.Items.IndexOf(itemObject), grid.Items.Count);
         }
 
         // Animates the ScrollViewer so that the item is vertically centered in the viewport
         // (clamped to the top/bottom of the list when centering is not possible).
-        private static void ScrollItemCenteredVertically(ScrollViewer scrollViewer, FrameworkElement item)
+        private static void ScrollItemCenteredVertically(ScrollViewer scrollViewer, FrameworkElement item, int itemIndex, int itemCount)
         {
+            double targetOffset;
+
+            // Custom panels (e.g. the album wall's VirtualizingWrapPanel) report
+            // CanContentScroll = True but still use pixel offsets. Only treat the offsets as item
+            // indices when the scroll extent is on the same order as the item count.
+            bool pixelUnits = !scrollViewer.CanContentScroll || scrollViewer.ExtentHeight > itemCount * 1.5;
+
+            if (!pixelUnits)
+            {
+                // The scroll offsets are expressed in items (not in pixels). Center by placing the
+                // item in the middle of the visible items.
+                targetOffset = itemIndex - (scrollViewer.ViewportHeight - 1) / 2.0;
+
+                double maxItemOffset = scrollViewer.ExtentHeight - scrollViewer.ViewportHeight;
+                if (maxItemOffset < 0) maxItemOffset = 0;
+                if (targetOffset < 0) targetOffset = 0;
+                if (targetOffset > maxItemOffset) targetOffset = maxItemOffset;
+
+                ScrollViewerAnimation.ScrollToVerticalOffset(scrollViewer, targetOffset, 350);
+                return;
+            }
+
+            // The scroll offsets are expressed in pixels.
             GeneralTransform transform = item.TransformToAncestor(scrollViewer);
             double itemTopInViewport = transform.Transform(new Point(0, 0)).Y;
             double itemTopInContent = scrollViewer.VerticalOffset + itemTopInViewport;
 
-            double targetOffset = itemTopInContent + (item.ActualHeight / 2.0) - (scrollViewer.ViewportHeight / 2.0);
+            targetOffset = itemTopInContent + (item.ActualHeight / 2.0) - (scrollViewer.ViewportHeight / 2.0);
 
             double maxOffset = scrollViewer.ExtentHeight - scrollViewer.ViewportHeight;
             if (maxOffset < 0) maxOffset = 0;
