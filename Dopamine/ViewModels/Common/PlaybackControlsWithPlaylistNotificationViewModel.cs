@@ -267,19 +267,28 @@ namespace Dopamine.ViewModels.Common
                 return false;
             }
 
-            if (!this.suppressLyrics)
+            // Only a tap which actually lands on the lyric/notification overlay must be swallowed:
+            // in that case the playback controls are the faded-out top layer and the tap would
+            // otherwise hit the button which happens to be under the finger. When no overlay is
+            // shown (for example while the lyrics page is displayed, so the control bar lyric is
+            // hidden), the controls are visible and the tap must reach the button directly.
+            if (!this.ShowAddedTracksToPlaylistText)
             {
-                this.showAddedTracksToPlaylistTextTimer.Stop();
-                this.isMessageActive = false;
-                this.lyricsResumeTimer.Stop();
-                this.suppressLyrics = true;
-                this.HideOverlay();
-                this.RestartControlsHideTimer();
-                return true;
+                if (this.suppressLyrics)
+                {
+                    this.RestartControlsHideTimer();
+                }
+
+                return false;
             }
 
+            this.showAddedTracksToPlaylistTextTimer.Stop();
+            this.isMessageActive = false;
+            this.lyricsResumeTimer.Stop();
+            this.suppressLyrics = true;
+            this.HideOverlay();
             this.RestartControlsHideTimer();
-            return false;
+            return true;
         }
 
         private void RestartControlsHideTimer()

@@ -67,6 +67,90 @@ namespace Dopamine.Services.Entities
 
         public string Bitrate => this.Track.BitRate != null ? this.Track.BitRate + " kbps" : "";
 
+        /// <summary>
+        /// Human readable audio quality of the track, e.g. "FLAC · 24bits · 1411kb/s · 44.1kHz".
+        /// For NetEase Cloud Music containers the format is prefixed with "NCM-" (e.g. "NCM-FLAC").
+        /// </summary>
+        public string Quality
+        {
+            get
+            {
+                var track = this.Track;
+
+                string extension = string.IsNullOrEmpty(track.Path) ? string.Empty : System.IO.Path.GetExtension(track.Path).TrimStart('.').ToUpperInvariant();
+                bool isNcm = extension == "NCM";
+
+                // Format
+                string format;
+
+                if (isNcm)
+                {
+                    string subType = GetMimeSubType(track.MimeType);
+
+                    if (subType == "MPEG")
+                    {
+                        subType = "MP3";
+                    }
+
+                    format = string.IsNullOrEmpty(subType) || subType == "NCM" ? "NCM" : "NCM-" + subType;
+                }
+                else
+                {
+                    format = extension == "MPEG" ? "MP3" : extension;
+                }
+
+                var parts = new System.Collections.Generic.List<string>();
+
+                if (!string.IsNullOrEmpty(format))
+                {
+                    parts.Add(format);
+                }
+
+                // FLAC bit depth (e.g. "24bits"), between the format and the bit rate.
+                if (format == "FLAC")
+                {
+                    int bitsPerSample = MetadataUtils.GetBitsPerSample(track.Path);
+
+                    if (bitsPerSample > 0)
+                    {
+                        parts.Add(bitsPerSample + "bits");
+                    }
+                }
+
+                // Bit rate in kb/s. NetEase stores the bit rate in bits/s, so convert it.
+                long? bitRate = track.BitRate;
+
+                if (isNcm && bitRate.HasValue && bitRate.Value > 10000)
+                {
+                    bitRate = bitRate.Value / 1000;
+                }
+
+                if (bitRate.HasValue && bitRate.Value > 0)
+                {
+                    parts.Add(bitRate.Value + "kb/s");
+                }
+
+                // Sample rate in kHz.
+                if (track.SampleRate.HasValue && track.SampleRate.Value > 0)
+                {
+                    parts.Add((track.SampleRate.Value / 1000.0).ToString("0.##") + "kHz");
+                }
+
+                return string.Join(" · ", parts);
+            }
+        }
+
+        private static string GetMimeSubType(string mimeType)
+        {
+            if (string.IsNullOrEmpty(mimeType))
+            {
+                return string.Empty;
+            }
+
+            int slashIndex = mimeType.IndexOf('/');
+            return (slashIndex >= 0 ? mimeType.Substring(slashIndex + 1) : mimeType).Trim().ToUpperInvariant();
+        }
+
         public string AlbumTitle => !string.IsNullOrEmpty(this.Track.AlbumTitle) ? this.Track.AlbumTitle : ResourceUtils.GetString("Language_Unknown_Album");
 
         public string PlayCount => this.Track.PlayCount.HasValueLargerThan(0) ? this.Track.PlayCount.Value.ToString() : string.Empty;

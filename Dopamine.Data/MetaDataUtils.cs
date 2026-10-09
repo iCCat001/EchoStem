@@ -116,6 +116,36 @@ namespace Dopamine.Data
             return result;
         }
 
+        /// <summary>
+        /// Returns the number of bits per audio sample of the given file (e.g. 16 or 24 for FLAC),
+        /// or 0 when it can't be determined (unsupported format, NCM container, missing file, ...).
+        /// </summary>
+        public static int GetBitsPerSample(string path)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(path) || !File.Exists(path))
+                {
+                    return 0;
+                }
+
+                // NCM files are encrypted containers: TagLib can't read them.
+                if (string.Equals(Path.GetExtension(path), ".ncm", StringComparison.OrdinalIgnoreCase))
+                {
+                    return 0;
+                }
+
+                using (TagLib.File file = TagLib.File.Create(path))
+                {
+                    return file.Properties.BitsPerSample;
+                }
+            }
+            catch (Exception)
+            {
+                return 0;
+            }
+        }
+
         private static string GetMultiValueTags(MetadataValue value)
         {
             if (string.IsNullOrWhiteSpace(value.Value))

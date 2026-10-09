@@ -8,6 +8,7 @@ namespace Dopamine.ViewModels
         private string artist;
         private string album;
         private string year;
+        private string quality;
         private string currentTime;
         private string totalTime;
 
@@ -33,6 +34,15 @@ namespace Dopamine.ViewModels
         {
             get { return this.year; }
             set { SetProperty<string>(ref this.year, value); }
+        }
+
+        /// <summary>
+        /// Audio quality of the track, e.g. "FLAC · 24bits · 1411kb/s · 44.1kHz".
+        /// </summary>
+        public string Quality
+        {
+            get { return this.quality; }
+            set { SetProperty<string>(ref this.quality, value); }
         }
 
         public string CurrentTime

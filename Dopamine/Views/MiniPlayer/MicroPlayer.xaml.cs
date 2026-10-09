@@ -25,12 +25,25 @@ namespace Dopamine.Views.MiniPlayer
             // on a half pixel. This causes a blurry spectrum analyzer.
             try
             {
+                // When the spectrum container is collapsed (e.g. right after loading), its width is 0.
+                // Centering with a 0 width would push it to the right, so skip until it has been measured
+                // (the SizeChanged handler re-aligns it).
+                if (this.SpectrumAnalyzer.ActualWidth <= 0 || this.ControlsPanel.ActualWidth <= 0)
+                {
+                    return;
+                }
+
                 this.SpectrumAnalyzer.Margin = new Thickness(Convert.ToInt32(this.ControlsPanel.ActualWidth / 2) - Convert.ToInt32(this.SpectrumAnalyzer.ActualWidth / 2), 0, 0, 0);
             }
             catch (Exception)
             {
                 // Swallow this exception
             }
+        }
+
+        private void SpectrumAnalyzer_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            this.AlignSpectrumAnalyzer();
         }
 
         private void CommonMiniPlayerView_Loaded(object sender, System.Windows.RoutedEventArgs e)

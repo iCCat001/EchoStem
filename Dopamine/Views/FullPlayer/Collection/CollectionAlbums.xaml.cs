@@ -1,6 +1,7 @@
 ﻿using Dopamine.Views.Common.Base;
 using Dopamine.Core.Prism;
 using Dopamine.Services.Entities;
+using Dopamine.Services.Playback;
 using Dopamine.Services.Utils;
 using Digimezzo.Foundation.WPF.Controls;
 using Prism.Commands;
@@ -69,22 +70,60 @@ namespace Dopamine.Views.FullPlayer.Collection
                 return;
             }
 
-            string albumKey = this.playbackService.CurrentTrack.Track.AlbumKey;
+            var track = this.playbackService.CurrentTrack.Track;
 
-            if (string.IsNullOrEmpty(albumKey))
+            if (track == null)
             {
                 return;
             }
+
+            string albumKey = track.AlbumKey;
+            AlbumViewModel match = null;
+            AlbumViewModel titleMatch = null;
 
             foreach (object item in this.ListBoxAlbums.Items)
             {
                 var album = item as AlbumViewModel;
 
-                if (album != null && string.Equals(album.AlbumKey, albumKey, StringComparison.OrdinalIgnoreCase))
+                if (album == null)
                 {
-                    ScrollUtils.ScrollToListBoxItemCenteredVertically(this.ListBoxAlbums, album);
-                    return;
+                    continue;
                 }
+
+                // Prefer an exact album key match; fall back to the album title when the key is
+                // missing (e.g. albums without an album artist).
+                if (!string.IsNullOrEmpty(albumKey) && string.Equals(album.AlbumKey, albumKey, StringComparison.OrdinalIgnoreCase))
+                {
+                    match = album;
+                    break;
+                }
+
+                if (titleMatch == null && string.Equals(album.AlbumTitle, track.AlbumTitle, StringComparison.OrdinalIgnoreCase))
+                {
+                    titleMatch = album;
+                }
+            }
+
+            match = match ?? titleMatch;
+
+            if (match == null)
+            {
+                return;
+            }
+
+            // The album wall lays out its tiles in a wrapping grid whose ScrollViewer offsets are
+            // in pixels. The item's container is not generated while it is out of view, so compute
+            // the offset from the tile geometry instead of from the (possibly missing) container.
+            var albumsViewModel = this.DataContext as Dopamine.ViewModels.Common.Base.AlbumsViewModelBase;
+
+            if (albumsViewModel != null && albumsViewModel.AlbumWidth > 0 && albumsViewModel.AlbumHeight > 0)
+            {
+                ScrollUtils.ScrollToListBoxGridIndexCenteredVertically(
+                    this.ListBoxAlbums, this.ListBoxAlbums.Items.IndexOf(match), albumsViewModel.AlbumWidth, albumsViewModel.AlbumHeight);
+            }
+            else
+            {
+                ScrollUtils.ScrollToListBoxItemCenteredVertically(this.ListBoxAlbums, match);
             }
         }
 
@@ -92,6 +131,76 @@ namespace Dopamine.Views.FullPlayer.Collection
         {
             this.UpdateTracksPaneWidth();
             this.SetTracksPaneOpen(this.ListBoxAlbums.SelectedItems.Count > 0, false);
+
+            // Highlight the album of the currently playing track (without selecting it, so the
+            // details pane is not opened). Kept in sync while playback moves to another track.
+            this.playbackService.PlaybackSuccess -= this.PlaybackService_PlaybackSuccess;
+            this.playbackService.PlaybackSuccess += this.PlaybackService_PlaybackSuccess;
+            this.playbackService.PlayingTrackChanged -= this.PlaybackService_PlayingTrackChanged;
+            this.playbackService.PlayingTrackChanged += this.PlaybackService_PlayingTrackChanged;
+
+            // The album list is loaded asynchronously, so at startup (when the current track can
+            // already be a paused, restored one) it may still be empty here and no further playback
+            // event will arrive. Re-apply the highlight whenever the list gets (re)populated.
+            if (this.ListBoxAlbums.Items is System.Collections.Specialized.INotifyCollectionChanged items)
+            {
+                items.CollectionChanged -= this.Albums_CollectionChanged;
+                items.CollectionChanged += this.Albums_CollectionChanged;
+            }
+
+            this.UpdatePlayingAlbum();
+        }
+
+        private void RootGrid_Unloaded(object sender, RoutedEventArgs e)
+        {
+            this.playbackService.PlaybackSuccess -= this.PlaybackService_PlaybackSuccess;
+            this.playbackService.PlayingTrackChanged -= this.PlaybackService_PlayingTrackChanged;
+
+            if (this.ListBoxAlbums.Items is System.Collections.Specialized.INotifyCollectionChanged items)
+            {
+                items.CollectionChanged -= this.Albums_CollectionChanged;
+            }
+        }
+
+        private void Albums_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            this.UpdatePlayingAlbum();
+        }
+
+        private void PlaybackService_PlaybackSuccess(object sender, PlaybackSuccessEventArgs e)
+        {
+            this.UpdatePlayingAlbum();
+        }
+
+        private void PlaybackService_PlayingTrackChanged(object sender, EventArgs e)
+        {
+            this.UpdatePlayingAlbum();
+        }
+
+        // Marks the album which contains the currently playing track. This only drives the accent
+        // border under the album tile, it does not touch the ListBox selection.
+        private void UpdatePlayingAlbum()
+        {
+            var track = this.playbackService.CurrentTrack == null ? null : this.playbackService.CurrentTrack.Track;
+
+            string albumKey = track == null ? null : track.AlbumKey;
+            string albumTitle = track == null ? null : track.AlbumTitle;
+
+            foreach (object item in this.ListBoxAlbums.Items)
+            {
+                var album = item as AlbumViewModel;
+
+                if (album == null)
+                {
+                    continue;
+                }
+
+                bool playing = !string.IsNullOrEmpty(albumKey)
+                    ? string.Equals(album.AlbumKey, albumKey, StringComparison.OrdinalIgnoreCase)
+                    : (!string.IsNullOrEmpty(albumTitle) && string.Equals(album.AlbumTitle, albumTitle, StringComparison.OrdinalIgnoreCase));
+
+                album.IsPlaying = playing;
+            }
         }
 
         private void RootGrid_SizeChanged(object sender, SizeChangedEventArgs e)

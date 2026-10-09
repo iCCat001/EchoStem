@@ -301,6 +301,10 @@ namespace Dopamine
                 // Touch optimization: application-wide resource values used by the styles.
                 TouchOptimization.Apply();
 
+                // The touch optimization copies some theme brushes (e.g. the songs list hover/
+                // selection colors): refresh them when the theme changes.
+                Container.Resolve<IAppearanceService>().ThemeChanged += _ => TouchOptimization.Apply();
+
                 SettingsClient.SettingChanged += (_, e) =>
                 {
                     if (SettingsClient.IsSettingChanged(e, "Features", "TouchOptimization"))

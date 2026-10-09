@@ -18,6 +18,7 @@ namespace Dopamine.Services.Entities
         private long? dateAdded;
         private long? dateFileCreated;
         private long sortYear;
+        private bool isPlaying;
 
         public AlbumViewModel(AlbumData albumData)
         {
@@ -63,6 +64,17 @@ namespace Dopamine.Services.Entities
         }
 
         public string AlbumKey { get; set; }
+
+        /// <summary>
+        /// Indicates that one of the tracks of this album is currently playing. Used to draw an
+        /// accent border under the album tile, independently of the selection (which opens the
+        /// album details pane).
+        /// </summary>
+        public bool IsPlaying
+        {
+            get { return this.isPlaying; }
+            set { SetProperty<bool>(ref this.isPlaying, value); }
+        }
 
         public long? DateAdded
         {

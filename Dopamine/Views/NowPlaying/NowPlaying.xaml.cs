@@ -131,6 +131,11 @@ namespace Dopamine.Views.NowPlaying
             // on a half pixel. This causes a blurry spectrum analyzer.
             try
             {
+                if (this.SpectrumAnalyzer.ActualWidth <= 0 || this.ActualWidth <= 0)
+                {
+                    return;
+                }
+
                 this.SpectrumAnalyzer.Margin = new Thickness(Convert.ToInt32(this.ActualWidth / 2) - Convert.ToInt32(this.SpectrumAnalyzer.ActualWidth / 2), 0, 0, 0);
             }
             catch (Exception)

@@ -190,10 +190,10 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="true">
-                <Setter Property="Background" Value="{DynamicResource Brush_ItemHovered}" />
+                <Setter Property="Background" Value="{DynamicResource Touch_DataGridRowHoverBrush}" />
             </Trigger>
             <Trigger Property="IsSelected" Value="True">
-                <Setter Property="Background" Value="{DynamicResource Brush_ItemSelected}"/>
+                <Setter Property="Background" Value="{DynamicResource Touch_DataGridRowSelectedBrush}"/>
             </Trigger>
             <Trigger Property="IsSelected" Value="False">
             </Trigger>

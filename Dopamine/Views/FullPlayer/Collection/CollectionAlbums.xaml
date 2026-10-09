@@ -24,6 +24,7 @@
 
     <Grid x:Name="RootGrid" ClipToBounds="True" Background="Transparent"
           Loaded="RootGrid_Loaded"
+          Unloaded="RootGrid_Unloaded"
           SizeChanged="RootGrid_SizeChanged">
 
         <!-- Album wall. Is translated to the left when the details pane is opened. -->

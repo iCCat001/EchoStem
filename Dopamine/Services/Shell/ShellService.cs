@@ -235,6 +235,12 @@ namespace Dopamine.Services.Shell
             // Navigate to content
             this.regionManager.RequestNavigate(RegionNames.PlayerTypeRegion, screenName);
 
+            // Tell the control bar lyrics whether the Now Playing page is actually visible. The mini
+            // player shows the control bar but never the Now Playing (lyrics) page, so switching from
+            // the lyrics page to a mini player must clear this flag; otherwise the control bar lyrics
+            // stay suppressed (as if the lyrics page were still displayed) and never come back.
+            this.eventAggregator.GetEvent<IsNowPlayingPageActiveChanged>().Publish(!isMiniPlayer && screenName == this.nowPlayingPage);
+
             // Switching to the mini player hides the full player: let those pages release their
             // retained lists to save memory. They are reloaded when shown again.
             if (isMiniPlayer)

@@ -29,6 +29,10 @@ namespace Dopamine.Views.Common
             DependencyProperty.Register(nameof(TimeFontSize), typeof(double), typeof(PlaybackInfoControl), new PropertyMetadata(Constants.GlobalFontSize));
         public static readonly DependencyProperty ShowAlbumInfoProperty = 
             DependencyProperty.Register(nameof(ShowAlbumInfo), typeof(bool), typeof(PlaybackInfoControl), new PropertyMetadata(false));
+        public static readonly DependencyProperty ShowQualityInfoProperty =
+            DependencyProperty.Register(nameof(ShowQualityInfo), typeof(bool), typeof(PlaybackInfoControl), new PropertyMetadata(false));
+        public static readonly DependencyProperty QualityFontSizeProperty =
+            DependencyProperty.Register(nameof(QualityFontSize), typeof(double), typeof(PlaybackInfoControl), new PropertyMetadata(Constants.GlobalFontSize));
         public static readonly DependencyProperty ShowLoveAndRatingProperty =
             DependencyProperty.Register(nameof(ShowLoveAndRating), typeof(bool), typeof(PlaybackInfoControl), new PropertyMetadata(false));
         public static readonly DependencyProperty IsBottomAlignedProperty = 
@@ -113,6 +117,20 @@ namespace Dopamine.Views.Common
             get { return Convert.ToBoolean(GetValue(ShowAlbumInfoProperty)); }
 
             set { SetValue(ShowAlbumInfoProperty, value); }
+        }
+
+        public bool ShowQualityInfo
+        {
+            get { return Convert.ToBoolean(GetValue(ShowQualityInfoProperty)); }
+
+            set { SetValue(ShowQualityInfoProperty, value); }
+        }
+
+        public double QualityFontSize
+        {
+            get { return Convert.ToDouble(GetValue(QualityFontSizeProperty)); }
+
+            set { SetValue(QualityFontSizeProperty, value); }
         }
 
         public bool ShowLoveAndRating

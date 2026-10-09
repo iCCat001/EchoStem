@@ -74,8 +74,12 @@ namespace Dopamine.Services.Utils
 
             if (Math.Abs(from - targetOffset) < 0.5)
             {
-                // Already there: no animation required.
+                // Already there: no animation required. Clear the cached target, otherwise a later
+                // request for this same offset (after the user scrolled away) would be discarded as
+                // "already scrolling to this offset" by the check above, and locating would stop
+                // working for that target.
                 SetVerticalOffset(scrollViewer, targetOffset);
+                SetTargetOffset(scrollViewer, double.NaN);
                 return;
             }
 
@@ -85,6 +89,18 @@ namespace Dopamine.Services.Utils
                 To = targetOffset,
                 Duration = TimeSpan.FromMilliseconds(durationMilliseconds),
                 EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseInOut }
+            };
+
+            // Once the animation is finished, forget the cached target. Otherwise a later request
+            // for the same offset (e.g. locating the same album again after the user manually
+            // scrolled away) would be discarded as "already scrolling to this offset" and nothing
+            // would happen.
+            animation.Completed += (_, __) =>
+            {
+                if (Math.Abs(GetTargetOffset(scrollViewer) - targetOffset) < 0.5)
+                {
+                    SetTargetOffset(scrollViewer, double.NaN);
+                }
             };
 
             scrollViewer.BeginAnimation(VerticalOffsetProperty, animation);

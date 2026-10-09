@@ -170,6 +170,11 @@
                             <!--<Setter Property="Background" Value="{DynamicResource Brush_ItemSelected}"/>-->
                             <Setter Property="Background" TargetName="SelectionBorder" Value="{DynamicResource Brush_Accent}"/>
                         </Trigger>
+                        <!-- The currently playing album also gets the accent border, without being selected
+                             (selecting it would open the details pane). -->
+                        <DataTrigger Binding="{Binding IsPlaying}" Value="True">
+                            <Setter Property="Background" TargetName="SelectionBorder" Value="{DynamicResource Brush_Accent}"/>
+                        </DataTrigger>
                         <EventTrigger RoutedEvent="MouseEnter">
                             <BeginStoryboard>
                                 <Storyboard Storyboard.TargetName="MouseHoverHelper" TargetProperty="Opacity">

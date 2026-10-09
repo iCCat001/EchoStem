@@ -24,6 +24,7 @@
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="TitleFontSize" To="40.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="ArtistFontSize" To="20.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="AlbumFontSize" To="20.0" Duration="0:0:0.05" />
+                <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="QualityFontSize" To="11.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="RatingFontSize" To="15.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="LoveFontSize" To="18.0" Duration="0:0:0.05" />
             </Storyboard>
@@ -33,6 +34,7 @@
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="TitleFontSize" To="50.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="ArtistFontSize" To="25.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="AlbumFontSize" To="25.0" Duration="0:0:0.05" />
+                <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="QualityFontSize" To="14.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="RatingFontSize" To="20.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="LoveFontSize" To="23.0" Duration="0:0:0.05" />
             </Storyboard>
@@ -42,6 +44,7 @@
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="TitleFontSize" To="60.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="ArtistFontSize" To="30.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="AlbumFontSize" To="30.0" Duration="0:0:0.05" />
+                <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="QualityFontSize" To="16.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="RatingFontSize" To="25.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="LoveFontSize" To="28.0" Duration="0:0:0.05" />
             </Storyboard>
@@ -51,6 +54,7 @@
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="TitleFontSize" To="70.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="ArtistFontSize" To="35.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="AlbumFontSize" To="35.0" Duration="0:0:0.05" />
+                <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="QualityFontSize" To="19.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="RatingFontSize" To="30.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="LoveFontSize" To="33.0" Duration="0:0:0.05" />
             </Storyboard>
@@ -60,6 +64,7 @@
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="TitleFontSize" To="80.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="ArtistFontSize" To="40.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="AlbumFontSize" To="40.0" Duration="0:0:0.05" />
+                <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="QualityFontSize" To="22.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="RatingFontSize" To="35.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="LoveFontSize" To="38.0" Duration="0:0:0.05" />
             </Storyboard>
@@ -69,6 +74,7 @@
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="TitleFontSize" To="90.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="ArtistFontSize" To="45.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="AlbumFontSize" To="45.0" Duration="0:0:0.05" />
+                <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="QualityFontSize" To="25.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="RatingFontSize" To="40.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="LoveFontSize" To="43.0" Duration="0:0:0.05" />
             </Storyboard>
@@ -78,6 +84,7 @@
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="TitleFontSize" To="100.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="ArtistFontSize" To="50.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="AlbumFontSize" To="50.0" Duration="0:0:0.05" />
+                <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="QualityFontSize" To="28.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="RatingFontSize" To="45.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="LoveFontSize" To="48.0" Duration="0:0:0.05" />
             </Storyboard>
@@ -87,6 +94,7 @@
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="TitleFontSize" To="110.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="ArtistFontSize" To="55.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="AlbumFontSize" To="55.0" Duration="0:0:0.05" />
+                <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="QualityFontSize" To="30.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="RatingFontSize" To="50.0" Duration="0:0:0.05" />
                 <DoubleAnimation Storyboard.TargetName="PlaybackInfo" Storyboard.TargetProperty="LoveFontSize" To="53.0" Duration="0:0:0.05" />
             </Storyboard>
@@ -150,7 +158,7 @@
         <commonviews:PlaybackInfoControl 
             x:Name="PlaybackInfo" Margin="30,0,0,20" VerticalAlignment="Bottom" IsBottomAligned="True" Height="230"
             ArtistFontSize="20" ArtistFontWeight="Light" TitleFontSize="40" TitleFontWeight="Light" AlbumFontSize="20" 
-            AlbumFontWeight="Light" ShowAlbumInfo="True"
+            AlbumFontWeight="Light" ShowAlbumInfo="True" ShowQualityInfo="True" QualityFontSize="11"
             ShowLoveAndRating="True" LoveFontSize="18.0" RatingFontSize="15.0"/>
     </DockPanel>
 </UserControl>
