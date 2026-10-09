@@ -184,14 +184,14 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
                 {
                     this.EnableRating = (bool)e.Entry.Value;
                     this.SetTrackOrder("ArtistsTrackOrder");
-                    await this.GetTracksAsync(this.SelectedArtists, null, this.SelectedAlbums, this.TrackOrder);
+                    await this.RefreshTracksAsync();
                 }
 
                 if (SettingsClient.IsSettingChanged(e, "Behaviour", "EnableLove"))
                 {
                     this.EnableLove = (bool)e.Entry.Value;
                     this.SetTrackOrder("ArtistsTrackOrder");
-                    await this.GetTracksAsync(this.SelectedArtists, null, this.SelectedAlbums, this.TrackOrder);
+                    await this.RefreshTracksAsync();
                 }
             };
 
@@ -316,7 +316,25 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
 
             await this.GetArtistAlbumsAsync(this.SelectedArtists, this.ArtistType, this.AlbumOrder);
             this.SetTrackOrder("ArtistsTrackOrder");
-            await this.GetTracksAsync(this.SelectedArtists, null, this.SelectedAlbums, this.TrackOrder);
+
+            // The tracks pane is scoped to the selected album: clear it until an album is selected.
+            this.TracksCount = 0;
+            this.ClearTracks();
+        }
+
+        // Reloads the tracks of the selected album. When no album is selected, the tracks pane is
+        // empty (it is hidden anyway), so there is no need to load all the songs.
+        private async Task RefreshTracksAsync()
+        {
+            if (this.SelectedAlbums != null && this.SelectedAlbums.Count > 0)
+            {
+                await this.GetTracksAsync(this.SelectedArtists, null, this.SelectedAlbums, this.TrackOrder);
+            }
+            else
+            {
+                this.TracksCount = 0;
+                this.ClearTracks();
+            }
         }
 
         private async Task AddArtistsToPlaylistAsync(IList<string> artists, string playlistName)
@@ -475,7 +493,11 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
         {
             await this.GetArtistsAsync(this.ArtistType);
             await this.GetArtistAlbumsAsync(this.SelectedArtists, this.ArtistType, this.AlbumOrder);
-            await this.GetTracksAsync(this.SelectedArtists, null, this.SelectedAlbums, this.TrackOrder);
+
+            // No album is selected yet: the (hidden) tracks pane stays empty instead of loading
+            // all the songs.
+            this.TracksCount = 0;
+            this.ClearTracks();
         }
 
         protected async override Task EmptyListsAsync()
@@ -506,7 +528,7 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
             await base.SelectedAlbumsHandlerAsync(parameter);
 
             this.SetTrackOrder("ArtistsTrackOrder");
-            await this.GetTracksAsync(this.SelectedArtists, null, this.SelectedAlbums, this.TrackOrder);
+            await this.RefreshTracksAsync();
         }
 
         protected override void RefreshLanguage()

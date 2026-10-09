@@ -1,4 +1,4 @@
-using Digimezzo.Foundation.Core.Settings;
+﻿using Digimezzo.Foundation.Core.Settings;
 using Dopamine.Core.Base;
 using Dopamine.Data;
 using Dopamine.Services.Collection;
@@ -43,14 +43,24 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
                 {
                     this.EnableRating = (bool)e.Entry.Value;
                     this.SetTrackOrder("AlbumsTrackOrder");
-                    await this.GetTracksAsync(null, null, this.SelectedAlbums, this.TrackOrder);
+
+                    // Only refresh when an album is actually selected; otherwise this would load
+                    // the whole collection into the (hidden) tracks pane.
+                    if (this.SelectedAlbums != null && this.SelectedAlbums.Count > 0)
+                    {
+                        await this.GetTracksAsync(null, null, this.SelectedAlbums, this.TrackOrder);
+                    }
                 }
 
                 if (SettingsClient.IsSettingChanged(e, "Behaviour", "EnableLove"))
                 {
                     this.EnableLove = (bool)e.Entry.Value;
                     this.SetTrackOrder("AlbumsTrackOrder");
-                    await this.GetTracksAsync(null, null, this.SelectedAlbums, this.TrackOrder);
+
+                    if (this.SelectedAlbums != null && this.SelectedAlbums.Count > 0)
+                    {
+                        await this.GetTracksAsync(null, null, this.SelectedAlbums, this.TrackOrder);
+                    }
                 }
             };
 
