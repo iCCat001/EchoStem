@@ -18,7 +18,7 @@ jobs:
       SOLUTION: Dopamine.sln
       PROJECT: Dopamine\Dopamine.csproj
       CONFIGURATION: Release
-      PLATFORM: Any CPU
+      PLATFORM: AnyCPU
 
     steps:
       - name: Checkout
