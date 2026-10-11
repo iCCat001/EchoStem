@@ -131,10 +131,8 @@ jobs:
           $tag = '${{ github.ref_name }}'
           $zip = '${{ steps.package.outputs.path }}'
 
-          # This repository has immutable releases: assets can only be attached
+          # This repository may have immutable releases: assets can only be attached
           # before a release is published. So create it as a draft, upload the
-          # asset, then flip it to published.
-          $createArgs = @('release', 'create', $tag, $zip, '--title', $tag, '--generate-notes', '--draft')
-          if ($tag -match '-') { $createArgs += '--prerelease' }
-          gh @createArgs
-          gh release edit $tag --draft=false
+          # asset, then publish it and mark it as the latest release.
+          gh release create $tag $zip --title $tag --generate-notes --draft
+          gh release edit $tag --draft=false --latest
