@@ -115,11 +115,40 @@ jobs:
           "path=$zipPath" >> $env:GITHUB_OUTPUT
           "name=$zipName" >> $env:GITHUB_OUTPUT
 
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Create installer
+        id: installer
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $iscc = Get-ChildItem 'C:\Program Files (x86)\Inno Setup*\ISCC.exe', 'C:\Program Files\Inno Setup*\ISCC.exe' -ErrorAction SilentlyContinue |
+                  Sort-Object FullName -Descending | Select-Object -First 1 -ExpandProperty FullName
+          if (-not $iscc) { throw 'ISCC.exe not found after installing Inno Setup.' }
+
+          $version = '${{ steps.version.outputs.value }}'
+          $src = Join-Path $env:GITHUB_WORKSPACE 'Dopamine\bin\Release'
+
+          & $iscc "/DMyAppVersion=$version" "/DSourceDir=$src" (Join-Path $env:GITHUB_WORKSPACE 'installer\Dopamine.iss')
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed (exit $LASTEXITCODE)." }
+
+          $setup = Join-Path $env:GITHUB_WORKSPACE "installer\Output\Dopamine-Setup-$version.exe"
+          if (-not (Test-Path -LiteralPath $setup)) { throw "Installer not found: $setup" }
+
+          Write-Host "Created $setup"
+          "path=$setup" >> $env:GITHUB_OUTPUT
+          "name=Dopamine-Setup-$version.exe" >> $env:GITHUB_OUTPUT
+
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Dopamine-Portable-${{ steps.version.outputs.value }}
-          path: ${{ steps.package.outputs.path }}
+          name: Dopamine-${{ steps.version.outputs.value }}
+          path: |
+            ${{ steps.package.outputs.path }}
+            ${{ steps.installer.outputs.path }}
           if-no-files-found: error
 
       - name: Publish GitHub Release
@@ -130,9 +159,10 @@ jobs:
         run: |
           $tag = '${{ github.ref_name }}'
           $zip = '${{ steps.package.outputs.path }}'
+          $setup = '${{ steps.installer.outputs.path }}'
 
           # This repository may have immutable releases: assets can only be attached
           # before a release is published. So create it as a draft, upload the
-          # asset, then publish it and mark it as the latest release.
-          gh release create $tag $zip --title $tag --generate-notes --draft
+          # assets, then publish it and mark it as the latest release.
+          gh release create $tag $zip $setup --title $tag --generate-notes --draft
           gh release edit $tag --draft=false --latest

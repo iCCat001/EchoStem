@@ -40,8 +40,14 @@ msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 仓库包含 GitHub Actions 工作流 [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml)：
 
 - 推送形如 `v2.0.10` / `v2.0.10-beta1` 的 **tag** 时自动触发（也可手动 `workflow_dispatch`）。
-- 在 CI 中自动还原 NuGet 包并以 Release 配置编译主程序。
-- 产出 **Portable ZIP**（`Dopamine-Portable-<版本>.zip`）并自动创建 GitHub Release，标记为 **Latest**。
+- 在 CI 中自动还原 NuGet 包、以 Release 配置编译主程序，并用 **Inno Setup** 生成安装程序。
+- 产出并附带以下文件，自动创建标记为 **Latest** 的 GitHub Release：
+  - **安装版**：`Dopamine-Setup-<版本>.exe`（单文件安装程序，含文件关联、开始菜单 / 桌面快捷方式与卸载）
+  - **便携版**：`Dopamine-Portable-<版本>.zip`
+
+## 安装
+
+运行 `Dopamine-Setup-<版本>.exe` 即可（需要管理员权限，用于写入 Program Files 与文件关联）；安装时会自动结束正在运行的 Dopamine，完成后可勾选立即启动。便携版解压即用。
 
 ## 免责声明
 
@@ -83,7 +89,10 @@ msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 
 ### Automated release
 
-The [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml) workflow builds a **Portable ZIP** and creates a **Latest** GitHub Release when a `v*` tag is pushed.
+The [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml) workflow compiles the app in Release, builds an installer with **Inno Setup**, and creates a **Latest** GitHub Release with:
+
+- **Installer**: `Dopamine-Setup-<version>.exe` (single-file setup with file associations, Start Menu / desktop shortcuts and uninstaller)
+- **Portable**: `Dopamine-Portable-<version>.zip`
 
 ### Disclaimer
 
