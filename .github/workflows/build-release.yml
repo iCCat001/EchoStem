@@ -70,7 +70,7 @@ jobs:
         shell: pwsh
         run: |
           $ref = '${{ github.ref_name }}'
-          $version = $ref -replace '^[vV]', ''
+          $version = ($ref -replace '^[vV]', '') -replace '[^0-9A-Za-z._-]', '-'
           if ([string]::IsNullOrWhiteSpace($version)) { $version = '0.0.0' }
           Write-Host "Version: $version"
           "value=$version" >> $env:GITHUB_OUTPUT
