@@ -104,10 +104,21 @@ jobs:
           Write-Host "System.Runtime.WindowsRuntime.dll present: $(Test-Path -LiteralPath $rtTarget)"
 
       - name: Restore NuGet packages
-        run: nuget restore $env:SOLUTION
+        run: msbuild $env:SOLUTION -t:restore -p:RestorePackagesConfig=true /v:minimal /nologo
 
       - name: Build
-        run: msbuild $env:SOLUTION /p:Configuration=$env:CONFIGURATION "/p:Platform=$env:PLATFORM" /m /v:minimal /nologo
+        shell: pwsh
+        run: |
+          $output = & msbuild $env:SOLUTION /p:Configuration=$env:CONFIGURATION "/p:Platform=$env:PLATFORM" /m /v:minimal /nologo 2>&1
+          $code = $LASTEXITCODE
+          $output | ForEach-Object { Write-Host $_ }
+          if ($code -ne 0) {
+            "### Build failed (exit code $code)" | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
+            '```' | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
+            $output | Select-Object -Last 150 | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
+            '```' | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
+          }
+          exit $code
 
       - name: Determine version
         id: version
