@@ -113,9 +113,12 @@ jobs:
           $code = $LASTEXITCODE
           $output | ForEach-Object { Write-Host $_ }
           if ($code -ne 0) {
+            $errors = $output | Where-Object { $_ -match ':\s*error\b' -or $_ -match 'error (CS|MSB|NU)\d+' }
+            if (-not $errors) { $errors = $output | Select-Object -Last 20 }
+            $errors | Select-Object -First 25 | ForEach-Object { Write-Host "::error::$_" }
             "### Build failed (exit code $code)" | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
             '```' | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
-            $output | Select-Object -Last 150 | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
+            ($errors | Select-Object -First 100) | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
             '```' | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
           }
           exit $code
