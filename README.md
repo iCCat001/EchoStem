@@ -13,62 +13,26 @@ EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-
 
 ---
 
-## 相对于原版 Dopamine 的主要改动
+## 相对原版 Dopamine 的主要改动
 
-### 音频内核
-
-- **播放内核从 CSCore + FFmpeg 迁移到 [NAudio](https://github.com/naudio/NAudio)**。
-  使用 `NAudio` / `NAudio.Flac` / `NAudio.Vorbis`（NVorbis）/ `NLayer` 等组件解码与输出，打包清单（`PackagerConfiguration.xml`、`Dopamine.wxs`）已同步更新。
-
-### 触摸优化（面向 Surface 等触屏设备）
-
-- 针对触屏使用场景整体优化，可在 **设置 → 功能** 中开关：
-  - 更高的列表行、更宽的滚动条与滑块，便于手指点按。
-  - 播放控制常驻显示、歌词点击展开、关闭悬浮提示等。
-  - 主题切换时相关的悬停/选中配色会同步刷新。
-
-### 界面与交互
-
-- **歌手页重做**：改为双栏布局，与专辑页操作逻辑一致（点击歌手滑出曲目栏、浮层封面、双击播放、一键播放全部 / 加入正在播放队列）。
-- **正在播放页显示音质**：格式 · 位深（FLAC）· 码率 · 采样率，例如 `FLAC · 24bits · 1411kb/s · 44.1kHz`。
-- **歌词体验**：平滑滚动、播放行居中定位、暂停/恢复时控制条歌词显示、纯音乐占位提示、网易云歌词翻译。
-- **专辑封面自动补全**优先使用网易云音乐来源。
-- 迷你播放器频谱对齐、全局若干 UI 细节修复。
-- **隐藏/禁用** 了个人用不到的 Folders 与 Genres 页面（源码保留，便于日后恢复）。
-
-### 本地化
-
-- 列表排序**支持中文拼音**（`PinyinUtils`）。
-- 中文界面（`ZH-CN.xml`）文案完善，其余语言沿用上游。
-
-### 稳定性与性能
-
-- 修复多处**内存泄漏**（频谱控件事件订阅、外部控制服务、通知服务线程等）。
-- 修复**文件夹监视器（FolderWatcher）**崩溃。
-- 修复**批量从播放列表删除歌曲**时的崩溃：播放统计回调与队列的并发竞态、队列 `playbackOrder` 索引失效导致的 `IndexOutOfRange`。
-- 删除正在播放/被占用的文件时进行**重试**，避免删除失败。
-- 优化歌手页等页面的加载性能。
-
-> 首次运行仍需要 Windows 10 SDK 提供的关键引用（见下方「构建」）。
-
----
+- **更换播放内核**：从 CSCore + FFmpeg 迁移到 [NAudio](https://github.com/naudio/NAudio)。
+- **触摸优化**：面向 Surface 等触屏设备整体优化（更高的列表行、更宽的滚动条、常驻播放控制、点击展开歌词、关闭悬浮提示等），可在 **设置 → 功能** 中开关。
+- **稳定性提升**：修复了原版存在的多处**内存泄漏**，以及**批量从播放列表删除歌曲**时的崩溃等问题，显著改善长时间使用的稳定性。
+- **歌手页重做**：改为与专辑页一致的双栏布局（点击歌手滑出曲目栏、浮层封面、双击播放、一键播放全部 / 加入正在播放队列）。
+- **歌词体验改进**：平滑滚动、播放行居中、控制栏歌词、网易云歌词翻译。
+- **正在播放页显示音质**：格式 · 位深 · 码率 · 采样率，例如 `FLAC · 24bits · 1411kb/s · 44.1kHz`。
+- **中文排序支持拼音**：列表排序支持中文拼音。
+- 隐藏了个人用不到的 **Folders 与 Genres 页面**（源码保留，便于日后恢复）。
 
 ## 构建
 
 本项目为传统的非 SDK 格式 `.csproj`（`packages.config`），请使用 **Visual Studio / MSBuild** 构建，而非 `dotnet build`。
 
-必需的两项外部引用（上游 Dopamine 同样依赖）：
-
-1. **`Windows.winmd`**：来自 Windows 10 SDK。将 `C:\Program Files (x86)\Windows Kits\10\UnionMetadata\<版本>\Windows.winmd`
-   拷贝到其上级目录，使其位于 `C:\Program Files (x86)\Windows Kits\10\UnionMetadata\Windows.winmd`。
-2. **`System.Runtime.WindowsRuntime.dll`**：确保其存在于
-   `C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\`。
-
-满足上述依赖后，使用 MSBuild 构建：
+所需的 WinRT 引用（`Windows.winmd`、`System.Runtime.WindowsRuntime.dll`）已随仓库内置在 `Dopamine/Libraries/`，**无需额外安装 Windows SDK**。使用 MSBuild 构建：
 
 ```powershell
 nuget restore Dopamine.sln
-msbuild Dopamine.sln /p:Configuration=Release "/p:Platform=Any CPU" /m
+msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 ```
 
 ## 自动发布
@@ -76,7 +40,7 @@ msbuild Dopamine.sln /p:Configuration=Release "/p:Platform=Any CPU" /m
 仓库包含 GitHub Actions 工作流 [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml)：
 
 - 推送形如 `v2.0.10` / `v2.0.10-beta1` 的 **tag** 时自动触发（也可手动 `workflow_dispatch`）。
-- 在 CI 中自动准备上述 SDK 引用、还原 NuGet 包、以 Release 配置编译。
+- 在 CI 中自动还原 NuGet 包并以 Release 配置编译主程序。
 - 产出 **Portable ZIP**（`Dopamine-Portable-<版本>.zip`）并自动创建 GitHub Release。
 - 含 `-` 的 tag（如 `-beta1`）会被标记为 **Pre-release**。
 
@@ -98,30 +62,24 @@ It is based on Dopamine and licensed under the **GNU GPL v3**. All original copy
 
 ### Main changes vs. upstream Dopamine
 
-- **Audio engine migrated from CSCore + FFmpeg to [NAudio](https://github.com/naudio/NAudio)** (`NAudio.Flac`, `NAudio.Vorbis`/NVorbis, `NLayer`); packaging manifest updated accordingly.
-- **Touch optimization** for touch-screen devices (e.g. Surface), toggleable in Settings → Features: taller list rows, wider scrollbars/thumbs, always-visible playback controls, tap-to-reveal lyrics, no tooltips, theme-aware hover/selection colors.
+- **New audio engine**: migrated from CSCore + FFmpeg to [NAudio](https://github.com/naudio/NAudio).
+- **Touch optimization** for touch-screen devices (e.g. Surface): taller list rows, wider scrollbars, always-visible playback controls, tap-to-reveal lyrics, no tooltips, etc. Toggleable in Settings → Features.
+- **Stability improvements**: fixed several **memory leaks** from the original version and crashes when **bulk-deleting tracks from the Now Playing playlist**, greatly improving reliability during long sessions.
 - **Artists page redesigned** into a two-column layout matching the Albums page (slide-out track pane, floating cover, double-click to play, play-all / add-to-now-playing).
+- **Improved lyrics experience**: smooth scrolling, centered current line, control-bar lyrics, NetEase lyric translations.
 - **Audio quality shown on the Now Playing page** (`Format · bits · bitrate · samplerate`, e.g. `FLAC · 24bits · 1411kb/s · 44.1kHz`).
-- **Lyrics**: smooth scrolling, centered current line, control-bar lyrics on pause/resume, instrumental placeholder, NetEase lyric translations.
-- **Album art auto-fill** prefers NetEase Cloud Music as its source.
-- **Chinese Pinyin sorting** in lists; improved Simplified Chinese localization.
+- **Chinese Pinyin sorting** in lists.
 - **Folders and Genres pages hidden/disabled** (source kept, easy to re-enable).
-- **Stability & performance fixes**: several memory leaks, a FolderWatcher crash, and crashes when bulk-deleting tracks from the Now Playing playlist (playback-counter/queue concurrency race, stale `playbackOrder` indices), plus retry-on-lock when deleting files.
 
 ### Build
 
 Legacy non-SDK `.csproj` (`packages.config`) — build with **Visual Studio / MSBuild**, not `dotnet build`.
 
-Required external references (same as upstream):
-
-1. **`Windows.winmd`** from the Windows 10 SDK, copied to
-   `C:\Program Files (x86)\Windows Kits\10\UnionMetadata\Windows.winmd`.
-2. **`System.Runtime.WindowsRuntime.dll`** under
-   `C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\`.
+The required WinRT references (`Windows.winmd`, `System.Runtime.WindowsRuntime.dll`) are **vendored under `Dopamine/Libraries/`**, so no Windows SDK installation is required.
 
 ```powershell
 nuget restore Dopamine.sln
-msbuild Dopamine.sln /p:Configuration=Release "/p:Platform=Any CPU" /m
+msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 ```
 
 ### Automated release
