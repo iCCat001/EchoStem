@@ -41,8 +41,7 @@ msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 
 - 推送形如 `v2.0.10` / `v2.0.10-beta1` 的 **tag** 时自动触发（也可手动 `workflow_dispatch`）。
 - 在 CI 中自动还原 NuGet 包并以 Release 配置编译主程序。
-- 产出 **Portable ZIP**（`Dopamine-Portable-<版本>.zip`）并自动创建 GitHub Release。
-- 含 `-` 的 tag（如 `-beta1`）会被标记为 **Pre-release**。
+- 产出 **Portable ZIP**（`Dopamine-Portable-<版本>.zip`）并自动创建 GitHub Release，标记为 **Latest**。
 
 ## 免责声明
 
@@ -84,7 +83,7 @@ msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 
 ### Automated release
 
-The [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml) workflow builds a **Portable ZIP** and creates a GitHub Release when a `v*` tag is pushed (tags containing `-`, e.g. `-beta1`, are marked as Pre-release).
+The [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml) workflow builds a **Portable ZIP** and creates a **Latest** GitHub Release when a `v*` tag is pushed.
 
 ### Disclaimer
 
