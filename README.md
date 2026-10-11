@@ -16,6 +16,7 @@ EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-
 ## 相对原版 Dopamine 的主要改动
 
 - **重新设计的专辑页与歌手页**：更大的专辑墙展示区域，以及全新的交互面板（点击专辑 / 歌手即可滑出详细信息与曲目列表，两页保持一致的操作逻辑）。
+- **触摸优化**：面向 Surface 等触屏设备整体优化（更高的列表行、更宽的滚动条、常驻播放控制、点击展开歌词、关闭悬浮提示等），可在 **设置 → 功能** 中开关。
 - **更换播放内核**：从 CSCore + FFmpeg 迁移到 [NAudio](https://github.com/naudio/NAudio)。
 - **强化的歌词体验**：支持来自网易云的双语（带翻译）歌词、本地歌词，以及控制栏歌词。
 - **稳定性与性能**：彻底解决内存泄漏问题，带来性能提升，并修复了多项稳定性问题。
@@ -66,6 +67,7 @@ It is based on Dopamine and licensed under the **GNU GPL v3**. All original copy
 ### Main changes vs. upstream Dopamine
 
 - **Redesigned Albums and Artists pages**: a larger album-wall area plus a new interaction panel (clicking an album or artist slides out details and the track list, with a consistent layout on both pages).
+- **Touch optimization** for touch-screen devices (e.g. Surface): taller list rows, wider scrollbars, always-visible playback controls, tap-to-reveal lyrics, no tooltips, etc. Toggleable in Settings → Features.
 - **New audio engine**: migrated from CSCore + FFmpeg to [NAudio](https://github.com/naudio/NAudio).
 - **Enhanced lyrics experience**: bilingual NetEase lyrics (with translations), local lyrics, and control-bar lyrics.
 - **Stability & performance**: memory leaks fully resolved, performance improved, and many stability issues fixed.
