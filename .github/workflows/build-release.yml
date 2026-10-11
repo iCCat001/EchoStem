@@ -124,9 +124,17 @@ jobs:
 
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ${{ steps.package.outputs.path }}
-          generate_release_notes: true
-          draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $tag = '${{ github.ref_name }}'
+          $zip = '${{ steps.package.outputs.path }}'
+
+          # This repository has immutable releases: assets can only be attached
+          # before a release is published. So create it as a draft, upload the
+          # asset, then flip it to published.
+          $createArgs = @('release', 'create', $tag, $zip, '--title', $tag, '--generate-notes', '--draft')
+          if ($tag -match '-') { $createArgs += '--prerelease' }
+          gh @createArgs
+          gh release edit $tag --draft=false
