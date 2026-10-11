@@ -15,14 +15,12 @@ EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-
 
 ## 相对原版 Dopamine 的主要改动
 
+- **重新设计的专辑页与歌手页**：更大的专辑墙展示区域，以及全新的交互面板（点击专辑 / 歌手即可滑出详细信息与曲目列表，两页保持一致的操作逻辑）。
 - **更换播放内核**：从 CSCore + FFmpeg 迁移到 [NAudio](https://github.com/naudio/NAudio)。
-- **触摸优化**：面向 Surface 等触屏设备整体优化（更高的列表行、更宽的滚动条、常驻播放控制、点击展开歌词、关闭悬浮提示等），可在 **设置 → 功能** 中开关。
-- **稳定性提升**：修复了原版存在的多处**内存泄漏**，以及**批量从播放列表删除歌曲**时的崩溃等问题，显著改善长时间使用的稳定性。
-- **歌手页重做**：改为与专辑页一致的双栏布局（点击歌手滑出曲目栏、浮层封面、双击播放、一键播放全部 / 加入正在播放队列）。
-- **歌词体验改进**：平滑滚动、播放行居中、控制栏歌词、网易云歌词翻译。
-- **正在播放页显示音质**：格式 · 位深 · 码率 · 采样率，例如 `FLAC · 24bits · 1411kb/s · 44.1kHz`。
-- **中文排序支持拼音**：列表排序支持中文拼音。
-- 隐藏了个人用不到的 **Folders 与 Genres 页面**（源码保留，便于日后恢复）。
+- **强化的歌词体验**：支持来自网易云的双语（带翻译）歌词、本地歌词，以及控制栏歌词。
+- **稳定性与性能**：彻底解决内存泄漏问题，带来性能提升，并修复了多项稳定性问题。
+
+> 以上所有改动均基于个人使用习惯。
 
 ## 构建
 
@@ -67,14 +65,12 @@ It is based on Dopamine and licensed under the **GNU GPL v3**. All original copy
 
 ### Main changes vs. upstream Dopamine
 
+- **Redesigned Albums and Artists pages**: a larger album-wall area plus a new interaction panel (clicking an album or artist slides out details and the track list, with a consistent layout on both pages).
 - **New audio engine**: migrated from CSCore + FFmpeg to [NAudio](https://github.com/naudio/NAudio).
-- **Touch optimization** for touch-screen devices (e.g. Surface): taller list rows, wider scrollbars, always-visible playback controls, tap-to-reveal lyrics, no tooltips, etc. Toggleable in Settings → Features.
-- **Stability improvements**: fixed several **memory leaks** from the original version and crashes when **bulk-deleting tracks from the Now Playing playlist**, greatly improving reliability during long sessions.
-- **Artists page redesigned** into a two-column layout matching the Albums page (slide-out track pane, floating cover, double-click to play, play-all / add-to-now-playing).
-- **Improved lyrics experience**: smooth scrolling, centered current line, control-bar lyrics, NetEase lyric translations.
-- **Audio quality shown on the Now Playing page** (`Format · bits · bitrate · samplerate`, e.g. `FLAC · 24bits · 1411kb/s · 44.1kHz`).
-- **Chinese Pinyin sorting** in lists.
-- **Folders and Genres pages hidden/disabled** (source kept, easy to re-enable).
+- **Enhanced lyrics experience**: bilingual NetEase lyrics (with translations), local lyrics, and control-bar lyrics.
+- **Stability & performance**: memory leaks fully resolved, performance improved, and many stability issues fixed.
+
+> All of these changes are based on my personal usage habits.
 
 ### Build
 
