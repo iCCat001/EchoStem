@@ -43,9 +43,16 @@ CloseApplications=no
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
+Name: "chinesesimplified"; MessagesFile: "ChineseSimplified.isl"
+
+[CustomMessages]
+english.WindowsIntegration=Windows integration:
+chinesesimplified.WindowsIntegration=Windows 集成：
+english.AssociateFiles=Associate {#MyAppName} with supported audio files and add the "Play with {#MyAppName}" folder menu
+chinesesimplified.AssociateFiles=将 {#MyAppName} 关联到受支持的音频文件，并添加文件夹右键菜单“用 {#MyAppName} 播放”
 
 [Tasks]
-Name: "associate"; Description: "Associate {#MyAppName} with supported audio files and add the ""Play with {#MyAppName}"" folder menu"; GroupDescription: "Windows integration:"; Flags: checkedonce
+Name: "associate"; Description: "{cm:AssociateFiles}"; GroupDescription: "{cm:WindowsIntegration}"; Flags: checkedonce
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
