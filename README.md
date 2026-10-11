@@ -1,54 +1,135 @@
 # EchoStem
 
-EchoStem is an unofficial, personal, opinionated fork of digimezzo's Dopamine-Windows, customized as a local music player for my own preferences.
+**中文** | [English](#english)
 
-> **Note:** The content below is the original README from the upstream project.
->
-> Original project: [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows)
+EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows)（即 Dopamine 2 音乐播放器）的**非官方个人 fork**，仅为本人使用习惯而改造。
+本项目**以个人使用为主要设计方向**：功能取舍、界面调整与默认行为都围绕单人日常听歌场景，不追求通用性，也不保证与上游特性保持同步。
+
+[![Build & Release](https://github.com/iCCat001/EchoStem/actions/workflows/build-release.yml/badge.svg)](https://github.com/iCCat001/EchoStem/actions/workflows/build-release.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
+> EchoStem 基于 Dopamine，遵循 **GNU GPL v3** 许可证。原项目版权归 Digimezzo 所有。
+> **捐款请前往原项目**（Digimezzo / Dopamine），本 fork 不接受也不处理任何捐款。
 
 ---
 
+## 相对于原版 Dopamine 的主要改动
 
-![Dopamine](Dopamine.full.png)
+### 音频内核
 
-# Dopamine (for Windows)
+- **播放内核从 CSCore + FFmpeg 迁移到 [NAudio](https://github.com/naudio/NAudio)**。
+  使用 `NAudio` / `NAudio.Flac` / `NAudio.Vorbis`（NVorbis）/ `NLayer` 等组件解码与输出，打包清单（`PackagerConfiguration.xml`、`Dopamine.wxs`）已同步更新。
 
-Dopamine is an audio player which tries to make organizing and listening to music as simple and pretty as possible. It is written in C# and is powered by the [CSCore sound library](https://github.com/filoe/cscore).
+### 触摸优化（面向 Surface 等触屏设备）
 
-More information and downloads are available at [http://www.digimezzo.com](https://digimezzo.github.io/site/).
+- 针对触屏使用场景整体优化，可在 **设置 → 功能** 中开关：
+  - 更高的列表行、更宽的滚动条与滑块，便于手指点按。
+  - 播放控制常驻显示、歌词点击展开、关闭悬浮提示等。
+  - 主题切换时相关的悬停/选中配色会同步刷新。
 
-This software uses code of <a href=http://ffmpeg.org>FFmpeg</a> licensed under the <a href=http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html>LGPLv2.1</a> and its source can be downloaded <a href=https://github.com/FFmpeg/FFmpeg>here</a>.
+### 界面与交互
 
-[![Release](https://img.shields.io/github/release/digimezzo/Dopamine-windows.svg?style=flat-square)](https://github.com/digimezzo/Dopamine-windows/releases/latest)
-[![Issues](https://img.shields.io/github/issues/digimezzo/Dopamine-windows.svg?style=flat-square)](https://github.com/digimezzo/Dopamine-windows/issues)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=MQALEWTEZ7HX8)
+- **歌手页重做**：改为双栏布局，与专辑页操作逻辑一致（点击歌手滑出曲目栏、浮层封面、双击播放、一键播放全部 / 加入正在播放队列）。
+- **正在播放页显示音质**：格式 · 位深（FLAC）· 码率 · 采样率，例如 `FLAC · 24bits · 1411kb/s · 44.1kHz`。
+- **歌词体验**：平滑滚动、播放行居中定位、暂停/恢复时控制条歌词显示、纯音乐占位提示、网易云歌词翻译。
+- **专辑封面自动补全**优先使用网易云音乐来源。
+- 迷你播放器频谱对齐、全局若干 UI 细节修复。
+- **隐藏/禁用** 了个人用不到的 Folders 与 Genres 页面（源码保留，便于日后恢复）。
 
-<a href='https://ko-fi.com/S6S11K63U' target='_blank'><img height='36' style='border:0px;height:36px;' src='https://az743702.vo.msecnd.net/cdn/kofi1.png?v=2' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>
+### 本地化
 
+- 列表排序**支持中文拼音**（`PinyinUtils`）。
+- 中文界面（`ZH-CN.xml`）文案完善，其余语言沿用上游。
 
-![Dopaminescreenshot](Dopamine.screenshot.png)
+### 稳定性与性能
 
-## Documentation ##
+- 修复多处**内存泄漏**（频谱控件事件订阅、外部控制服务、通知服务线程等）。
+- 修复**文件夹监视器（FolderWatcher）**崩溃。
+- 修复**批量从播放列表删除歌曲**时的崩溃：播放统计回调与队列的并发竞态、队列 `playbackOrder` 索引失效导致的 `IndexOutOfRange`。
+- 删除正在播放/被占用的文件时进行**重试**，避免删除失败。
+- 优化歌手页等页面的加载性能。
 
-Dopamine 2's documentation can be found [here](https://github.com/digimezzo/dopamine-windows/blob/master/Dopamine%202%20Documentation.pdf).
-A huge thanks to [Theocharis Georgios](https://github.com/GeorgeTheocharis4) for writing the documentation from scratch!
+> 首次运行仍需要 Windows 10 SDK 提供的关键引用（见下方「构建」）。
 
-## Compile instructions ##
+---
 
-The Dopamine source code has a dependency to file **Windows.winmd**, which is provided by the Windows 10 SDK (for the system notifications). Install the Windows 10 SDK for your version of Windows 10. For Windows 10 10.0.17134.0, Windows.winmd can be found in the folder **C:\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.17134.0**. You'll have to copy this file to its parent folder. So it is available in this path: **C:\Program Files (x86)\Windows Kits\10\UnionMetadata\Windows.winmd**.
+## 构建
 
-The Dopamine source code also has a dependency to file **C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\System.Runtime.WindowsRuntime.dll**. Make sure it is available on your computer.
+本项目为传统的非 SDK 格式 `.csproj`（`packages.config`），请使用 **Visual Studio / MSBuild** 构建，而非 `dotnet build`。
 
-If both dependencies are met, Dopamine should compile without issues on Windows 7, 8, 8.1 and 10.
+必需的两项外部引用（上游 Dopamine 同样依赖）：
 
-If you are still unable to find assembly **Windows** after following these steps, please check issue <a href="https://github.com/digimezzo/dopamine-windows/issues/836">#836</a> for more help finding it.
+1. **`Windows.winmd`**：来自 Windows 10 SDK。将 `C:\Program Files (x86)\Windows Kits\10\UnionMetadata\<版本>\Windows.winmd`
+   拷贝到其上级目录，使其位于 `C:\Program Files (x86)\Windows Kits\10\UnionMetadata\Windows.winmd`。
+2. **`System.Runtime.WindowsRuntime.dll`**：确保其存在于
+   `C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\`。
 
-## Helping out with translations ##
+满足上述依赖后，使用 MSBuild 构建：
 
-Currently, I'm getting language files via Facebook, Twitter, e-mail and GitHub. It's getting hard to keep track of them and translations get lost. I'd like to centralize translation contributions on GitHub. The instruction below should help you do this.
+```powershell
+nuget restore Dopamine.sln
+msbuild Dopamine.sln /p:Configuration=Release "/p:Platform=Any CPU" /m
+```
 
-The most up to date translation files can be found in this repository, <a href="https://github.com/digimezzo/dopamine-windows/tree/master/Dopamine/Languages">over here</a>.
+## 自动发布
 
-For existing translation files, please edit them directly on GitHub and send me a pull request. <a href="https://help.github.com/articles/editing-files-in-another-user-s-repository/">Editing files in another user's repository</a> explains how to do this.
+仓库包含 GitHub Actions 工作流 [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml)：
 
-For new translation files (which are not yet in the repository), please add them via pull request. If you don't know how to add them, send me an e-mail to inform me which language you'd like me to add. I'll add the language file to the repository, so you can edit it directly on GitHub following the above procedure.
+- 推送形如 `v2.0.10` / `v2.0.10-beta1` 的 **tag** 时自动触发（也可手动 `workflow_dispatch`）。
+- 在 CI 中自动准备上述 SDK 引用、还原 NuGet 包、以 Release 配置编译。
+- 产出 **Portable ZIP**（`Dopamine-Portable-<版本>.zip`）并自动创建 GitHub Release。
+- 含 `-` 的 tag（如 `-beta1`）会被标记为 **Pre-release**。
+
+## 免责声明
+
+- 这是**个人非官方 fork**，与 Digimezzo 及上游 Dopamine 项目**无任何关联**，也未获其背书。
+- 使用本 fork 造成的任何问题由使用者自行承担；请勿向上游项目反馈本 fork 的问题。
+- 本项目遵循 **GPL v3**，详见 [LICENSE](LICENSE)。
+
+---
+
+## English
+
+EchoStem is an **unofficial, personal fork** of [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows) (the "Dopamine 2" music player), customized for my own daily use.
+It is **designed primarily for personal use**: features, UI and defaults are tuned for a single-listener workflow. It does not aim for generality and is not kept in sync with upstream.
+
+It is based on Dopamine and licensed under the **GNU GPL v3**. All original copyright belongs to Digimezzo.
+**Please donate to the original project** (Digimezzo / Dopamine) — this fork does not accept donations.
+
+### Main changes vs. upstream Dopamine
+
+- **Audio engine migrated from CSCore + FFmpeg to [NAudio](https://github.com/naudio/NAudio)** (`NAudio.Flac`, `NAudio.Vorbis`/NVorbis, `NLayer`); packaging manifest updated accordingly.
+- **Touch optimization** for touch-screen devices (e.g. Surface), toggleable in Settings → Features: taller list rows, wider scrollbars/thumbs, always-visible playback controls, tap-to-reveal lyrics, no tooltips, theme-aware hover/selection colors.
+- **Artists page redesigned** into a two-column layout matching the Albums page (slide-out track pane, floating cover, double-click to play, play-all / add-to-now-playing).
+- **Audio quality shown on the Now Playing page** (`Format · bits · bitrate · samplerate`, e.g. `FLAC · 24bits · 1411kb/s · 44.1kHz`).
+- **Lyrics**: smooth scrolling, centered current line, control-bar lyrics on pause/resume, instrumental placeholder, NetEase lyric translations.
+- **Album art auto-fill** prefers NetEase Cloud Music as its source.
+- **Chinese Pinyin sorting** in lists; improved Simplified Chinese localization.
+- **Folders and Genres pages hidden/disabled** (source kept, easy to re-enable).
+- **Stability & performance fixes**: several memory leaks, a FolderWatcher crash, and crashes when bulk-deleting tracks from the Now Playing playlist (playback-counter/queue concurrency race, stale `playbackOrder` indices), plus retry-on-lock when deleting files.
+
+### Build
+
+Legacy non-SDK `.csproj` (`packages.config`) — build with **Visual Studio / MSBuild**, not `dotnet build`.
+
+Required external references (same as upstream):
+
+1. **`Windows.winmd`** from the Windows 10 SDK, copied to
+   `C:\Program Files (x86)\Windows Kits\10\UnionMetadata\Windows.winmd`.
+2. **`System.Runtime.WindowsRuntime.dll`** under
+   `C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\`.
+
+```powershell
+nuget restore Dopamine.sln
+msbuild Dopamine.sln /p:Configuration=Release "/p:Platform=Any CPU" /m
+```
+
+### Automated release
+
+The [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml) workflow builds a **Portable ZIP** and creates a GitHub Release when a `v*` tag is pushed (tags containing `-`, e.g. `-beta1`, are marked as Pre-release).
+
+### Disclaimer
+
+- This is a **personal, unofficial fork**, not affiliated with or endorsed by Digimezzo or the upstream Dopamine project.
+- Do not report issues with this fork to upstream.
+- Licensed under **GPL v3**, see [LICENSE](LICENSE).

@@ -969,6 +969,12 @@ namespace Dopamine.Services.Playback
                     counters = new PlaybackCounter();
                 }
 
+                // Make sure the counter always carries the track path. Consumers match counters
+                // by SafePath, so leaving SafePath null (e.g. for a newly created counter) would
+                // cause a NullReferenceException while updating the visible counters.
+                counters.Path = path;
+                counters.SafePath = path.ToSafePath();
+
                 // Add statistic to the dictionary
                 lock (this.playbackCountersLock)
                 {

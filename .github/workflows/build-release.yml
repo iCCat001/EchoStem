@@ -1,0 +1,163 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'V*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: windows-latest
+
+    env:
+      SOLUTION: Dopamine.sln
+      CONFIGURATION: Release
+      PLATFORM: Any CPU
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Setup NuGet
+        uses: NuGet/setup-nuget@v2
+
+      # The projects reference two SDK files by an absolute path, which are not
+      # located where the projects expect them on a clean build agent:
+      #   C:\Program Files (x86)\Windows Kits\10\UnionMetadata\Windows.winmd
+      #   C:\Program Files (x86)\Reference Assemblies\...\.NETCore\v4.5\System.Runtime.WindowsRuntime.dll
+      # This step makes them available at the exact expected paths.
+      - name: Prepare Windows SDK references
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          # --- Windows.winmd (the "Windows" assembly reference) ---
+          $unionRoot = 'C:\Program Files (x86)\Windows Kits\10\UnionMetadata'
+          $winmdTarget = Join-Path $unionRoot 'Windows.winmd'
+
+          if (-not (Test-Path -LiteralPath $winmdTarget)) {
+            $winmd = $null
+            if (Test-Path -LiteralPath $unionRoot) {
+              $winmd = Get-ChildItem -LiteralPath $unionRoot -Recurse -Filter 'Windows.winmd' -ErrorAction SilentlyContinue |
+                       Sort-Object FullName -Descending | Select-Object -First 1
+            }
+            if ($null -eq $winmd) {
+              $winmd = Get-ChildItem -Path 'C:\Program Files (x86)\Windows Kits\10' -Recurse -Filter 'Windows.winmd' -ErrorAction SilentlyContinue |
+                       Sort-Object FullName -Descending | Select-Object -First 1
+            }
+            if ($null -eq $winmd) {
+              throw 'Could not locate Windows.winmd. Is the Windows 10 SDK installed?'
+            }
+            New-Item -ItemType Directory -Force -Path $unionRoot | Out-Null
+            Copy-Item -LiteralPath $winmd.FullName -Destination $winmdTarget -Force
+            Write-Host "Copied Windows.winmd from $($winmd.FullName)"
+          }
+          Write-Host "Windows.winmd present: $(Test-Path -LiteralPath $winmdTarget)"
+
+          # --- System.Runtime.WindowsRuntime.dll ---
+          $rtTarget = 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\System.Runtime.WindowsRuntime.dll'
+
+          if (-not (Test-Path -LiteralPath $rtTarget)) {
+            $searchRoots = @(
+              'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore',
+              'C:\Program Files (x86)\Windows Kits\10',
+              'C:\Program Files\dotnet'
+            )
+            $rt = $null
+            foreach ($root in $searchRoots) {
+              if (Test-Path -LiteralPath $root) {
+                $rt = Get-ChildItem -LiteralPath $root -Recurse -Filter 'System.Runtime.WindowsRuntime.dll' -ErrorAction SilentlyContinue |
+                      Sort-Object FullName -Descending | Select-Object -First 1
+                if ($null -ne $rt) { break }
+              }
+            }
+            if ($null -eq $rt) {
+              throw 'Could not locate System.Runtime.WindowsRuntime.dll.'
+            }
+            New-Item -ItemType Directory -Force -Path (Split-Path -LiteralPath $rtTarget) | Out-Null
+            Copy-Item -LiteralPath $rt.FullName -Destination $rtTarget -Force
+            Write-Host "Copied System.Runtime.WindowsRuntime.dll from $($rt.FullName)"
+          }
+          Write-Host "System.Runtime.WindowsRuntime.dll present: $(Test-Path -LiteralPath $rtTarget)"
+
+      - name: Restore NuGet packages
+        run: nuget restore $env:SOLUTION
+
+      - name: Build
+        run: msbuild $env:SOLUTION /p:Configuration=$env:CONFIGURATION "/p:Platform=$env:PLATFORM" /m /v:minimal /nologo
+
+      - name: Determine version
+        id: version
+        shell: pwsh
+        run: |
+          $ref = '${{ github.ref_name }}'
+          $version = $ref -replace '^v', ''
+          if ([string]::IsNullOrWhiteSpace($version)) { $version = '0.0.0' }
+          Write-Host "Version: $version"
+          "value=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Create portable package
+        id: package
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+
+          $src = Join-Path $env:GITHUB_WORKSPACE 'Dopamine\bin\Release'
+          if (-not (Test-Path -LiteralPath $src)) { throw "Build output not found at $src" }
+
+          $stage = Join-Path $env:GITHUB_WORKSPACE 'package\Dopamine'
+          New-Item -ItemType Directory -Force -Path $stage | Out-Null
+
+          $excludeNames = @(
+            'Dopamine.Packager.exe',
+            'Dopamine.Packager.exe.config',
+            'Dopamine.Packager.pdb',
+            'PackagerConfiguration.xml'
+          )
+
+          $srcFull = (Resolve-Path -LiteralPath $src).Path
+
+          Get-ChildItem -LiteralPath $src -Recurse -File | Where-Object {
+            $_.Extension -ne '.pdb' -and ($excludeNames -notcontains $_.Name)
+          } | ForEach-Object {
+            $rel = $_.FullName.Substring($srcFull.Length).TrimStart('\')
+            $dest = Join-Path $stage $rel
+            New-Item -ItemType Directory -Force -Path (Split-Path -LiteralPath $dest) | Out-Null
+            Copy-Item -LiteralPath $_.FullName -Destination $dest -Force
+          }
+
+          $zipName = "Dopamine-Portable-${{ steps.version.outputs.value }}.zip"
+          $zipPath = Join-Path $env:GITHUB_WORKSPACE $zipName
+
+          if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
+          Compress-Archive -Path (Join-Path $env:GITHUB_WORKSPACE 'package\Dopamine') -DestinationPath $zipPath -Force
+
+          Write-Host "Created $zipPath"
+          "path=$zipPath" >> $env:GITHUB_OUTPUT
+          "name=$zipName" >> $env:GITHUB_OUTPUT
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Dopamine-Portable-${{ steps.version.outputs.value }}
+          path: ${{ steps.package.outputs.path }}
+          if-no-files-found: error
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ steps.package.outputs.path }}
+          generate_release_notes: true
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}

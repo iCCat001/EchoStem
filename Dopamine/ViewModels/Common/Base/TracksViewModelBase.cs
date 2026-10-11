@@ -140,33 +140,70 @@ namespace Dopamine.ViewModels.Common.Base
 
         private async void PlaybackService_PlaybackCountersChanged(IList<PlaybackCounter> counters)
         {
-            if (this.Tracks == null)
+            try
             {
-                return;
-            }
-
-            if (counters == null)
-            {
-                return;
-            }
-
-            if (counters.Count == 0)
-            {
-                return;
-            }
-
-            await Task.Run(() =>
-            {
-                foreach (TrackViewModel vm in this.Tracks)
+                if (counters == null || counters.Count == 0)
                 {
-                    if (counters.Select(c => c.SafePath).Contains(vm.Track.SafePath))
+                    return;
+                }
+
+                // Build a lookup of SafePath -> counter once. Counters loaded from the database,
+                // or newly created ones, can have a null SafePath, so those are skipped.
+                var countersBySafePath = new Dictionary<string, PlaybackCounter>(StringComparer.OrdinalIgnoreCase);
+
+                foreach (PlaybackCounter counter in counters)
+                {
+                    if (counter != null && !string.IsNullOrEmpty(counter.SafePath))
                     {
-                        // The UI is only updated if PropertyChanged is fired on the UI thread
-                        PlaybackCounter counter = counters.Where(c => c.SafePath.Equals(vm.Track.SafePath)).FirstOrDefault();
-                        Application.Current.Dispatcher.Invoke(() => vm.UpdateVisibleCounters(counter));
+                        countersBySafePath[counter.SafePath] = counter;
                     }
                 }
-            });
+
+                if (countersBySafePath.Count == 0)
+                {
+                    return;
+                }
+
+                // Snapshot the tracks on the UI thread. This handler runs on a background thread,
+                // while the ObservableCollection can be modified on the UI thread (e.g. when tracks
+                // are removed from disk). Enumerating it directly from a background thread would
+                // cause a NullReferenceException or a "collection was modified" exception.
+                List<TrackViewModel> tracks = null;
+
+                Application.Current?.Dispatcher.Invoke(() =>
+                {
+                    if (this.Tracks != null)
+                    {
+                        tracks = new List<TrackViewModel>(this.Tracks);
+                    }
+                });
+
+                if (tracks == null || tracks.Count == 0)
+                {
+                    return;
+                }
+
+                await Task.Run(() =>
+                {
+                    foreach (TrackViewModel vm in tracks)
+                    {
+                        if (vm?.Track == null || string.IsNullOrEmpty(vm.Track.SafePath))
+                        {
+                            continue;
+                        }
+
+                        if (countersBySafePath.TryGetValue(vm.Track.SafePath, out PlaybackCounter counter) && counter != null)
+                        {
+                            // The UI is only updated if PropertyChanged is fired on the UI thread
+                            Application.Current?.Dispatcher.Invoke(() => vm.UpdateVisibleCounters(counter));
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("An error occurred while updating visible playback counters. Exception: {0}", ex.Message);
+            }
         }
 
         protected void SetTrackOrder(string settingName)
@@ -490,39 +527,90 @@ namespace Dopamine.ViewModels.Common.Base
 
         protected async override void MetadataService_RatingChangedAsync(RatingChangedEventArgs e)
         {
-            if (this.Tracks == null) return;
-
-            await Task.Run(() =>
+            try
             {
-                foreach (TrackViewModel vm in this.Tracks)
+                // Snapshot the tracks on the UI thread, so a concurrent modification of the
+                // ObservableCollection cannot crash the background enumeration (see
+                // PlaybackService_PlaybackCountersChanged).
+                List<TrackViewModel> tracks = null;
+
+                Application.Current?.Dispatcher.Invoke(() =>
                 {
-                    if (vm.Track.SafePath.Equals(e.SafePath))
+                    if (this.Tracks != null)
                     {
-                        // The UI is only updated if PropertyChanged is fired on the UI thread
-                        Application.Current.Dispatcher.Invoke(() => vm.UpdateVisibleRating(e.Rating));
+                        tracks = new List<TrackViewModel>(this.Tracks);
                     }
+                });
+
+                if (tracks == null || tracks.Count == 0)
+                {
+                    return;
                 }
-            });
+
+                await Task.Run(() =>
+                {
+                    foreach (TrackViewModel vm in tracks)
+                    {
+                        if (vm?.Track == null)
+                        {
+                            continue;
+                        }
+
+                        if (string.Equals(vm.Track.SafePath, e.SafePath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // The UI is only updated if PropertyChanged is fired on the UI thread
+                            Application.Current?.Dispatcher.Invoke(() => vm.UpdateVisibleRating(e.Rating));
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("An error occurred while updating visible ratings. Exception: {0}", ex.Message);
+            }
         }
 
         protected async override void MetadataService_LoveChangedAsync(LoveChangedEventArgs e)
         {
-            if (this.Tracks == null)
+            try
             {
-                return;
-            }
+                // Snapshot the tracks on the UI thread (see PlaybackService_PlaybackCountersChanged).
+                List<TrackViewModel> tracks = null;
 
-            await Task.Run(() =>
-            {
-                foreach (TrackViewModel vm in this.Tracks)
+                Application.Current?.Dispatcher.Invoke(() =>
                 {
-                    if (vm.Track.SafePath.Equals(e.SafePath))
+                    if (this.Tracks != null)
                     {
-                        // The UI is only updated if PropertyChanged is fired on the UI thread
-                        Application.Current.Dispatcher.Invoke(() => vm.UpdateVisibleLove(e.Love));
+                        tracks = new List<TrackViewModel>(this.Tracks);
                     }
+                });
+
+                if (tracks == null || tracks.Count == 0)
+                {
+                    return;
                 }
-            });
+
+                await Task.Run(() =>
+                {
+                    foreach (TrackViewModel vm in tracks)
+                    {
+                        if (vm?.Track == null)
+                        {
+                            continue;
+                        }
+
+                        if (string.Equals(vm.Track.SafePath, e.SafePath, StringComparison.OrdinalIgnoreCase))
+                        {
+                            // The UI is only updated if PropertyChanged is fired on the UI thread
+                            Application.Current?.Dispatcher.Invoke(() => vm.UpdateVisibleLove(e.Love));
+                        }
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("An error occurred while updating visible love. Exception: {0}", ex.Message);
+            }
         }
 
         protected async override Task AddToBlacklistAsync()
