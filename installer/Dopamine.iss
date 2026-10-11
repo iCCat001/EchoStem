@@ -45,14 +45,7 @@ CloseApplications=no
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "chinesesimplified"; MessagesFile: "ChineseSimplified.isl"
 
-[CustomMessages]
-english.WindowsIntegration=Windows integration:
-chinesesimplified.WindowsIntegration=Windows 集成：
-english.AssociateFiles=Associate {#MyAppName} with supported audio files and add the "Play with {#MyAppName}" folder menu
-chinesesimplified.AssociateFiles=将 {#MyAppName} 关联到受支持的音频文件，并添加文件夹右键菜单“用 {#MyAppName} 播放”
-
 [Tasks]
-Name: "associate"; Description: "{cm:AssociateFiles}"; GroupDescription: "{cm:WindowsIntegration}"; Flags: checkedonce
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
@@ -65,73 +58,6 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#MyAppName}}"; Flags: nowait postinstall skipifsilent
-
-[Registry]
-; --- Application registration (appears in "Open with") ---
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities"; ValueType: string; ValueName: "ApplicationName"; ValueData: "{#MyAppName}"; Flags: uninsdeletekey
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities"; ValueType: string; ValueName: "ApplicationDescription"; ValueData: "{#MyAppName} audio player"; Flags: uninsdeletevalue
-Root: HKLM; Subkey: "SOFTWARE\RegisteredApplications"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: "SOFTWARE\Dopamine\Capabilities"; Flags: uninsdeletevalue
-Root: HKLM; Subkey: "SOFTWARE\Classes\Applications\{#MyAppExeName}"; ValueType: string; ValueName: "FriendlyAppName"; ValueData: "{#MyAppName}"; Flags: uninsdeletekey
-
-; --- Capabilities file associations ---
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities\FileAssociations"; ValueType: string; ValueName: ".aiff"; ValueData: "Dopamine.aiff"; Flags: uninsdeletevalue; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities\FileAssociations"; ValueType: string; ValueName: ".m3u"; ValueData: "Dopamine.m3u"; Flags: uninsdeletevalue; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities\FileAssociations"; ValueType: string; ValueName: ".zpl"; ValueData: "Dopamine.zpl"; Flags: uninsdeletevalue; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities\FileAssociations"; ValueType: string; ValueName: ".mp3"; ValueData: "Dopamine.mp3"; Flags: uninsdeletevalue; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities\FileAssociations"; ValueType: string; ValueName: ".ogg"; ValueData: "Dopamine.ogg"; Flags: uninsdeletevalue; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities\FileAssociations"; ValueType: string; ValueName: ".wma"; ValueData: "Dopamine.wma"; Flags: uninsdeletevalue; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities\FileAssociations"; ValueType: string; ValueName: ".flac"; ValueData: "Dopamine.flac"; Flags: uninsdeletevalue; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities\FileAssociations"; ValueType: string; ValueName: ".m4a"; ValueData: "Dopamine.m4a"; Flags: uninsdeletevalue; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Dopamine\Capabilities\FileAssociations"; ValueType: string; ValueName: ".opus"; ValueData: "Dopamine.opus"; Flags: uninsdeletevalue; Tasks: associate
-
-; --- ProgIDs (aiff) ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.aiff"; ValueType: string; ValueData: "Dopamine aiff file"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.aiff\DefaultIcon"; ValueType: string; ValueData: "{app}\Icons\Aiff.ico,0"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.aiff\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
-
-; --- ProgIDs (m3u) ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.m3u"; ValueType: string; ValueData: "Dopamine m3u file"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.m3u\DefaultIcon"; ValueType: string; ValueData: "{app}\Icons\M3u.ico,0"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.m3u\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
-
-; --- ProgIDs (zpl) ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.zpl"; ValueType: string; ValueData: "Dopamine zpl file"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.zpl\DefaultIcon"; ValueType: string; ValueData: "{app}\Icons\Zpl.ico,0"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.zpl\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
-
-; --- ProgIDs (mp3) ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.mp3"; ValueType: string; ValueData: "Dopamine mp3 file"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.mp3\DefaultIcon"; ValueType: string; ValueData: "{app}\Icons\Mp3.ico,0"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.mp3\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
-
-; --- ProgIDs (ogg) ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.ogg"; ValueType: string; ValueData: "Dopamine ogg file"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.ogg\DefaultIcon"; ValueType: string; ValueData: "{app}\Icons\Ogg.ico,0"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.ogg\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
-
-; --- ProgIDs (wma) ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.wma"; ValueType: string; ValueData: "Dopamine wma file"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.wma\DefaultIcon"; ValueType: string; ValueData: "{app}\Icons\Wma.ico,0"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.wma\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
-
-; --- ProgIDs (flac) ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.flac"; ValueType: string; ValueData: "Dopamine flac file"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.flac\DefaultIcon"; ValueType: string; ValueData: "{app}\Icons\Flac.ico,0"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.flac\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
-
-; --- ProgIDs (m4a) ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.m4a"; ValueType: string; ValueData: "Dopamine m4a file"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.m4a\DefaultIcon"; ValueType: string; ValueData: "{app}\Icons\M4a.ico,0"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.m4a\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
-
-; --- ProgIDs (opus) ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.opus"; ValueType: string; ValueData: "Dopamine opus file"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.opus\DefaultIcon"; ValueType: string; ValueData: "{app}\Icons\Opus.ico,0"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Dopamine.opus\shell\open\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
-
-; --- Folder context menu: "Play with Dopamine" ---
-Root: HKLM; Subkey: "SOFTWARE\Classes\Directory\shell\PlayWithDopamine"; ValueType: string; ValueData: "Play with {#MyAppName}"; Flags: uninsdeletekey; Tasks: associate
-Root: HKLM; Subkey: "SOFTWARE\Classes\Directory\shell\PlayWithDopamine\command"; ValueType: string; ValueData: """{app}\{#MyAppExeName}"" ""%1"""; Flags: uninsdeletekey; Tasks: associate
 
 [Code]
 function PrepareToInstall(var NeedsRestart: Boolean): String;
