@@ -69,8 +69,38 @@ namespace Dopamine.Services.Collection
                     }
                     catch (Exception ex)
                     {
-                        LogClient.Error($"Error while removing track '{track.TrackTitle}' from disk. Exception: {ex.Message}");
-                        sendToRecycleBinResult = RemoveTracksResult.Error;
+                        // The file can be locked, e.g. the currently playing track (whose handle may
+                        // take a moment to be released) or a file in use by another process. Retry a
+                        // few times before giving up.
+                        bool deleted = false;
+
+                        for (int attempt = 0; attempt < 5 && !deleted; attempt++)
+                        {
+                            await Task.Delay(200);
+
+                            try
+                            {
+                                if (!System.IO.File.Exists(track.Path))
+                                {
+                                    // The file is already gone: nothing left to delete.
+                                    deleted = true;
+                                    break;
+                                }
+
+                                FileUtils.SendToRecycleBinSilent(track.Path);
+                                deleted = true;
+                            }
+                            catch
+                            {
+                                // Ignore and retry.
+                            }
+                        }
+
+                        if (!deleted)
+                        {
+                            LogClient.Error($"Error while removing track '{track.TrackTitle}' from disk. Exception: {ex.Message}");
+                            sendToRecycleBinResult = RemoveTracksResult.Error;
+                        }
                     }
                 }
 

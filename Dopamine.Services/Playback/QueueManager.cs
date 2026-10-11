@@ -61,6 +61,31 @@ namespace Dopamine.Services.Playback
             return 0;
         }
 
+        // Safely resolves the track at the given position in the playback order. Returns null
+        // when the position or the referenced queue index is out of range, which can happen
+        // while tracks are being removed from the queue.
+        private TrackViewModel GetTrackForPlaybackOrderPosition(int playbackOrderPosition)
+        {
+            if (this.queue == null || this.playbackOrder == null)
+            {
+                return null;
+            }
+
+            if (playbackOrderPosition < 0 || playbackOrderPosition >= this.playbackOrder.Count)
+            {
+                return null;
+            }
+
+            int queueIndex = this.playbackOrder[playbackOrderPosition];
+
+            if (queueIndex < 0 || queueIndex >= this.queue.Count)
+            {
+                return null;
+            }
+
+            return this.queue[queueIndex];
+        }
+
         public async Task ShuffleAsync()
         {
             await Task.Run(() =>
@@ -167,12 +192,12 @@ namespace Dopamine.Services.Playback
                                 if (currentTrackIndex > 0)
                                 {
                                     // If we didn't reach the start of the queue, return the previous track.
-                                    previousTrack = this.queue[this.playbackOrder[currentTrackIndex - 1]];
+                                    previousTrack = this.GetTrackForPlaybackOrderPosition(currentTrackIndex - 1);
                                 }
                                 else if (loopMode == LoopMode.All)
                                 {
                                     // When LoopMode.All is enabled, when we reach the start of the queue, return the last track.
-                                    previousTrack = this.queue[this.playbackOrder.Last()];
+                                    previousTrack = this.GetTrackForPlaybackOrderPosition(this.playbackOrder.Count - 1);
                                 }
                             }
                         }
@@ -201,10 +226,17 @@ namespace Dopamine.Services.Playback
                         {
                             int currentTrackIndex = this.FindPlaybackOrderIndex(this.currentTrack);
 
+                            // The current track can be gone from the playback order (e.g. it was
+                            // just removed from the queue). In that case there is no next track.
+                            if (currentTrackIndex < 0 || currentTrackIndex >= this.playbackOrder.Count)
+                            {
+                                return;
+                            }
+
                             if (loopMode.Equals(LoopMode.One))
                             {
                                 // Return the current track
-                                nextTrack = this.queue[this.playbackOrder[currentTrackIndex]];
+                                nextTrack = this.GetTrackForPlaybackOrderPosition(currentTrackIndex);
                             }
                             else
                             {
@@ -213,19 +245,23 @@ namespace Dopamine.Services.Playback
                                     // If we didn't reach the end of the queue, return the next track.
                                     int increment = 1;
 
-                                    nextTrack = this.queue[this.playbackOrder[currentTrackIndex + increment]];
+                                    nextTrack = this.GetTrackForPlaybackOrderPosition(currentTrackIndex + increment);
 
-                                    // HACK: voids getting stuck on the same track when the playlist contains the same track multiple times
-                                    while (this.currentTrack.Path.Equals(nextTrack.Path))
+                                    // HACK: voids getting stuck on the same track when the playlist contains the same track multiple times.
+                                    // Bounded so we never index past the end of the playback order.
+                                    while (this.currentTrack != null &&
+                                           nextTrack != null &&
+                                           this.currentTrack.Path.Equals(nextTrack.Path) &&
+                                           currentTrackIndex + increment < this.playbackOrder.Count - 1)
                                     {
                                         increment++;
-                                        nextTrack = this.queue[this.playbackOrder[currentTrackIndex + increment]];
+                                        nextTrack = this.GetTrackForPlaybackOrderPosition(currentTrackIndex + increment);
                                     }
                                 }
                                 else if (loopMode.Equals(LoopMode.All) | returnToStart)
                                 {
                                     // When LoopMode.All is enabled, when we reach the end of the queue, return the first track.
-                                    nextTrack = this.queue[this.playbackOrder.First()];
+                                    nextTrack = this.GetTrackForPlaybackOrderPosition(0);
                                 }
                             }
                         }
@@ -371,33 +407,39 @@ namespace Dopamine.Services.Playback
                         // First, get the tracks to dequeue and which are in the queue (normally it's all of them. But we're just making sure.)
                         IList<TrackViewModel> tracksToDequeue = this.queue.Where(x => tracks.Contains(x)).ToList();
 
-                        // Then, remove from playbackOrder
-                        foreach (TrackViewModel trackToDequeue in tracksToDequeue)
+                        // Snapshot the current playback order as a list of tracks, so it can be rebuilt
+                        // with valid queue indices after the tracks have been removed. This prevents
+                        // stale (out of range) indices, which otherwise make "next track" fail after
+                        // tracks have been removed from the Now Playing list.
+                        IList<TrackViewModel> orderedTracks = new List<TrackViewModel>();
+
+                        foreach (int queueIndex in this.playbackOrder)
                         {
-                            try
+                            if (queueIndex >= 0 && queueIndex < this.queue.Count)
                             {
-                                nextAvailableTrack = null;
-
-                                try
-                                {
-                                    nextAvailableTrack = this.queue[this.playbackOrder[this.FindPlaybackOrderIndex(trackToDequeue) + 1]];
-                                }
-                                catch (Exception)
-                                {
-                                    // Intended suppression
-                                }
-
-                                this.playbackOrder.Remove(this.FindPlaybackOrderIndex(trackToDequeue));
+                                orderedTracks.Add(this.queue[queueIndex]);
                             }
-                            catch (Exception ex)
-                            {
-                                LogClient.Error($"Error while removing track with path='{trackToDequeue.Path}' from the playbackOrder. Exception: {ex.Message}");
-                                throw;
-                            }
-
                         }
 
-                        // Finally, remove from queue
+                        // Determine which track will play next when the currently playing track is removed.
+                        if (this.currentTrack != null)
+                        {
+                            int currentTrackOrderIndex = orderedTracks.IndexOf(this.currentTrack);
+
+                            if (currentTrackOrderIndex >= 0)
+                            {
+                                for (int i = currentTrackOrderIndex + 1; i < orderedTracks.Count; i++)
+                                {
+                                    if (!tracksToDequeue.Contains(orderedTracks[i]))
+                                    {
+                                        nextAvailableTrack = orderedTracks[i];
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        // Remove the tracks from the queue.
                         foreach (TrackViewModel trackToDequeue in tracksToDequeue)
                         {
                             try
@@ -413,6 +455,25 @@ namespace Dopamine.Services.Playback
                             }
 
                         }
+
+                        // Rebuild the playback order, referencing the new queue indices while
+                        // keeping the previous playback order.
+                        var newPlaybackOrder = new List<int>();
+
+                        foreach (TrackViewModel orderedTrack in orderedTracks)
+                        {
+                            if (!tracksToDequeue.Contains(orderedTrack))
+                            {
+                                int newQueueIndex = this.queue.IndexOf(orderedTrack);
+
+                                if (newQueueIndex >= 0)
+                                {
+                                    newPlaybackOrder.Add(newQueueIndex);
+                                }
+                            }
+                        }
+
+                        this.playbackOrder = newPlaybackOrder;
                     }
                     catch (Exception ex)
                     {

@@ -32,6 +32,28 @@ namespace Dopamine.ViewModels.FullPlayer.Information
 
         public string Copyright => ProductInformation.Copyright;
 
+        public string UpdateDate
+        {
+            get
+            {
+                try
+                {
+                    string location = this.GetType().Assembly.Location;
+
+                    if (!string.IsNullOrEmpty(location) && System.IO.File.Exists(location))
+                    {
+                        return System.IO.File.GetLastWriteTime(location).ToString("yyyy-MM-dd");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogClient.Error("Could not determine the application update date. Exception: {0}", ex.Message);
+                }
+
+                return string.Empty;
+            }
+        }
+
         public string DonateUrl => ContactInformation.DonateLink;
 
         public string WebsiteLink => ContactInformation.WebsiteLink;

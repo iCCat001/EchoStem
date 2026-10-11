@@ -21,6 +21,11 @@
                 <TextBlock Text=":" Margin="0,0,5,0" Foreground="{DynamicResource Brush_PrimaryText}"/>
                 <TextBlock Text="{Binding Package.FormattedVersionNoBuildWithLabel}" Margin="0,0,5,0" FontWeight="Bold" Foreground="{DynamicResource Brush_PrimaryText}"/>
             </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                <TextBlock Text="{DynamicResource Language_Update_Date}" Foreground="{DynamicResource Brush_PrimaryText}"/>
+                <TextBlock Text=":" Margin="0,0,5,0" Foreground="{DynamicResource Brush_PrimaryText}"/>
+                <TextBlock Text="{Binding UpdateDate}" Margin="0,0,5,0" FontWeight="Bold" Foreground="{DynamicResource Brush_PrimaryText}"/>
+            </StackPanel>
             <TextBlock Text="{Binding Copyright}" Margin="0,5,0,0" Foreground="{DynamicResource Brush_PrimaryText}"/>
             <TextBlock Text="{DynamicResource Language_About_Fork_Notice}" Margin="0,5,0,0" TextWrapping="Wrap" Foreground="{DynamicResource Brush_PrimaryText}"/>
             <TextBlock Text="This software uses libraries from the FFmpeg project under the LGPLv2.1" Margin="0,5,0,0" Foreground="{DynamicResource Brush_PrimaryText}"/>

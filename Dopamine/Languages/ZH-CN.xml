@@ -30,6 +30,7 @@
   <Text Key="Help">帮助</Text>
   <Text Key="About">关于</Text>
   <Text Key="Version">版本</Text>
+  <Text Key="Update_Date">更新日期</Text>
   <Text Key="Do_You_Like_Dopamine">你喜欢 Dopamine 吗？请点击捐赠，谢谢!</Text>
   <Text Key="Donate">捐赠</Text>
   <Text Key="Donate_With_PayPal">通过 PayPal 捐赠给 Dopamine 原项目</Text>

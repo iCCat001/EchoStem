@@ -30,6 +30,7 @@
   <Text Key="Help">Help</Text>
   <Text Key="About">About</Text>
   <Text Key="Version">Version</Text>
+  <Text Key="Update_Date">Update date</Text>
   <Text Key="Do_You_Like_Dopamine">Do you like Dopamine? Please click here to donate. Thank you!</Text>
   <Text Key="Donate">Donate</Text>
   <Text Key="Donate_With_PayPal">Donate to the original Dopamine project with PayPal</Text>
