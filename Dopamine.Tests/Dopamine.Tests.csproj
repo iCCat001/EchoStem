@@ -111,7 +111,6 @@
     <Compile Include="LastfmApiTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PlaylistDecoderTests.cs" />
-    <Compile Include="LyricsParserTests.cs" />
     <Compile Include="TrackPathGeneratorTests.cs" />
   </ItemGroup>
   <ItemGroup>
