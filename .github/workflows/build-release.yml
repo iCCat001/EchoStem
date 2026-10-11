@@ -41,26 +41,35 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
 
+          function Find-NewestFile {
+            param([string[]]$Roots, [string]$Filter)
+            foreach ($root in $Roots) {
+              if (-not (Test-Path -LiteralPath $root)) { continue }
+              $found = Get-ChildItem -LiteralPath $root -Recurse -Filter $Filter -File -ErrorAction SilentlyContinue
+              if ($found) {
+                $cand = $found | Sort-Object FullName -Descending | Select-Object -First 1
+                if ($null -ne $cand) { return $cand }
+              }
+            }
+            return $null
+          }
+
           # --- Windows.winmd (the "Windows" assembly reference) ---
           $unionRoot = 'C:\Program Files (x86)\Windows Kits\10\UnionMetadata'
           $winmdTarget = Join-Path $unionRoot 'Windows.winmd'
 
           if (-not (Test-Path -LiteralPath $winmdTarget)) {
-            $winmd = $null
-            if (Test-Path -LiteralPath $unionRoot) {
-              $winmd = Get-ChildItem -LiteralPath $unionRoot -Recurse -Filter 'Windows.winmd' -ErrorAction SilentlyContinue |
-                       Sort-Object FullName -Descending | Select-Object -First 1
-            }
-            if ($null -eq $winmd) {
-              $winmd = Get-ChildItem -Path 'C:\Program Files (x86)\Windows Kits\10' -Recurse -Filter 'Windows.winmd' -ErrorAction SilentlyContinue |
-                       Sort-Object FullName -Descending | Select-Object -First 1
-            }
+            $winmd = Find-NewestFile -Roots @(
+              $unionRoot,
+              'C:\Program Files (x86)\Windows Kits\10',
+              'C:\Program Files\Windows Kits\10'
+            ) -Filter 'Windows.winmd'
             if ($null -eq $winmd) {
               throw 'Could not locate Windows.winmd. Is the Windows 10 SDK installed?'
             }
             New-Item -ItemType Directory -Force -Path $unionRoot | Out-Null
             Copy-Item -LiteralPath $winmd.FullName -Destination $winmdTarget -Force
-            Write-Host "Copied Windows.winmd from $($winmd.FullName)"
+            Write-Host "Windows.winmd <- $($winmd.FullName)"
           }
           Write-Host "Windows.winmd present: $(Test-Path -LiteralPath $winmdTarget)"
 
@@ -68,25 +77,29 @@ jobs:
           $rtTarget = 'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore\v4.5\System.Runtime.WindowsRuntime.dll'
 
           if (-not (Test-Path -LiteralPath $rtTarget)) {
-            $searchRoots = @(
+            $rt = Find-NewestFile -Roots @(
               'C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETCore',
               'C:\Program Files (x86)\Windows Kits\10',
               'C:\Program Files\dotnet'
-            )
-            $rt = $null
-            foreach ($root in $searchRoots) {
-              if (Test-Path -LiteralPath $root) {
-                $rt = Get-ChildItem -LiteralPath $root -Recurse -Filter 'System.Runtime.WindowsRuntime.dll' -ErrorAction SilentlyContinue |
-                      Sort-Object FullName -Descending | Select-Object -First 1
-                if ($null -ne $rt) { break }
-              }
+            ) -Filter 'System.Runtime.WindowsRuntime.dll'
+
+            if ($null -eq $rt) {
+              Write-Host 'System.Runtime.WindowsRuntime.dll not on the runner. Falling back to NuGet package System.Runtime.WindowsRuntime 4.7.0.'
+              $pkgDir = Join-Path $env:RUNNER_TEMP 'srtwr'
+              nuget install System.Runtime.WindowsRuntime -Version 4.7.0 -OutputDirectory $pkgDir -ExcludeVersion -Source 'https://api.nuget.org/v3/index.json'
+
+              $all = Get-ChildItem -LiteralPath $pkgDir -Recurse -Filter 'System.Runtime.WindowsRuntime.dll' -File -ErrorAction SilentlyContinue
+              $rt = $all | Where-Object { $_.FullName -match '\\ref\\netstandard2\.0\\' } | Select-Object -First 1
+              if ($null -eq $rt) { $rt = $all | Where-Object { $_.FullName -match '\\lib\\netstandard2\.0\\' } | Select-Object -First 1 }
+              if ($null -eq $rt) { $rt = $all | Select-Object -First 1 }
             }
+
             if ($null -eq $rt) {
               throw 'Could not locate System.Runtime.WindowsRuntime.dll.'
             }
             New-Item -ItemType Directory -Force -Path (Split-Path -LiteralPath $rtTarget) | Out-Null
             Copy-Item -LiteralPath $rt.FullName -Destination $rtTarget -Force
-            Write-Host "Copied System.Runtime.WindowsRuntime.dll from $($rt.FullName)"
+            Write-Host "System.Runtime.WindowsRuntime.dll <- $($rt.FullName)"
           }
           Write-Host "System.Runtime.WindowsRuntime.dll present: $(Test-Path -LiteralPath $rtTarget)"
 
