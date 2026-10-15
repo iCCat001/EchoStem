@@ -125,7 +125,7 @@
                 FontSize="30"/>
                 </Viewbox>
             </Border>
-            <Border Panel.ZIndex="0" Background="{DynamicResource Brush_MainWindowBackground}">
+            <Border Panel.ZIndex="0" Background="{DynamicResource Brush_WindowBackground}">
                 <pc:TransitioningContentControl Panel.ZIndex="0" x:Name="PlayerTypeRegion" FadeIn="True" FadeInTimeout="0.5" 
                                             prism:RegionManager.RegionName="{x:Static cp:RegionNames.PlayerTypeRegion}"/>
             </Border>
