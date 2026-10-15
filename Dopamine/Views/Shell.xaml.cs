@@ -18,9 +18,6 @@ using Dopamine.Services.Win32Input;
 using Dopamine.Services.WindowsIntegration;
 using Dopamine.Views.Common;
 using Dopamine.Views.MiniPlayer;
-using MicaWPF.Core.Enums;
-using MicaWPF.Core.Extensions;
-using MicaWPF.Core.Helpers;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Ioc;
@@ -400,29 +397,6 @@ namespace Dopamine.Views
         private void Window_SourceInitialized(object sender, System.EventArgs e)
         {
             this.appearanceService.WatchWindowsColor(this);
-            this.TryEnableMicaBackdrop();
-        }
-
-        private void TryEnableMicaBackdrop()
-        {
-            try
-            {
-                // Mica is only available on Windows 11 and later.
-                if (!OsHelper.IsWindows11_OrGreater)
-                {
-                    return;
-                }
-
-                this.EnableBackdrop(BackdropType.Mica);
-
-                // The Mica backdrop is only visible where the window content is transparent,
-                // so make the window/page background transparent.
-                this.Resources["Brush_WindowBackground"] = System.Windows.Media.Brushes.Transparent;
-            }
-            catch (Exception ex)
-            {
-                LogClient.Error("Could not enable the Mica backdrop. Exception: {0}", ex.Message);
-            }
         }
 
         private void Window_StateChanged(object sender, System.EventArgs e)
