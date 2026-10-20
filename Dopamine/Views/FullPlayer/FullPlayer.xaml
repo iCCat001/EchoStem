@@ -80,8 +80,7 @@
                     prism:RegionManager.RegionName="{x:Static cp:RegionNames.FullPlayerMenuRegion}"/>
             </DockPanel>
             <Grid DockPanel.Dock="Top">
-                <commonviews:UpdateStatus Panel.ZIndex="0"/>
-                <commonviews:IndexingStatus Panel.ZIndex="1"/>
+                    <commonviews:IndexingStatus Panel.ZIndex="1"/>
             </Grid>
             <controls:TransitioningContentControl 
                         FadeIn="True" FadeInTimeout="0.5" SlideIn="True" SlideInTimeout="0.5" 

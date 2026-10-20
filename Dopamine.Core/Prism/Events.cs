@@ -2,6 +2,7 @@
 using Dopamine.Core.Enums;
 using Prism.Events;
 using System;
+using System.Windows.Media;
 
 namespace Dopamine.Core.Prism
 {
@@ -26,6 +27,10 @@ namespace Dopamine.Core.Prism
     }
 
     public class IsNowPlayingPageActiveChanged : PubSubEvent<bool>
+    {
+    }
+
+    public class NowPlayingCoverColorChanged : PubSubEvent<Color>
     {
     }
 

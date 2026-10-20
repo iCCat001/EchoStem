@@ -85,6 +85,9 @@
     <Reference Include="Ionic.Zip">
       <HintPath>Libraries\Ionic.Zip.dll</HintPath>
     </Reference>
+    <Reference Include="MicaWPF.Core">
+      <HintPath>Libraries\MicaWPF.Core.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -236,10 +239,12 @@
       <DependentUpon>NotificationWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Services\Shell\ShellService.cs" />
+    <Compile Include="Services\Update\UpdateChecker.cs" />
     <Compile Include="SharedAssemblyInfo.cs" />
     <Compile Include="Controls\SpectrumAnalyzer.cs" />
     <Compile Include="Utils\BindingProxy.cs" />
     <Compile Include="Utils\TouchOptimization.cs" />
+    <Compile Include="Utils\WindowMaterialHelper.cs" />
     <Compile Include="Utils\OpenFileUtils.cs" />
     <Compile Include="Utils\SaveFileUtils.cs" />
     <Compile Include="Utils\SlidingContentControlRegionAdapter.cs" />
@@ -284,7 +289,8 @@
     <Compile Include="ViewModels\Common\SearchControlViewModel.cs" />
     <Compile Include="ViewModels\Common\ShuffleAllControlViewModel.cs" />
     <Compile Include="ViewModels\Common\SpectrumAnalyzerControlViewModel.cs" />
-    <Compile Include="ViewModels\Common\UpdateStatusViewModel.cs" />
+    <Compile Include="ViewModels\Common\ReleaseNotesHelper.cs" />
+    <Compile Include="ViewModels\Common\UpdateDialogViewModel.cs" />
     <Compile Include="ViewModels\CoverArtViewModel.cs" />
     <Compile Include="ViewModels\FullPlayer\Collection\CollectionAlbumsViewModel.cs" />
     <Compile Include="ViewModels\FullPlayer\Collection\CollectionArtistsViewModel.cs" />
@@ -450,8 +456,8 @@
     <Compile Include="Views\Common\SpectrumAnalyzerControl.xaml.cs">
       <DependentUpon>SpectrumAnalyzerControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Common\UpdateStatus.xaml.cs">
-      <DependentUpon>UpdateStatus.xaml</DependentUpon>
+    <Compile Include="Views\Common\UpdateDialog.xaml.cs">
+      <DependentUpon>UpdateDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Empty.xaml.cs">
       <DependentUpon>Empty.xaml</DependentUpon>
@@ -1287,7 +1293,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\Common\UpdateStatus.xaml">
+    <Page Include="Views\Common\UpdateDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

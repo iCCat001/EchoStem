@@ -94,6 +94,8 @@
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -236,8 +238,10 @@
     <Compile Include="Taskbar\ITaskbarService.cs" />
     <Compile Include="Taskbar\TaskbarService.cs" />
     <Compile Include="Update\IUpdateService.cs" />
-    <Compile Include="Update\UpdateAvailableEventArgs.cs" />
+    <Compile Include="Update\AppVersion.cs" />
+    <Compile Include="Update\UpdateCheckResult.cs" />
     <Compile Include="Update\UpdateService.cs" />
+    <Compile Include="Utils\DominantColorCache.cs" />
     <Compile Include="Utils\EntityUtils.cs" />
     <Compile Include="Utils\ScrollUtils.cs" />
     <Compile Include="Utils\ScrollViewerAnimation.cs" />

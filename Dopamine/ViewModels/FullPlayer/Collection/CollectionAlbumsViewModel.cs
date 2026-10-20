@@ -106,12 +106,28 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
 
         protected async override Task FillListsAsync()
         {
+            // The album order is remembered across sessions, and is re-applied on every
+            // (re)load of the wall, so a reload can never reset it.
+            this.RestoreAlbumOrder();
+
             await this.GetAllAlbumsAsync(this.AlbumOrder);
 
             // The tracks pane is hidden until an album is selected, so there is no need
             // to load the whole collection here (this used to feed the always-visible pane).
             this.TracksCount = 0;
             this.ClearTracks();
+
+            this.RaiseListsFilled();
+        }
+
+        private void RestoreAlbumOrder()
+        {
+            AlbumOrder savedAlbumOrder = (AlbumOrder)SettingsClient.Get<int>("Ordering", "AlbumsAlbumOrder");
+
+            if (savedAlbumOrder != this.AlbumOrder)
+            {
+                this.AlbumOrder = savedAlbumOrder;
+            }
         }
 
         protected async override Task EmptyListsAsync()

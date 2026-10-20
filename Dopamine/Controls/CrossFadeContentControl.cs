@@ -21,6 +21,18 @@ namespace Dopamine.Controls
 
         public static readonly DependencyProperty DurationProperty = DependencyProperty.Register("Duration", typeof(double), typeof(CrossFadeContentControl), new PropertyMetadata(0.5));
 
+        /// <summary>
+        /// Scale at which the old content is captured. Below 1, the captured bitmap is smaller
+        /// than the control: the fade still looks the same, but the capture is much cheaper.
+        /// </summary>
+        public double RenderScale
+        {
+            get { return Convert.ToDouble(GetValue(RenderScaleProperty)); }
+            set { SetValue(RenderScaleProperty, value); }
+        }
+
+        public static readonly DependencyProperty RenderScaleProperty = DependencyProperty.Register("RenderScale", typeof(double), typeof(CrossFadeContentControl), new PropertyMetadata(1.0));
+
         static CrossFadeContentControl()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(CrossFadeContentControl), new FrameworkPropertyMetadata(typeof(CrossFadeContentControl)));
@@ -53,16 +65,49 @@ namespace Dopamine.Controls
 
         private Brush CreateBrushFromVisual(Visual iVisual)
         {
-
             if (iVisual == null)
             {
                 throw new ArgumentNullException("iVisual");
             }
 
-            dynamic target = new RenderTargetBitmap(Convert.ToInt32(this.ActualWidth), Convert.ToInt32(this.ActualHeight), 96, 96, PixelFormats.Pbgra32);
-            target.Render(iVisual);
-            dynamic brush = new ImageBrush(target);
+            double scale = this.RenderScale;
+
+            if (double.IsNaN(scale) || scale <= 0 || scale > 1)
+            {
+                scale = 1.0;
+            }
+
+            int pixelWidth = Convert.ToInt32(this.ActualWidth * scale);
+            int pixelHeight = Convert.ToInt32(this.ActualHeight * scale);
+
+            if (pixelWidth <= 0 || pixelHeight <= 0)
+            {
+                throw new ArgumentOutOfRangeException("iVisual");
+            }
+
+            var drawingVisual = new DrawingVisual();
+
+            using (DrawingContext drawingContext = drawingVisual.RenderOpen())
+            {
+                if (scale < 1.0)
+                {
+                    drawingContext.PushTransform(new ScaleTransform(scale, scale));
+                }
+
+                drawingContext.DrawRectangle(new VisualBrush(iVisual), null, new Rect(0, 0, this.ActualWidth, this.ActualHeight));
+
+                if (scale < 1.0)
+                {
+                    drawingContext.Pop();
+                }
+            }
+
+            var target = new RenderTargetBitmap(pixelWidth, pixelHeight, 96, 96, PixelFormats.Pbgra32);
+            target.Render(drawingVisual);
+
+            var brush = new ImageBrush(target);
             brush.Freeze();
+
             return brush;
         }
 

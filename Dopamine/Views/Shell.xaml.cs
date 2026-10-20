@@ -16,6 +16,7 @@ using Dopamine.Services.Playback;
 using Dopamine.Services.Shell;
 using Dopamine.Services.Win32Input;
 using Dopamine.Services.WindowsIntegration;
+using Dopamine.Utils;
 using Dopamine.Views.Common;
 using Dopamine.Views.MiniPlayer;
 using Prism.Commands;
@@ -222,6 +223,11 @@ namespace Dopamine.Views
                     this.WindowBorder.BorderThickness = new Thickness((bool)e.Entry.Value ? 1 : 0);
                 }
 
+                if (SettingsClient.IsSettingChanged(e, "Appearance", "WindowMaterial"))
+                {
+                    this.ApplyWindowMaterial();
+                }
+
                 if (SettingsClient.IsSettingChanged(e, "Behaviour", "ShowTrayIcon"))
                 {
                     this.trayIcon.Visible = (bool)e.Entry.Value;
@@ -296,6 +302,9 @@ namespace Dopamine.Views
             {
                 Application.Current.Dispatcher.Invoke(() => this.SetTrayIcon());
             };
+
+            // Re-apply the window material when the theme (light/dark) changes.
+            this.appearanceService.ThemeChanged += _ => this.ApplyWindowMaterial();
         }
 
         private void TrayIcon_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
@@ -331,6 +340,14 @@ namespace Dopamine.Views
             {
                 this.trayIcon.Visible = true;
             }
+
+            this.ApplyWindowMaterial();
+            WindowMaterialHelper.Attach(this);
+        }
+
+        private void ApplyWindowMaterial()
+        {
+            WindowMaterialHelper.Apply(this, WindowMaterialHelper.GetSavedMaterial());
         }
 
         private void Window_Closed(object sender, System.EventArgs e)
