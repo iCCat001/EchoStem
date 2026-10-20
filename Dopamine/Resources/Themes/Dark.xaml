@@ -31,9 +31,11 @@
     <SolidColorBrush x:Key="Brush_PrimaryText" Color="{DynamicResource Color_SoftWhite}"/>
     <SolidColorBrush x:Key="Brush_SecondaryText" Color="{DynamicResource Color_DarkGrey8}"/>
     <SolidColorBrush x:Key="Brush_WindowHeaderBackground" Color="{StaticResource Color_DarkGrey1}"/>
+    <SolidColorBrush x:Key="Brush_ProgressThumbInner" Color="#111111"/>
     <SolidColorBrush x:Key="Brush_PaneBackground" Color="{DynamicResource Color_DarkGrey2}"/>
     <SolidColorBrush x:Key="Brush_MainWindowBackground" Color="{DynamicResource Color_DarkGrey3}"/>
-    <SolidColorBrush x:Key="Brush_NowPlayingBackground" Color="{DynamicResource Color_DarkGrey3}" Opacity="0.96"/>
+    <SolidColorBrush x:Key="Brush_PopupBackground" Color="{DynamicResource Color_DarkGrey3}"/>
+    <SolidColorBrush x:Key="Brush_NowPlayingBackground" Color="{DynamicResource Color_DarkGrey3}"/>
     <SolidColorBrush x:Key="Brush_RegularButtonBackground" Color="{DynamicResource Color_DarkGrey5}"/>
     <SolidColorBrush x:Key="Brush_HotKeyButtonBackground" Color="{DynamicResource Color_DarkGrey5}"/>
     <SolidColorBrush x:Key="Brush_ListBoxBackground" Color="{DynamicResource Color_DarkGrey5}"/>

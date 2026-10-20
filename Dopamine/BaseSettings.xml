@@ -2,7 +2,7 @@
 <Settings>
   <Namespace Name="Configuration">
     <Setting Name="Version">
-      <Value>123</Value>
+      <Value>129</Value>
     </Setting>
     <Setting Name="IsPortable">
       <Value>False</Value>
@@ -89,6 +89,18 @@
     <Setting Name="EnableTransparency">
       <Value>True</Value>
     </Setting>
+    <Setting Name="WindowMaterial">
+      <Value>Traditional</Value>
+    </Setting>
+    <Setting Name="NowPlayingBackgroundOpacity">
+      <Value>88</Value>
+    </Setting>
+    <Setting Name="NowPlayingGradient">
+      <Value>True</Value>
+    </Setting>
+    <Setting Name="NowPlayingMaterialSync">
+      <Value>False</Value>
+    </Setting>
   </Namespace>
   <Namespace Name="Behaviour">
     <Setting Name="EnableRating">
@@ -165,13 +177,13 @@
   </Namespace>
   <Namespace Name="Updates">
     <Setting Name="CheckAtStartup">
-      <Value>false</Value>
+      <Value>True</Value>
     </Setting>
-    <Setting Name="CheckPeriodically">
-      <Value>False</Value>
+    <Setting Name="InstalledVersion">
+      <Value></Value>
     </Setting>
-    <Setting Name="CheckForPrereleases">
-      <Value>False</Value>
+    <Setting Name="InstalledVersionAssembly">
+      <Value></Value>
     </Setting>
     <Setting Name="CheckIntervalMinutes">
       <Value>15</Value>

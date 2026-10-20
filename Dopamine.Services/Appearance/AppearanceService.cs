@@ -335,7 +335,7 @@ namespace Dopamine.Services.Appearance
 
                     if (artwork?.Length > 0)
                     {
-                        await Task.Run(() => accentColor = ImageUtils.GetDominantColor(artwork));
+                        await Task.Run(() => accentColor = Utils.DominantColorCache.Get(artwork));
                     }
                     else
                     {

@@ -32,11 +32,6 @@ namespace Dopamine.Services.Win32Input
 
         public void SetKeyboardHook(IntPtr hWnd)
         {
-#if DEBUG
-            // Set keyboard hook only when not debugging, because it slows down jumping through code using the keyboard.
-            return;
-#endif
-#pragma warning disable CS0162 // Unreachable code detected
             if (this.lowLevelManager == null)
             {
                 this.lowLevelManager = new LowLevelKeyboardHookManager();
@@ -52,16 +47,10 @@ namespace Dopamine.Services.Win32Input
             this.appCommandManager.SetHook();
 
             this.SetEventHandlers();
-#pragma warning restore CS0162 // Unreachable code detected
         }
 
         public void UnhookKeyboard()
         {
-#if DEBUG
-            // Set keyboard hook only when not debugging, because it slows down jumping through code using the keyboard.
-            return;
-#endif
-#pragma warning disable CS0162 // Unreachable code detected
             this.RemoveEventHandlers();
 
             if (this.lowLevelManager != null)
@@ -73,7 +62,6 @@ namespace Dopamine.Services.Win32Input
             {
                 this.appCommandManager.Unhook();
             }
-#pragma warning restore CS0162 // Unreachable code detected
         }
 
         private async void MediaKeyNextPressedHandler(object sender, EventArgs e)
@@ -97,22 +85,34 @@ namespace Dopamine.Services.Win32Input
 
             // Only enable our own media keys support when not using system notifications.
             // System notifications have their own media key support, which interferes with ours.
-            if (!SettingsClient.Get<bool>("Behaviour", "EnableSystemNotification"))
+            if (SettingsClient.Get<bool>("Behaviour", "EnableSystemNotification"))
             {
-                if (SettingsClient.Get<bool>("MediaKeys", "UseAppCommandMediaKeys"))
+                return;
+            }
+
+            if (SettingsClient.Get<bool>("MediaKeys", "UseAppCommandMediaKeys"))
+            {
+                if (this.appCommandManager == null)
                 {
-                    LogClient.Info("Using AppCommand media keys");
-                    this.appCommandManager.MediaKeyPlayPressed += MediaKeyPlayPressedHandler;
-                    this.appCommandManager.MediaKeyPreviousPressed += MediaKeyPreviousPressedHandler;
-                    this.appCommandManager.MediaKeyNextPressed += MediaKeyNextPressedHandler;
+                    return;
                 }
-                else
+
+                LogClient.Info("Using AppCommand media keys");
+                this.appCommandManager.MediaKeyPlayPressed += MediaKeyPlayPressedHandler;
+                this.appCommandManager.MediaKeyPreviousPressed += MediaKeyPreviousPressedHandler;
+                this.appCommandManager.MediaKeyNextPressed += MediaKeyNextPressedHandler;
+            }
+            else
+            {
+                if (this.lowLevelManager == null)
                 {
-                    LogClient.Info("Using LowLevel media keys");
-                    this.lowLevelManager.MediaKeyPlayPressed += MediaKeyPlayPressedHandler;
-                    this.lowLevelManager.MediaKeyPreviousPressed += MediaKeyPreviousPressedHandler;
-                    this.lowLevelManager.MediaKeyNextPressed += MediaKeyNextPressedHandler;
+                    return;
                 }
+
+                LogClient.Info("Using LowLevel media keys");
+                this.lowLevelManager.MediaKeyPlayPressed += MediaKeyPlayPressedHandler;
+                this.lowLevelManager.MediaKeyPreviousPressed += MediaKeyPreviousPressedHandler;
+                this.lowLevelManager.MediaKeyNextPressed += MediaKeyNextPressedHandler;
             }
         }
 

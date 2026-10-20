@@ -16,6 +16,48 @@
             <Label Style="{StaticResource TitleLabel}" Content="{DynamicResource Language_Theme}" />
             <commonviews:AppearanceTheme Margin="0,5,0,0" ShowFollowAlbumCoverColor="True"/>
             <pc:IconTextButton Glyph="&#xE710;" GlyphSize="13" Margin="0,15,0,0" HorizontalAlignment="Left" Content="{DynamicResource Language_Add_More_Colors}" Foreground="{DynamicResource Brush_Accent}" Command="{Binding OpenColorSchemesDirectoryCommand}" CommandParameter="{Binding Path=ColorSchemesDirectory}"/>
+            <Label Margin="0,20,0,0" Style="{StaticResource TitleLabel}" Content="{DynamicResource Language_Window}" />
+            <TextBlock Margin="0,5,0,0" Text="{DynamicResource Language_Window_Material}" Foreground="{DynamicResource Brush_PrimaryText}" TextWrapping="Wrap"/>
+            <ComboBox x:Name="WindowMaterialComboBox" Style="{StaticResource MetroComboBox}" Padding="0" HorizontalAlignment="Left" VerticalContentAlignment="Center" Width="200" Margin="0,10,0,0"
+                      ItemsSource="{Binding WindowMaterialOptions}" SelectedItem="{Binding SelectedWindowMaterialOption, Mode=TwoWay}"/>
+            <Label Margin="0,20,0,0" Style="{StaticResource TitleLabel}" Content="{DynamicResource Language_Now_Playing}" />
+            <TextBlock Margin="0,5,0,0" Text="{DynamicResource Language_NowPlaying_Background_Mask}" Foreground="{DynamicResource Brush_PrimaryText}" TextWrapping="Wrap"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,5,0,0">
+                <dc:UWPSliderHorizontal x:Name="NowPlayingBackgroundOpacitySlider" Width="200" VerticalAlignment="Center"
+                    Minimum="80" Maximum="96" Value="{Binding NowPlayingBackgroundOpacity, Mode=TwoWay}" IsEnabled="{Binding IsMaskOpacityEnabled}"
+                    TrackBackground="{DynamicResource Brush_SliderBackground}" ButtonInnerBackground="{DynamicResource Brush_MainWindowBackground}"
+                    ButtonBackground="{DynamicResource Brush_PrimaryText}" ChangeValueWhileDragging="True">
+                    <dc:UWPSliderHorizontal.Style>
+                        <Style TargetType="{x:Type dc:UWPSliderHorizontal}">
+                            <Setter Property="BarBackground" Value="{DynamicResource Brush_Accent}"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsEnabled" Value="False">
+                                    <Setter Property="BarBackground" Value="{DynamicResource Brush_SecondaryText}"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </dc:UWPSliderHorizontal.Style>
+                </dc:UWPSliderHorizontal>
+                <TextBlock Margin="10,0,0,0" VerticalAlignment="Center" MinWidth="40" Text="{Binding NowPlayingBackgroundOpacity, StringFormat={}{0}%}" Foreground="{DynamicResource Brush_PrimaryText}"/>
+            </StackPanel>
+            <StackPanel Margin="0,10,0,0">
+                <StackPanel.Style>
+                    <Style TargetType="{x:Type StackPanel}">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMaterialSyncAvailable}" Value="False">
+                                <Setter Property="IsHitTestVisible" Value="False"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsHitTestVisible, RelativeSource={RelativeSource Self}}" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <TextBlock Text="{DynamicResource Language_NowPlaying_Material_Sync}" Foreground="{DynamicResource Brush_PrimaryText}" TextWrapping="Wrap"/>
+                <dc:Windows10ToggleSwitch x:Name="NowPlayingMaterialSyncToggle" Margin="0,10,0,0" HorizontalAlignment="Left" FontSize="12" OnLabel="{DynamicResource Language_Yes}" OffLabel="{DynamicResource Language_No}" Foreground="{DynamicResource Brush_PrimaryText}" Accent="{DynamicResource Brush_Accent}" IsChecked="{Binding EnableNowPlayingMaterialSync}"/>
+            </StackPanel>
+            <TextBlock Margin="0,10,0,0" Text="{DynamicResource Language_NowPlaying_Gradient}" Foreground="{DynamicResource Brush_PrimaryText}" TextWrapping="Wrap"/>
+            <dc:Windows10ToggleSwitch x:Name="NowPlayingGradientToggle" Margin="0,10,0,0" HorizontalAlignment="Left" FontSize="12" OnLabel="{DynamicResource Language_Yes}" OffLabel="{DynamicResource Language_No}" Foreground="{DynamicResource Brush_PrimaryText}" Accent="{DynamicResource Brush_Accent}" IsChecked="{Binding EnableNowPlayingGradient}"/>
             <Label Margin="0,20,0,0" Style="{StaticResource TitleLabel}" Content="{DynamicResource Language_Border}" />
             <TextBlock Margin="0,5,0,0" Text="{DynamicResource Language_Show_Window_Border}" Foreground="{DynamicResource Brush_PrimaryText}"/>
             <dc:Windows10ToggleSwitch x:Name="CheckBoxShowWindowBorder" Margin="0,10,0,0" HorizontalAlignment="Left" FontSize="12" OnLabel="{DynamicResource Language_Yes}" OffLabel="{DynamicResource Language_No}" Foreground="{DynamicResource Brush_PrimaryText}" Accent="{DynamicResource Brush_Accent}" IsChecked="{Binding CheckBoxCheckBoxShowWindowBorderChecked}"/>

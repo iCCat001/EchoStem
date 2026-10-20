@@ -129,7 +129,7 @@
                         ClickMode="Press"
                         BorderBrush="{DynamicResource Brush_ControlBorder}"
                         Foreground="{DynamicResource Brush_PrimaryText}"
-                        Background="{DynamicResource Brush_MainWindowBackground}"   
+                        Background="{DynamicResource Brush_PopupBackground}"   
                         IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, 
               RelativeSource={RelativeSource TemplatedParent}}"/>
                         <Label x:Name="ContentSite"
@@ -163,11 +163,11 @@
                                   MinWidth="{TemplateBinding ActualWidth}"
                                   MaxHeight="{TemplateBinding MaxDropDownHeight}">
                                 <!-- This helper border avoids text coming through the sides of the popup at desktop scaling > 100% -->
-                                <Border BorderThickness="0" Margin="0.5" Background="{DynamicResource Brush_MainWindowBackground}"/>
+                                <Border BorderThickness="0" Margin="0.5" Background="{DynamicResource Brush_PopupBackground}"/>
                                 <Border x:Name="DropDownBorder"
                                         BorderThickness="1" 
                                         BorderBrush="{DynamicResource Brush_ControlBorder}" 
-                                        Background="{DynamicResource Brush_MainWindowBackground}">
+                                        Background="{DynamicResource Brush_PopupBackground}">
                                     <ScrollViewer>
                                         <StackPanel IsItemsHost="True"
                             KeyboardNavigation.DirectionalNavigation="Contained" />

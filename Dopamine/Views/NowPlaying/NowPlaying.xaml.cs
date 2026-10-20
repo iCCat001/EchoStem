@@ -1,8 +1,13 @@
 ﻿using Digimezzo.Foundation.Core.Settings;
+using Dopamine.Utils;
+using Dopamine.ViewModels.NowPlaying;
 using System;
+using System.ComponentModel;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
+using System.Threading.Tasks;
 
 namespace Dopamine.Views.NowPlaying
 {
@@ -11,6 +16,7 @@ namespace Dopamine.Views.NowPlaying
         private Timer hideControlsTimer = new Timer();
         private bool touchOptimization;
         private bool isSubscribed;
+        private NowPlayingViewModel viewModel;
 
         public bool CanShowControls
         {
@@ -32,13 +38,85 @@ namespace Dopamine.Views.NowPlaying
             // navigations don't leak this view.
             this.Loaded += this.LoadedHandler;
             this.Unloaded += this.UnloadedHandler;
+            this.DataContextChanged += this.NowPlaying_DataContextChanged;
+
+            // Prism can set the DataContext while InitializeComponent() runs, in which case
+            // DataContextChanged has already fired before we subscribed. Attach explicitly.
+            this.AttachViewModel(this.DataContext as NowPlayingViewModel);
 
             this.UpdateTouchOptimization();
             this.ShowControls();
         }
 
+        private void NowPlaying_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            this.AttachViewModel(e.NewValue as NowPlayingViewModel);
+        }
+
+        private void AttachViewModel(NowPlayingViewModel viewModel)
+        {
+            if (this.viewModel != null)
+            {
+                this.viewModel.PropertyChanged -= this.ViewModel_PropertyChanged;
+            }
+
+            this.viewModel = viewModel;
+
+            if (this.viewModel != null)
+            {
+                this.viewModel.PropertyChanged += this.ViewModel_PropertyChanged;
+            }
+
+            // Apply the initial state (the ViewModel was created before we subscribed).
+            this.ScheduleBackgroundMaterialUpdate();
+        }
+
+        private void ViewModel_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(NowPlayingViewModel.BackgroundGradientBrush))
+            {
+                // Fade the new dominant color in instead of switching instantly.
+                this.BackgroundGradientOverlay.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromSeconds(0.6)));
+            }
+            else if (e.PropertyName == nameof(NowPlayingViewModel.IsMaterialSyncActive) ||
+                     e.PropertyName == nameof(NowPlayingViewModel.MaterialBlurRadius))
+            {
+                this.UpdateBackgroundMaterial();
+            }
+        }
+
+        private void UpdateBackgroundMaterial()
+        {
+            if (this.viewModel == null)
+            {
+                return;
+            }
+
+            this.BackgroundCoverArtControl.SetMaterialBlur(this.viewModel.IsMaterialSyncActive ? this.viewModel.MaterialBlurRadius : 0);
+        }
+
+        // The blur is expensive to render. When this page is shown, let its entrance animation
+        // finish first, so the two don't compete for the same frames.
+        private async void ScheduleBackgroundMaterialUpdate()
+        {
+            await Task.Delay(350);
+
+            if (!this.IsLoaded)
+            {
+                return;
+            }
+
+            this.UpdateBackgroundMaterial();
+        }
+
         private void LoadedHandler(object sender, RoutedEventArgs e)
         {
+            // This page draws its own (opaque) album art background, which fully covers the
+            // window: the window backdrop (Mica/Acrylic) is invisible, so don't render it.
+            WindowMaterialHelper.SetBackdropSuppressed(true);
+
+            this.ScheduleBackgroundMaterialUpdate();
+
             if (this.isSubscribed)
             {
                 return;
@@ -54,6 +132,8 @@ namespace Dopamine.Views.NowPlaying
 
         private void UnloadedHandler(object sender, RoutedEventArgs e)
         {
+            WindowMaterialHelper.SetBackdropSuppressed(false);
+
             if (!this.isSubscribed)
             {
                 return;

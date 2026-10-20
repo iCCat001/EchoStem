@@ -491,13 +491,26 @@ namespace Dopamine.ViewModels.FullPlayer.Collection
 
         protected async override Task FillListsAsync()
         {
+            // Reloading the artist list clears the list box selection, and with it
+            // SelectedArtists. Remember it, so the albums pane keeps showing the same artist and
+            // the view can restore the selection once the page is shown again.
+            IList<string> previouslySelectedArtists = this.SelectedArtists == null ? null : new List<string>(this.SelectedArtists);
+
             await this.GetArtistsAsync(this.ArtistType);
+
+            if (previouslySelectedArtists != null && previouslySelectedArtists.Count > 0)
+            {
+                this.SelectedArtists = previouslySelectedArtists;
+            }
+
             await this.GetArtistAlbumsAsync(this.SelectedArtists, this.ArtistType, this.AlbumOrder);
 
             // No album is selected yet: the (hidden) tracks pane stays empty instead of loading
             // all the songs.
             this.TracksCount = 0;
             this.ClearTracks();
+
+            this.RaiseListsFilled();
         }
 
         protected async override Task EmptyListsAsync()
