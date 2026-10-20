@@ -294,6 +294,12 @@
   <Text Key="Website">Website</Text>
   <Text Key="Social_Networks">Social networks</Text>
   <Text Key="Contact_Us">Contact us</Text>
+  <Text Key="Feedback">Feedback</Text>
+  <Text Key="Feedback_Address">Feedback address</Text>
+  <Text Key="Feedback_Not_Upstream">Please don't report issues with this application to the original author.</Text>
+  <Text Key="About_Original_Author_Marker">— Original author</Text>
+  <Text Key="About_Thanks_Original">Thanks to the original author </Text>
+  <Text Key="About_Thanks_Original_End"> for the hard work.</Text>
   <Text Key="Email">Email</Text>
   <Text Key="Error_Cannot_Play_This_Song_File_Not_Found">Sorry, I can't play this song. The file could not be found.</Text>
   <Text Key="Cover_Size">Cover size</Text>

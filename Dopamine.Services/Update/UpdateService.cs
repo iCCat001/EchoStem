@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Reflection;
 using System.Linq;
 using System.Net.Http;
 using System.Text;
@@ -23,7 +22,6 @@ namespace Dopamine.Services.Update
         private const string PortableAssetExtension = ".zip";
 
         private const string InstalledVersionSetting = "InstalledVersion";
-        private const string InstalledVersionAssemblySetting = "InstalledVersionAssembly";
 
         public async Task<UpdateCheckResult> CheckForUpdatesAsync()
         {
@@ -75,7 +73,7 @@ namespace Dopamine.Services.Update
             return result;
         }
 
-        public async Task<string> DownloadAndPrepareUpdateAsync(GitHubReleaseAsset portableAsset, string versionText,
+        public async Task<string> DownloadAndPrepareUpdateAsync(GitHubReleaseAsset portableAsset,
             IProgress<double> progress)
         {
             if (portableAsset == null || string.IsNullOrEmpty(portableAsset.DownloadUrl))
@@ -134,11 +132,6 @@ namespace Dopamine.Services.Update
                     applicationFolder = extractedFolder;
                 }
 
-                // Remember which release is being installed, and the build it was applied to, so
-                // the next check compares against it.
-                SettingsClient.Set<string>("Updates", InstalledVersionSetting, versionText);
-                SettingsClient.Set<string>("Updates", InstalledVersionAssemblySetting, GetAssemblyVersionOfFile(applicationFolder));
-
                 return applicationFolder;
             }
             catch (Exception ex)
@@ -172,6 +165,10 @@ namespace Dopamine.Services.Update
 
                 // The command processor reads the script with the system code page.
                 System.IO.File.WriteAllText(scriptPath, script.ToString(), Encoding.Default);
+
+                // Forget the stored version (which may have been set for testing), so the next
+                // check compares against the version of the newly installed build instead.
+                SettingsClient.Set<string>("Updates", InstalledVersionSetting, string.Empty);
 
                 Process.Start(new ProcessStartInfo
                 {
@@ -220,28 +217,6 @@ namespace Dopamine.Services.Update
             }
 
             return AppVersion.FromAssemblyVersion(ProcessExecutable.AssemblyVersion());
-        }
-
-        // Reads the assembly version of the executable of a prepared update, so the version which
-        // is recorded after installing it can be tied to that exact build.
-        private static string GetAssemblyVersionOfFile(string applicationFolder)
-        {
-            try
-            {
-                string executableName = Path.GetFileName(Process.GetCurrentProcess().MainModule.FileName);
-                string executablePath = Path.Combine(applicationFolder, executableName);
-
-                if (System.IO.File.Exists(executablePath))
-                {
-                    return AssemblyName.GetAssemblyName(executablePath).Version?.ToString() ?? string.Empty;
-                }
-            }
-            catch (Exception ex)
-            {
-                LogClient.Error("Update: could not read the assembly version of the update. Exception: {0}", ex.Message);
-            }
-
-            return string.Empty;
         }
     }
 }

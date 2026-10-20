@@ -1,5 +1,6 @@
 ﻿using Digimezzo.Foundation.Core.Packaging;
 using System;
+using System.Reflection;
 
 namespace Dopamine.Core.Base
 {
@@ -7,7 +8,25 @@ namespace Dopamine.Core.Base
     {
         public static string ApplicationGuid = "75ba9e1e-9eff-4a8e-845e-125dc4318c3b";
         public static string ApplicationName = "Dopamine";
-        public static string Copyright = "Copyright Digimezzo © 2014-" + DateTime.Now.Year;
+        public static string Copyright = GetAssemblyCopyright();
+
+        // The copyright notice is defined once, in the assembly attributes (SharedAssemblyInfo.cs).
+        private static string GetAssemblyCopyright()
+        {
+            try
+            {
+                AssemblyCopyrightAttribute attribute = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyCopyrightAttribute>();
+                if (!string.IsNullOrWhiteSpace(attribute?.Copyright))
+                {
+                    return attribute.Copyright;
+                }
+            }
+            catch
+            {
+            }
+
+            return "Copyright © Digimezzo 2014 - 2024";
+        }
 
         public static readonly ExternalComponent[] Components =
         {

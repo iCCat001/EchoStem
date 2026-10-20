@@ -1,4 +1,4 @@
-; Inno Setup script for EchoStem (product name: Dopamine)
+﻿; Inno Setup script for EchoStem (product name: Dopamine)
 ; Produces a single-file installer: Dopamine-Setup-<version>.exe
 ;
 ; Usage (CI):
@@ -12,7 +12,7 @@
 #endif
 
 #define MyAppName "Dopamine"
-#define MyAppPublisher "Digimezzo"
+#define MyAppPublisher "C-Cat"
 #define MyAppExeName "Dopamine.exe"
 #define MyAppURL "https://github.com/iCCat001/EchoStem"
 

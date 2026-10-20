@@ -294,6 +294,12 @@
   <Text Key="Website">网站</Text>
   <Text Key="Social_Networks">社交网络</Text>
   <Text Key="Contact_Us">联系我们</Text>
+  <Text Key="Feedback">反馈</Text>
+  <Text Key="Feedback_Address">反馈地址</Text>
+  <Text Key="Feedback_Not_Upstream">请勿前往原作者处反馈本程序的问题。</Text>
+  <Text Key="About_Original_Author_Marker">—— 原作者</Text>
+  <Text Key="About_Thanks_Original">感谢原作者</Text>
+  <Text Key="About_Thanks_Original_End">的辛勤开发</Text>
   <Text Key="Email">邮件</Text>
   <Text Key="Error_Cannot_Play_This_Song_File_Not_Found">抱歉，Dopamine 不能播放这首歌曲。未找到此文件</Text>
   <Text Key="Cover_Size">封面大小</Text>
