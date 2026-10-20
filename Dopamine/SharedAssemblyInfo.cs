@@ -5,7 +5,7 @@
 // Revision: 3*** = Release Candidate (3001= "RC 1", 3002 = "RC 2", ...)
 // Revision: 4000 = Release
 [assembly: AssemblyCompany("C-Cat")]
-[assembly: AssemblyCopyright("Copyright © Digimezzo 2014 - 2024; fork modifications © C-Cat 2025 - 2026")]
+[assembly: AssemblyCopyright("Copyright © Digimezzo 2014 - 2024; fork modifications © C-Cat 2026")]
 [assembly: AssemblyVersion("2.0.11.2004")]
 [assembly: AssemblyFileVersion("2.0.11.2004")]
 [assembly: AssemblyInformationalVersion("2.0.11.2004")]
