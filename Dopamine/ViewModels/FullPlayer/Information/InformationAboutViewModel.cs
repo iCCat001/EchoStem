@@ -59,11 +59,7 @@ namespace Dopamine.ViewModels.FullPlayer.Information
 
         public string DonateUrl => ContactInformation.DonateLink;
 
-        public string WebsiteLink => ContactInformation.WebsiteLink;
-
-        public string BlueskyLink => ContactInformation.BlueskyLink;
-        
-        public string MastodonLink => ContactInformation.MastodonLink;
+        public string FeedbackUrl => "https://github.com/iCCat001/EchoStem/issues";
 
         public InformationAboutViewModel(IContainerProvider container, IDialogService dialogService, IUpdateChecker updateChecker)
         {

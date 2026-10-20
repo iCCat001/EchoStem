@@ -77,7 +77,7 @@ namespace Dopamine.ViewModels.Common
             var progress = new Progress<double>(value => this.Progress = value);
 
             string updateFolder = await this.updateService.DownloadAndPrepareUpdateAsync(
-                this.checkResult.PortableAsset, this.checkResult.Release?.TagName, progress);
+                this.checkResult.PortableAsset, progress);
 
             this.IsDownloading = false;
 

@@ -15,8 +15,7 @@ namespace Dopamine.Services.Update
         /// Downloads the portable package of the given release, extracts it and returns the folder
         /// which has to be copied over the application folder. Returns null when it failed.
         /// </summary>
-        Task<string> DownloadAndPrepareUpdateAsync(GitHubReleaseAsset portableAsset, string versionText,
-            IProgress<double> progress);
+        Task<string> DownloadAndPrepareUpdateAsync(GitHubReleaseAsset portableAsset, IProgress<double> progress);
 
         /// <summary>
         /// Starts an external script which waits for this application to exit, copies the prepared

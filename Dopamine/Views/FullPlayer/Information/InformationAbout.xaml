@@ -50,17 +50,12 @@
                 </StackPanel>
             </Button>
             <Separator Height="20" Background="Transparent" />
-            <Label Style="{StaticResource TitleLabel}" Content="{DynamicResource Language_Contact_Us}" />
+            <Label Style="{StaticResource TitleLabel}" Content="{DynamicResource Language_Feedback}" />
+            <TextBlock Margin="0,5,0,0" Text="{DynamicResource Language_Feedback_Not_Upstream}" TextWrapping="Wrap" Foreground="{DynamicResource Brush_PrimaryText}"/>
             <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                <TextBlock Margin="0,0,0,0" Text="{DynamicResource Language_Website}" Foreground="{DynamicResource Brush_PrimaryText}"/>
+                <TextBlock Margin="0,0,0,0" Text="{DynamicResource Language_Feedback_Address}" Foreground="{DynamicResource Brush_PrimaryText}"/>
                 <TextBlock Margin="0,0,5,0" Text=":" Foreground="{DynamicResource Brush_PrimaryText}"/>
-                <Button Content="{Binding WebsiteLink}" Style="{StaticResource LinkButton}" ToolTip="{Binding WebsiteLink}" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding WebsiteLink}"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Margin="0,0,0,0" Text="{DynamicResource Language_Social_Networks}" Foreground="{DynamicResource Brush_PrimaryText}"/>
-                <TextBlock Margin="0,0,5,0" Text=":" Foreground="{DynamicResource Brush_PrimaryText}"/>
-                <Button Content="Bluesky" Style="{StaticResource LinkButton}" ToolTip="{Binding BlueskyLink}" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding BlueskyLink}"/>
-                <Button Margin="8,0,0,0" Content="Mastodon" Style="{StaticResource LinkButton}" ToolTip="{Binding MastodonLink}" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding MastodonLink}"/>
+                <Button Content="{Binding FeedbackUrl}" Style="{StaticResource LinkButton}" ToolTip="{Binding FeedbackUrl}" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding FeedbackUrl}"/>
             </StackPanel>
             <Separator Height="20" Background="Transparent" />
             <Label Style="{StaticResource TitleLabel}" Content="{DynamicResource Language_Components}" />
@@ -99,6 +94,21 @@
                         </Button>
                     </InlineUIContainer>
                 <Run Text="{DynamicResource Language_About_Neowin_End}" Foreground="{DynamicResource Brush_PrimaryText}"/>
+            </TextBlock>
+            <!-- The texts above are the original project's thanks. -->
+            <TextBlock Margin="0,4,0,0" Text="{DynamicResource Language_About_Original_Author_Marker}" FontSize="11"
+                       Foreground="{DynamicResource Brush_SecondaryText}" HorizontalAlignment="Left"/>
+            <!-- Our own thanks to the original author. -->
+            <TextBlock Margin="0,12,0,0" TextWrapping="Wrap">
+                <Run Text="{DynamicResource Language_About_Thanks_Original}" Foreground="{DynamicResource Brush_PrimaryText}"/>
+                <InlineUIContainer>
+                    <Button Content="@digimezzo" Style="{StaticResource LinkButton}" ToolTip="https://github.com/digimezzo" Command="{Binding OpenLinkCommand}" CommandParameter="https://github.com/digimezzo">
+                        <Button.RenderTransform>
+                            <TranslateTransform Y="4"/>
+                        </Button.RenderTransform>
+                    </Button>
+                </InlineUIContainer>
+                <Run Text="{DynamicResource Language_About_Thanks_Original_End}" Foreground="{DynamicResource Brush_PrimaryText}"/>
             </TextBlock>
         </StackPanel>
     </ScrollViewer>
