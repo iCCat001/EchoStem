@@ -55,6 +55,7 @@ using System;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Shell;
 using System.Windows.Threading;
@@ -161,6 +162,28 @@ namespace Dopamine
             {
                 Container.Resolve<IIndexingService>().RefreshCollectionAsync();
             }
+
+            this.ScheduleStartupUpdateCheck();
+        }
+
+        private async void ScheduleStartupUpdateCheck()
+        {
+            try
+            {
+                if (!SettingsClient.Get<bool>("Updates", "CheckAtStartup"))
+                {
+                    return;
+                }
+
+                // Don't compete with the startup of the application.
+                await Task.Delay(TimeSpan.FromSeconds(5));
+
+                await Container.Resolve<IUpdateChecker>().CheckForUpdatesAsync(silent: true);
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("Could not check for updates at startup. Exception: {0}", ex.Message);
+            }
         }
 
         protected void InitializeWcfServices()
@@ -230,6 +253,7 @@ namespace Dopamine
             {
                 containerRegistry.RegisterSingleton<ICacheService, CacheService>();
                 containerRegistry.RegisterSingleton<IUpdateService, UpdateService>();
+                containerRegistry.RegisterSingleton<IUpdateChecker, UpdateChecker>();
                 containerRegistry.RegisterSingleton<IAppearanceService, AppearanceService>();
                 containerRegistry.RegisterSingleton<II18nService, I18nService>();
                 containerRegistry.RegisterSingleton<IDialogService, DialogService>();

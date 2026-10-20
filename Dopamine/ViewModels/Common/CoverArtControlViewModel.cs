@@ -41,6 +41,11 @@ namespace Dopamine.ViewModels.Common
             this.artwork = null;
         }
 
+        /// <summary>
+        /// Delay before the cover art is read, so the page transitions can run first.
+        /// </summary>
+        protected virtual int CoverArtLoadDelayMilliseconds => 250;
+
         public CoverArtControlViewModel(IPlaybackService playbackService, ICacheService cacheService, IMetadataService metadataService)
         {
             this.playbackService = playbackService;
@@ -67,7 +72,7 @@ namespace Dopamine.ViewModels.Common
 
         protected async virtual void RefreshCoverArtAsync(TrackViewModel track)
         {
-            await Task.Delay(250);
+            await Task.Delay(this.CoverArtLoadDelayMilliseconds);
 
             await Task.Run(async () =>
             {

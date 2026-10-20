@@ -4,20 +4,20 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:pc="clr-namespace:Dopamine.Controls"
-             xmlns:pv="clr-namespace:Dopamine.ViewModels"
              xmlns:prismMvvm="clr-namespace:Prism.Mvvm;assembly=Prism.Wpf"
              mc:Ignorable="d"
              d:DesignHeight="300" d:DesignWidth="300"
              prismMvvm:ViewModelLocator.AutoWireViewModel="True" SizeChanged="UserControl_SizeChanged">
 
-    <UserControl.Resources>
-        <DataTemplate DataType="{x:Type pv:CoverArtViewModel}">
-            <Image Source="{Binding CoverArt, Converter={StaticResource NullImageConverter}}" RenderOptions.BitmapScalingMode="LowQuality" Stretch="UniformToFill"/>
-        </DataTemplate>
-    </UserControl.Resources>
-
-    <Border x:Name="CoverImage">
-        <pc:CrossFadeContentControl Content="{Binding CoverArtViewModel}" Duration="1.0" />
+    <!-- The blur is baked into these bitmaps once per cover art (and once per blur radius), so
+         the background never needs a live blur effect. The new snapshot fades in on top of the
+         previous one, which is a cheap compositor-only transition. -->
+    <Border x:Name="CoverImage" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid>
+            <Image x:Name="PreviousBackground" Stretch="UniformToFill"
+                   RenderOptions.BitmapScalingMode="LowQuality" Opacity="0" />
+            <Image x:Name="CurrentBackground" Stretch="UniformToFill"
+                   RenderOptions.BitmapScalingMode="LowQuality" />
+        </Grid>
     </Border>
 </UserControl>

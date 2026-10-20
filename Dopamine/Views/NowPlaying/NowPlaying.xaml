@@ -26,7 +26,11 @@
             <commonviews:BackgroundCoverArtControl x:Name="BackgroundCoverArtControl" />
         </Border>
         <Border Panel.ZIndex="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                Background="{DynamicResource Brush_NowPlayingBackground}"/>
+                Background="{DynamicResource Brush_NowPlayingBackground}"
+                Opacity="{Binding BackgroundMaskOpacity}"/>
+        <!-- Dominant color gradient of the current cover art -->
+        <Border x:Name="BackgroundGradientOverlay" Panel.ZIndex="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Background="{Binding BackgroundGradientBrush}" IsHitTestVisible="False"/>
         <DockPanel Panel.ZIndex="2">
             <!-- Titlebar -->
             <Border DockPanel.Dock="Top" HorizontalAlignment="Stretch">

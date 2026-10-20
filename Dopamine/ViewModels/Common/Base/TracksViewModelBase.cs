@@ -52,6 +52,7 @@ namespace Dopamine.ViewModels.Common.Base
         private IList<TrackViewModel> selectedTracks;
         protected bool listsLoaded;
         private bool isPageLoaded;
+        private bool listsRestoreRequested;
         private System.Timers.Timer listsReleaseTimer;
 
         // After this delay of not being shown, a page releases its retained lists to save memory.
@@ -675,6 +676,25 @@ namespace Dopamine.ViewModels.Common.Base
             this.isPageLoaded = false;
             this.listsReleaseTimer?.Stop();
             this.listsReleaseTimer?.Start();
+        }
+
+        // Raised after a page has (re)filled its lists. A reload discards the scroll position and
+        // the selection, so the views use this to restore them once.
+        public event EventHandler ListsFilled;
+
+        protected void RaiseListsFilled()
+        {
+            this.listsRestoreRequested = true;
+            this.ListsFilled?.Invoke(this, EventArgs.Empty);
+        }
+
+        // Called by a view when it is shown (or after a fill while it is shown) to know whether
+        // its position and selection need to be restored.
+        public bool ConsumeListsRestoreRequest()
+        {
+            bool requested = this.listsRestoreRequested;
+            this.listsRestoreRequested = false;
+            return requested;
         }
 
         // Releases the retained lists of a page which has not been shown for a while, to give its

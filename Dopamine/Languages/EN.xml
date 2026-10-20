@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Language Code="EN" Name="English">
   <Text Key="ISO639-1">EN</Text>
   <Text Key="Ok">Ok</Text>
@@ -209,6 +209,14 @@
   <Text Key="All_Genres">All genres</Text>
   <Text Key="Error_Adding_Genres_To_Playlist">An error occurred while adding genres to the playlist '{playlistname}'. Please consult the log file for more information.</Text>
   <Text Key="Border">Border</Text>
+  <Text Key="Window">Window</Text>
+  <Text Key="Window_Material">Window material</Text>
+  <Text Key="Window_Material_Traditional">Default</Text>
+  <Text Key="Window_Material_Mica">Mica material (Windows 11 only)</Text>
+  <Text Key="Window_Material_Acrylic">Acrylic material (Windows 10/11 only)</Text>
+  <Text Key="NowPlaying_Background_Mask">Background mask opacity</Text>
+  <Text Key="NowPlaying_Gradient">Overlay dominant color gradient</Text>
+  <Text Key="NowPlaying_Material_Sync">Sync window material</Text>
   <Text Key="Show_Window_Border">Show a border of 1 px around the window</Text>
   <Text Key="System_Tray">Notification area</Text>
   <Text Key="Show_Tray_Icon">Show an icon in the notification area</Text>
@@ -410,6 +418,15 @@
   <Text Key="Hide_Song_Covers">Hide song covers</Text>
   <Text Key="Check_For_Updates_At_Startup">Check for updates at startup</Text>
   <Text Key="Check_For_Updates_Periodically">Check for updates periodically</Text>
+  <Text Key="Check_For_Updates">Check for updates</Text>
+  <Text Key="Update_Available">Update available</Text>
+  <Text Key="Current_Version_Is_Latest">You are using the latest version</Text>
+  <Text Key="Update_Now">Update</Text>
+  <Text Key="Not_Now">Not now</Text>
+  <Text Key="Update_Release_Notes">What's new</Text>
+  <Text Key="Downloading_Update">Downloading the update...</Text>
+  <Text Key="Update_Download_Failed">Could not download the update. Please try again later.</Text>
+  <Text Key="Update_Check_Failed">Could not check for updates. Please check your network connection.</Text>
   <Text Key="Refresh_Collection_Now">Refresh the collection now</Text>
   <Text Key="Album_Covers">Album covers</Text>
   <Text Key="Reload_All_Covers">Reload all covers</Text>
@@ -476,9 +493,9 @@
   <Text Key="Blacklist">Blacklist</Text>
   <Text Key="Features">Features</Text>
   <Text Key="Non_Public_Experimental_Features">Non-public experimental features</Text>
-  <Text Key="Enable_Non_Public_Experimental_Features">Enable non-public experimental features. These are unfinished or unofficial, and may not work as expected.</Text>
+  <Text Key="Enable_Non_Public_Experimental_Features">Enable non-public experimental features. These features are not released yet and require a password to unlock.</Text>
   <Text Key="Touch_Optimization">Touch optimization</Text>
-  <Text Key="Enable_Touch_Optimization">Optimize the interface for touch input. For example, the playback controls on the 'Now playing' screen stay visible instead of hiding automatically.</Text>
+  <Text Key="Enable_Touch_Optimization">Optimize the page layout and responsiveness for touch input.</Text>
   <Text Key="Enter_Password">Enter password</Text>
   <Text Key="Ncm_Write_Not_Supported">NCM format files don't support writing</Text>
   <Text Key="Convert_Ncm_To_Public_Format">Convert NCM to a public format</Text>

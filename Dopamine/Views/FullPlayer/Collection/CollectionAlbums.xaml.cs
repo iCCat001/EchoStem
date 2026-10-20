@@ -3,6 +3,7 @@ using Dopamine.Core.Prism;
 using Dopamine.Services.Entities;
 using Dopamine.Services.Playback;
 using Dopamine.Services.Utils;
+using Dopamine.ViewModels.FullPlayer.Collection;
 using Digimezzo.Foundation.WPF.Controls;
 using Prism.Commands;
 using System;
@@ -149,6 +150,20 @@ namespace Dopamine.Views.FullPlayer.Collection
             }
 
             this.UpdatePlayingAlbum();
+
+            // A reload of the album wall discards the scroll position. Restore it once (by
+            // locating the album of the playing track) when the page is shown again, or right
+            // after a reload which happened while the page was visible.
+            if (this.DataContext is CollectionAlbumsViewModel albumsViewModel)
+            {
+                albumsViewModel.ListsFilled -= this.AlbumsViewModel_ListsFilled;
+                albumsViewModel.ListsFilled += this.AlbumsViewModel_ListsFilled;
+
+                if (albumsViewModel.ConsumeListsRestoreRequest())
+                {
+                    this.LocatePlayingAlbumDeferred();
+                }
+            }
         }
 
         private void RootGrid_Unloaded(object sender, RoutedEventArgs e)
@@ -156,10 +171,31 @@ namespace Dopamine.Views.FullPlayer.Collection
             this.playbackService.PlaybackSuccess -= this.PlaybackService_PlaybackSuccess;
             this.playbackService.PlayingTrackChanged -= this.PlaybackService_PlayingTrackChanged;
 
+            if (this.DataContext is CollectionAlbumsViewModel albumsViewModel)
+            {
+                albumsViewModel.ListsFilled -= this.AlbumsViewModel_ListsFilled;
+            }
+
             if (this.ListBoxAlbums.Items is System.Collections.Specialized.INotifyCollectionChanged items)
             {
                 items.CollectionChanged -= this.Albums_CollectionChanged;
             }
+        }
+
+        private void AlbumsViewModel_ListsFilled(object sender, EventArgs e)
+        {
+            this.LocatePlayingAlbumDeferred();
+        }
+
+        // Waits until the new album wall items are bound and laid out, then scrolls to the
+        // playing album.
+        private void LocatePlayingAlbumDeferred()
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.ListBoxAlbums.UpdateLayout();
+                this.LocatePlayingAlbum();
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
         }
 
         private void Albums_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)

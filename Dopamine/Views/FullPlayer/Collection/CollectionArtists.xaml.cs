@@ -3,9 +3,11 @@ using Digimezzo.Foundation.WPF.Controls;
 using Dopamine.Core.Prism;
 using Dopamine.Services.Entities;
 using Dopamine.Services.Utils;
+using Dopamine.ViewModels.FullPlayer.Collection;
 using Dopamine.Views.Common.Base;
 using Prism.Commands;
 using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -175,6 +177,85 @@ namespace Dopamine.Views.FullPlayer.Collection
         {
             this.UpdatePaneWidths();
             this.SetTracksPaneOpen(false, false);
+
+            // A reload of the artist list discards the selection. Restore it once (jump to the
+            // last selected artist and select it again) when the page is shown again, or right
+            // after a reload which happened while the page was visible.
+            if (this.DataContext is CollectionArtistsViewModel artistsViewModel)
+            {
+                artistsViewModel.ListsFilled -= this.ArtistsViewModel_ListsFilled;
+                artistsViewModel.ListsFilled += this.ArtistsViewModel_ListsFilled;
+
+                if (artistsViewModel.ConsumeListsRestoreRequest())
+                {
+                    this.RestoreArtistSelectionDeferred();
+                }
+            }
+        }
+
+        private void RootGrid_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (this.DataContext is CollectionArtistsViewModel artistsViewModel)
+            {
+                artistsViewModel.ListsFilled -= this.ArtistsViewModel_ListsFilled;
+            }
+        }
+
+        private void ArtistsViewModel_ListsFilled(object sender, EventArgs e)
+        {
+            this.RestoreArtistSelectionDeferred();
+        }
+
+        // Waits until the new artist items are bound and laid out, then restores the selection.
+        private void RestoreArtistSelectionDeferred()
+        {
+            this.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                this.ListBoxArtists.UpdateLayout();
+                this.RestoreArtistSelection();
+            }), System.Windows.Threading.DispatcherPriority.Loaded);
+        }
+
+        // Selects the artist(s) which were selected before the artist list got reloaded, and
+        // scrolls to the first one. Selecting triggers the normal selection handler, so the
+        // albums pane is filled again as if the artist had been clicked.
+        private void RestoreArtistSelection()
+        {
+            if (!(this.DataContext is CollectionArtistsViewModel artistsViewModel))
+            {
+                return;
+            }
+
+            if (artistsViewModel.SelectedArtists == null || artistsViewModel.SelectedArtists.Count == 0)
+            {
+                return;
+            }
+
+            var artistsToSelect = new List<ArtistViewModel>();
+
+            foreach (object item in this.ListBoxArtists.Items)
+            {
+                if (item is ArtistViewModel artist && artistsViewModel.SelectedArtists.Contains(artist.ArtistName))
+                {
+                    artistsToSelect.Add(artist);
+                }
+            }
+
+            if (artistsToSelect.Count == 0)
+            {
+                return;
+            }
+
+            this.ListBoxArtists.UnselectAll();
+
+            foreach (ArtistViewModel artist in artistsToSelect)
+            {
+                this.ListBoxArtists.SelectedItems.Add(artist);
+            }
+
+            this.ListBoxArtists.UpdateLayout();
+
+            ScrollUtils.ScrollToListBoxItemCenteredVertically(this.ListBoxArtists, artistsToSelect[0]);
         }
 
         private void RootGrid_SizeChanged(object sender, SizeChangedEventArgs e)
