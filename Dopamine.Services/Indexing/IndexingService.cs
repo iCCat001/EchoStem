@@ -185,7 +185,7 @@ namespace Dopamine.Services.Indexing
                     {
                         if (SettingsClient.Get<bool>("Indexing", "RefreshCollectionAutomatically"))
                         {
-                            this.AddArtworkInBackgroundAsync();
+                            _ = this.AddArtworkInBackgroundAsync();
                             await this.watcherManager.StartWatchingAsync();
                         }
                     }
@@ -233,7 +233,7 @@ namespace Dopamine.Services.Indexing
             this.isIndexing = false;
             this.IndexingStopped(this, new EventArgs());
 
-            this.AddArtworkInBackgroundAsync();
+            _ = this.AddArtworkInBackgroundAsync();
 
             if (SettingsClient.Get<bool>("Indexing", "RefreshCollectionAutomatically"))
             {
@@ -305,6 +305,14 @@ namespace Dopamine.Services.Indexing
                 numberTracksAdded = await this.AddTracksAsync();
 
                 LogClient.Info("Tracks added: {0}. Time required: {1} ms +++", numberTracksAdded, Convert.ToInt64(DateTime.Now.Subtract(addTracksStartTime).TotalMilliseconds));
+
+                // Step 4: merge the albums which are split because of their album artists
+                // -----------------------------------------------------------------------
+                long numberAlbumsMerged = await this.MergeAlbumsOfFoldersAsync();
+
+                LogClient.Info("Albums merged: {0}", numberAlbumsMerged);
+
+                numberTracksAdded += numberAlbumsMerged;
             }
             catch (Exception ex)
             {
@@ -373,7 +381,7 @@ namespace Dopamine.Services.Indexing
 
                         // Processing tracks in missing folders in bulk first, then checking 
                         // existence of the remaining tracks, improves speed of removing tracks.
-                        if (tracksInMissingFolders.Count > 0 && tracksInMissingFolders.Count < alltracks.Count)
+                        if (tracksInMissingFolders.Count > 0)
                         {
                             remainingTracks = alltracks.Except(tracksInMissingFolders).ToList();
                         }
@@ -686,8 +694,12 @@ namespace Dopamine.Services.Indexing
             return await this.cacheService.CacheArtworkAsync(artworkUriString);
         }
 
-        private async void AddArtworkInBackgroundAsync()
+        private async Task AddArtworkInBackgroundAsync()
         {
+            // Self-heal: artwork entries whose cached file is gone (e.g. an interrupted or failed
+            // download) would prevent those albums from ever being indexed again. Remove them.
+            await this.RemoveUncachedAlbumArtworkAsync();
+
             // First, add artwork from file.
             await this.AddArtworkInBackgroundAsync(1);
 
@@ -697,9 +709,30 @@ namespace Dopamine.Services.Indexing
                 // Add artwork from the Internet.
                 await this.AddArtworkInBackgroundAsync(2);
             }
+        }
 
-            // We don't need to scan for artwork anymore
-            await this.trackRepository.DisableNeedsAlbumArtworkIndexingForAllTracksAsync();
+        // Removes the album artwork entries which point to a cached file which doesn't exist anymore.
+        private async Task RemoveUncachedAlbumArtworkAsync()
+        {
+            try
+            {
+                IList<AlbumArtwork> allAlbumArtwork = await this.albumArtworkRepository.GetAlbumArtworkAsync();
+
+                foreach (AlbumArtwork albumArtwork in allAlbumArtwork)
+                {
+                    string cachedArtworkPath = this.cacheService.GetCachedArtworkPath(albumArtwork.ArtworkID);
+
+                    if (string.IsNullOrEmpty(cachedArtworkPath) || !System.IO.File.Exists(cachedArtworkPath))
+                    {
+                        await this.albumArtworkRepository.DeleteAlbumArtworkAsync(albumArtwork.AlbumKey);
+                        LogClient.Info("Removed the artwork of Album '{0}' because its cached file is missing", albumArtwork.AlbumKey);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("Could not remove the uncached album artwork. Exception: {0}", ex.Message);
+            }
         }
 
         private async Task AddArtworkInBackgroundAsync(int passNumber)
@@ -771,7 +804,12 @@ namespace Dopamine.Services.Indexing
                                         DataUtils.SplitAndTrimColumnMultiValue(albumDataToIndex.Artists).ToList()
                                         );
 
-                                    await this.trackRepository.DisableNeedsAlbumArtworkIndexingAsync(albumDataToIndex.AlbumKey);
+                                    // Only mark the album as done when artwork was actually found: when
+                                    // the download failed, the album must be retried on the next scan.
+                                    if (!string.IsNullOrEmpty(albumArtwork.ArtworkID))
+                                    {
+                                        await this.trackRepository.DisableNeedsAlbumArtworkIndexingAsync(albumDataToIndex.AlbumKey);
+                                    }
                                 }
 
                                 // If artwork was found, keep track of the albumID
@@ -815,7 +853,7 @@ namespace Dopamine.Services.Indexing
             LogClient.Error("+++ FINISHED ADDING ARTWORK IN THE BACKGROUND. Time required: {0} ms +++", Convert.ToInt64(DateTime.Now.Subtract(startTime).TotalMilliseconds));
         }
 
-        public async void ReScanAlbumArtworkAsync(bool onlyWhenHasNoCover)
+        public async Task ReScanAlbumArtworkAsync(bool onlyWhenHasNoCover)
         {
             this.canIndexArtwork = false;
 
@@ -827,7 +865,84 @@ namespace Dopamine.Services.Indexing
 
             await this.trackRepository.EnableNeedsAlbumArtworkIndexingForAllTracksAsync(onlyWhenHasNoCover);
 
-            this.AddArtworkInBackgroundAsync();
+            await this.AddArtworkInBackgroundAsync();
+        }
+
+        // When the same album (same title) is split into multiple albums because its tracks have
+        // different album artists (compilations, soundtracks, missing album artist tags), they are
+        // merged when they are in the same folder: all album artists are combined into a single
+        // album key, which is applied to every track of the folder album.
+        private async Task<long> MergeAlbumsOfFoldersAsync()
+        {
+            long numberMerged = 0;
+
+            await Task.Run(() =>
+            {
+                try
+                {
+                    using (var conn = this.factory.GetConnection())
+                    {
+                        conn.BeginTransaction();
+
+                        List<Track> allTracks = conn.Table<Track>().Select(t => t).ToList();
+
+                        var folderAlbums = allTracks
+                            .Where(t => !string.IsNullOrWhiteSpace(t.AlbumTitle) && !string.IsNullOrEmpty(t.Path))
+                            .GroupBy(t => (System.IO.Path.GetDirectoryName(t.Path) ?? string.Empty).ToLowerInvariant() + "|" + t.AlbumTitle.ToLowerInvariant());
+
+                        foreach (var folderAlbum in folderAlbums)
+                        {
+                            List<Track> tracks = folderAlbum.ToList();
+
+                            // Only albums which are split by their album artists need to be merged.
+                            if (tracks.Select(t => t.AlbumKey).Distinct().Count() <= 1)
+                            {
+                                continue;
+                            }
+
+                            // Combine all album artists of the folder album, in order of appearance.
+                            var albumArtists = new List<string>();
+
+                            foreach (Track track in tracks)
+                            {
+                                foreach (string albumArtist in DataUtils.SplitAndTrimColumnMultiValue(track.AlbumArtists))
+                                {
+                                    if (!string.IsNullOrWhiteSpace(albumArtist) &&
+                                        !albumArtists.Any(a => string.Equals(a, albumArtist, StringComparison.OrdinalIgnoreCase)))
+                                    {
+                                        albumArtists.Add(albumArtist);
+                                    }
+                                }
+                            }
+
+                            string mergedAlbumArtists = albumArtists.Count > 0 ? ";" + string.Join(";", albumArtists) + ";" : string.Empty;
+                            string mergedAlbumKey = MetadataUtils.GenerateInitialAlbumKey(tracks[0].AlbumTitle, mergedAlbumArtists);
+
+                            foreach (Track track in tracks)
+                            {
+                                if (!string.Equals(track.AlbumKey, mergedAlbumKey, StringComparison.Ordinal) ||
+                                    !string.Equals(track.AlbumArtists ?? string.Empty, mergedAlbumArtists, StringComparison.Ordinal))
+                                {
+                                    // The album key changed: ask for the artwork to be indexed again
+                                    // for the merged album.
+                                    conn.Execute("UPDATE Track SET AlbumKey=?, AlbumArtists=?, NeedsAlbumArtworkIndexing=1 WHERE TrackID=?;",
+                                        mergedAlbumKey, mergedAlbumArtists, track.TrackID);
+
+                                    numberMerged++;
+                                }
+                            }
+                        }
+
+                        conn.Commit();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogClient.Error("Could not merge the albums which are split by their album artists. Exception: {0}", ex.Message);
+                }
+            });
+
+            return numberMerged;
         }
 
         private async Task<List<FolderPathInfo>> GetFolderPaths()

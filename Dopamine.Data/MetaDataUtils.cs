@@ -204,7 +204,7 @@ namespace Dopamine.Data
             FillTrackBase(fileMetadata, ref track);
         }
 
-        private static string GenerateInitialAlbumKey(string albumTitle, string albumArtists)
+        public static string GenerateInitialAlbumKey(string albumTitle, string albumArtists)
         {
             if (string.IsNullOrWhiteSpace(albumTitle))
             {

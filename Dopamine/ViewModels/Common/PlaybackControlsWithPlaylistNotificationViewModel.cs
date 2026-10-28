@@ -125,6 +125,10 @@ namespace Dopamine.ViewModels.Common
                 this.RefreshLyricsPageActive();
             });
 
+            // When the lyrics of the current track are refreshed (e.g. from the lyrics page), show the
+            // new lyrics in the control bar as well.
+            this.lyricsService.LyricsChanged += this.LyricsService_LyricsChanged;
+
             this.PlaylistNotificationMouseEnterCommand = new DelegateCommand(() => this.OnMouseEnter());
             this.PlaylistNotificationMouseLeaveCommand = new DelegateCommand(() => this.OnMouseLeave());
 
@@ -448,6 +452,23 @@ namespace Dopamine.ViewModels.Common
             }
 
             return result;
+        }
+
+        private void LyricsService_LyricsChanged(object sender, string path)
+        {
+            if (string.IsNullOrEmpty(path) || !string.Equals(path, this.lyricsTrackPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return;
+            }
+
+            if (System.Windows.Application.Current?.Dispatcher != null)
+            {
+                System.Windows.Application.Current.Dispatcher.BeginInvoke(new Action(() => this.LoadLyricsForCurrentTrack()));
+            }
+            else
+            {
+                this.LoadLyricsForCurrentTrack();
+            }
         }
 
         private async void LoadLyricsForCurrentTrack()

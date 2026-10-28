@@ -110,17 +110,22 @@ namespace Dopamine.Services.Cache
 
             string temporaryFilePath = await this.DownloadFileToTemporaryCacheAsync(uriString);
 
-            if (!string.IsNullOrEmpty(temporaryFilePath))
+            // The download failed: don't return an artwork ID, otherwise the album would get an
+            // artwork entry which points to a file which doesn't exist (and which would prevent the
+            // album from being indexed again).
+            if (string.IsNullOrEmpty(temporaryFilePath))
             {
-                try
-                {
-                    System.IO.File.Copy(temporaryFilePath, Path.Combine(this.coverArtCacheFolderPath, artworkID + ".jpg"), true);
-                }
-                catch (Exception ex)
-                {
-                    LogClient.Error("Could not cache Uri artwork. Exception: {0}", ex.Message);
-                    artworkID = string.Empty;
-                }
+                return string.Empty;
+            }
+
+            try
+            {
+                System.IO.File.Copy(temporaryFilePath, Path.Combine(this.coverArtCacheFolderPath, artworkID + ".jpg"), true);
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("Could not cache Uri artwork. Exception: {0}", ex.Message);
+                artworkID = string.Empty;
             }
 
             return artworkID;

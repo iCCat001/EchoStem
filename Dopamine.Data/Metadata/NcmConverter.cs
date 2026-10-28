@@ -14,8 +14,8 @@ namespace Dopamine.Data.Metadata
     public static class NcmConverter
     {
         /// <summary>
-        /// Converts the given NCM file and returns the path of the converted file.
-        /// Throws when the target file already exists.
+        /// Converts the given NCM file and returns the path of the converted file. An existing
+        /// file with the same name is overwritten.
         /// </summary>
         public static string Convert(string ncmPath)
         {
@@ -25,14 +25,10 @@ namespace Dopamine.Data.Metadata
             string nameWithoutExtension = Path.GetFileNameWithoutExtension(ncmPath);
             string targetPath = Path.Combine(directory, nameWithoutExtension + ncmFile.PayloadExtension);
 
-            if (System.IO.File.Exists(targetPath))
-            {
-                throw new IOException($"The target file '{targetPath}' already exists.");
-            }
-
-            // Decrypt the payload into the target file.
+            // Decrypt the payload into the target file. An existing file (e.g. from a previous,
+            // interrupted conversion) is overwritten.
             using (Stream payload = ncmFile.OpenPayload())
-            using (var output = new FileStream(targetPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            using (var output = new FileStream(targetPath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 payload.CopyTo(output);
             }

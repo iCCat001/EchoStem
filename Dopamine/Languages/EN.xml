@@ -506,7 +506,10 @@
   <Text Key="Ncm_Write_Not_Supported">NCM format files don't support writing</Text>
   <Text Key="Convert_Ncm_To_Public_Format">Convert NCM to a public format</Text>
   <Text Key="Ncm_Converted_To">The file was converted to {path}</Text>
-  <Text Key="Error_Converting_Ncm">The NCM file could not be converted. It may be corrupt, or a file with that name may already exist.</Text>
+  <Text Key="Error_Converting_Ncm">The NCM file could not be converted. It may be corrupt.</Text>
+  <Text Key="Convert_All_Ncm_Files">Convert to a public music format</Text>
+  <Text Key="Convert_All_Ncm_Files_Description">Converts all NCM files of the collection to FLAC/MP3 and removes the original NCM files. Existing files with the same name are overwritten.</Text>
+  <Text Key="Convert_Ncm_Progress">Converted {done} of {total} files</Text>
   <Text Key="Get_From_Netease">Get from NetEase Cloud Music</Text>
   <Text Key="Get_Lyrics_From_Online">Get lyrics from an online source</Text>
   <Text Key="Save_And_Replace_Ncm">Save and replace NCM file</Text>

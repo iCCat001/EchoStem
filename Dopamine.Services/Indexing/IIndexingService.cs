@@ -17,7 +17,7 @@ namespace Dopamine.Services.Indexing
 
         Task RefreshCollectionImmediatelyAsync();
 
-        void ReScanAlbumArtworkAsync(bool reloadOnlyMissing);
+        Task ReScanAlbumArtworkAsync(bool reloadOnlyMissing);
 
         event EventHandler IndexingStarted;
 

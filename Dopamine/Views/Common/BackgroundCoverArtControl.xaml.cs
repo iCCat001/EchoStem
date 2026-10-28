@@ -20,6 +20,15 @@ namespace Dopamine.Views.Common
         private const int BlurredSnapshotSize = 640;
         private const int SharpSnapshotSize = 1024;
 
+        // Extra margin around the cover art square. The baked bitmaps have no faded edges, so a
+        // small value is enough; it only prevents rounding artifacts at the window border.
+        private const double SnapshotBleed = 16;
+
+        // When true, the baked background has no faded edges (mirrored margin + crop), which
+        // allows a small bleed. When false, the previous behaviour (faded edges + large bleed)
+        // is used, which zooms the cover art in more.
+        private static readonly bool RemoveSnapshotEdgeFade = true;
+
         // On-screen size of the cover art square for which the blur radius is defined. Used to
         // convert the radius to the snapshot resolution.
         private const double SnapshotReferenceSize = 1800;
@@ -116,16 +125,26 @@ namespace Dopamine.Views.Common
                 return;
             }
 
-            // Bleed: the baked blur fades out at the edges of the bitmap, so the cover art must
-            // overflow the window on all four sides. The control is offset upwards by
-            // AlignBackgroundCoverArt (in NowPlaying), so account for that offset as well.
-            double bleed = this.materialBlurRadius > 0 ? this.materialBlurRadius * 2 : 0;
-            double size = Math.Max(this.ActualWidth, this.ActualHeight) + (bleed * 2);
-
-            if (bleed > 0)
+            // Compensating the faded snapshot edges allows a much smaller bleed, which zooms the
+            // cover art in less. Toggle this to compare both looks.
+            if (!RemoveSnapshotEdgeFade && this.materialBlurRadius > 0)
             {
-                size = Math.Max(this.ActualWidth, this.ActualHeight * 1.5) + (bleed * 2);
+                // The baked blur fades out at the edges of the bitmap, so the cover art must
+                // overflow the window on all four sides.
+                double largeBleed = this.materialBlurRadius * 2;
+                double largeSize = Math.Max(this.ActualWidth, this.ActualHeight * 1.5) + (largeBleed * 2);
+
+                this.CoverImage.Width = largeSize;
+                this.CoverImage.Height = largeSize;
+
+                return;
             }
+
+            // The baked bitmap has no faded edges (see RenderBlurred), so only a tiny bleed is
+            // needed to avoid rounding artifacts at the window border. The control is offset
+            // upwards by AlignBackgroundCoverArt (in NowPlaying), so the height is accounted for.
+            double bleed = this.materialBlurRadius > 0 ? SnapshotBleed : 0;
+            double size = Math.Max(this.ActualWidth, this.ActualHeight * 1.5) + (bleed * 2);
 
             this.CoverImage.Width = size;
             this.CoverImage.Height = size;
@@ -222,12 +241,43 @@ namespace Dopamine.Views.Common
         {
             try
             {
+                if (!RemoveSnapshotEdgeFade)
+                {
+                    return RenderBlurredSimple(source, size, radius);
+                }
+
+                // The artwork is surrounded by mirrored copies, and only its central part is kept:
+                // the blur therefore never fades to transparency inside the bitmap, so the cover
+                // art doesn't need a large bleed (which used to zoom it in).
+                int margin = (int)Math.Ceiling(radius * 3);
+                int canvasSize = size + (margin * 2);
+
+                var artworkRect = new Rect(margin, margin, size, size);
+
+                var artworkBrush = new DrawingBrush(new ImageDrawing(source, artworkRect))
+                {
+                    TileMode = TileMode.FlipXY,
+                    Viewport = artworkRect,
+                    ViewportUnits = BrushMappingMode.Absolute,
+                    Stretch = Stretch.None
+                };
+
+                var tiledVisual = new DrawingVisual();
+
+                using (DrawingContext drawingContext = tiledVisual.RenderOpen())
+                {
+                    drawingContext.DrawRectangle(artworkBrush, null, new Rect(0, 0, canvasSize, canvasSize));
+                }
+
+                var tiledBitmap = new RenderTargetBitmap(canvasSize, canvasSize, 96, 96, PixelFormats.Pbgra32);
+                tiledBitmap.Render(tiledVisual);
+
                 var image = new Image
                 {
-                    Source = source,
-                    Width = size,
-                    Height = size,
-                    Stretch = Stretch.UniformToFill,
+                    Source = tiledBitmap,
+                    Width = canvasSize,
+                    Height = canvasSize,
+                    Stretch = Stretch.Fill,
                     Effect = new BlurEffect
                     {
                         Radius = radius,
@@ -236,20 +286,52 @@ namespace Dopamine.Views.Common
                     }
                 };
 
-                image.Measure(new Size(size, size));
-                image.Arrange(new Rect(0, 0, size, size));
+                image.Measure(new Size(canvasSize, canvasSize));
+                image.Arrange(new Rect(0, 0, canvasSize, canvasSize));
                 image.UpdateLayout();
 
-                var target = new RenderTargetBitmap(size, size, 96, 96, PixelFormats.Pbgra32);
-                target.Render(image);
-                target.Freeze();
+                var blurredBitmap = new RenderTargetBitmap(canvasSize, canvasSize, 96, 96, PixelFormats.Pbgra32);
+                blurredBitmap.Render(image);
+                blurredBitmap.Freeze();
 
-                return target;
+                var croppedBitmap = new CroppedBitmap(blurredBitmap, new Int32Rect(margin, margin, size, size));
+                croppedBitmap.Freeze();
+
+                return croppedBitmap;
             }
             catch
             {
                 return null;
             }
+        }
+
+        // Original behaviour: the artwork is blurred as-is, so the blur fades to transparency at
+        // the edges of the bitmap.
+        private static BitmapSource RenderBlurredSimple(BitmapSource source, int size, double radius)
+        {
+            var image = new Image
+            {
+                Source = source,
+                Width = size,
+                Height = size,
+                Stretch = Stretch.UniformToFill,
+                Effect = new BlurEffect
+                {
+                    Radius = radius,
+                    KernelType = KernelType.Gaussian,
+                    RenderingBias = RenderingBias.Performance
+                }
+            };
+
+            image.Measure(new Size(size, size));
+            image.Arrange(new Rect(0, 0, size, size));
+            image.UpdateLayout();
+
+            var target = new RenderTargetBitmap(size, size, 96, 96, PixelFormats.Pbgra32);
+            target.Render(image);
+            target.Freeze();
+
+            return target;
         }
     }
 }

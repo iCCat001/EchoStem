@@ -91,13 +91,13 @@ namespace Dopamine.ViewModels.FullPlayer
             FullPlayerAddMusic view = this.container.Resolve<FullPlayerAddMusic>();
             view.DataContext = this.container.Resolve<FullPlayerAddMusicViewModel>();
 
-            this.dialogService.ShowCustomDialog(
+            bool accepted = this.dialogService.ShowCustomDialog(
                 0xE8D6,
                 16,
                 ResourceUtils.GetString("Language_Manage_Collection"),
                 view,
                 500,
-                400,
+                540,
                 false,
                 false,
                 false,
@@ -106,8 +106,14 @@ namespace Dopamine.ViewModels.FullPlayer
                 string.Empty,
                 null);
 
+            // Only apply the changes (and refresh the collection) when the dialog was confirmed.
+            if (!accepted)
+            {
+                return;
+            }
+
             await this.foldersService.SaveToggledFoldersAsync();
-            this.indexingService.RefreshCollectionIfFoldersChangedAsync();
+            await this.indexingService.RefreshCollectionImmediatelyAsync();
         }
     }
 }

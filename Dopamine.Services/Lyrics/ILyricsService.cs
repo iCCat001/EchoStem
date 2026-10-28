@@ -1,4 +1,5 @@
 ﻿using Dopamine.Services.Entities;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using LyricsModel = Dopamine.Core.Api.Lyrics.Lyrics;
@@ -7,6 +8,13 @@ namespace Dopamine.Services.Lyrics
 {
     public interface ILyricsService
     {
+        /// <summary>
+        /// Raised when the lyrics of a track were refreshed (e.g. re-fetched from the online
+        /// sources), so other places which show lyrics can update themselves. The argument is
+        /// the path of the track.
+        /// </summary>
+        event EventHandler<string> LyricsChanged;
+
         IList<LyricsLineViewModel> ParseLyrics(LyricsModel lyrics);
 
         /// <summary>

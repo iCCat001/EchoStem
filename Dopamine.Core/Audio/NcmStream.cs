@@ -21,7 +21,8 @@ namespace Dopamine.Core.Audio
 
         public NcmStream(string filePath, byte[] keyBox, long start, long length)
         {
-            this.file = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            // Share delete, so the NCM file can be replaced (deleted) while it is being played.
+            this.file = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
             this.keyBox = keyBox;
             this.start = start;
             this.length = length;

@@ -23,6 +23,8 @@ namespace Dopamine.Services.Lyrics
 {
     public class LyricsService : ILyricsService
     {
+        public event EventHandler<string> LyricsChanged;
+
         // Upper bound for the lyrics cache, to avoid unbounded growth during long sessions.
         private const int MaxCachedLyrics = 100;
 
@@ -271,6 +273,9 @@ namespace Dopamine.Services.Lyrics
             }
 
             this.lyricsCache[track.Path] = onlineLyrics;
+
+            // Let other places which show lyrics (e.g. the control bar) update themselves.
+            this.LyricsChanged?.Invoke(this, track.Path);
 
             return onlineLyrics;
         }

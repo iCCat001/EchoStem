@@ -506,7 +506,10 @@
   <Text Key="Ncm_Write_Not_Supported">NCM格式文件不支持写入</Text>
   <Text Key="Convert_Ncm_To_Public_Format">转换NCM到公开格式</Text>
   <Text Key="Ncm_Converted_To">文件已转换到 {path}</Text>
-  <Text Key="Error_Converting_Ncm">无法转换该NCM文件。文件可能已损坏，或目标文件已存在。</Text>
+  <Text Key="Error_Converting_Ncm">无法转换该NCM文件。文件可能已损坏。</Text>
+  <Text Key="Convert_All_Ncm_Files">转换到公开音乐格式</Text>
+  <Text Key="Convert_All_Ncm_Files_Description">将曲库中的所有 NCM 文件转换为 FLAC/MP3，并删除原始 NCM 文件。同目录下已存在同名文件时会被覆盖。</Text>
+  <Text Key="Convert_Ncm_Progress">已完成 {done}/{total} 个转换任务</Text>
   <Text Key="Get_From_Netease">从网易云音乐获取</Text>
   <Text Key="Get_Lyrics_From_Online">从在线歌词源获取</Text>
   <Text Key="Save_And_Replace_Ncm">保存并替换NCM文件</Text>
