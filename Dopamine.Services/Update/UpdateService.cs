@@ -150,6 +150,10 @@ namespace Dopamine.Services.Update
                 string scriptPath = Path.Combine(Path.GetTempPath(), "EchoStemUpdate", "apply-update.cmd");
                 int processId = Process.GetCurrentProcess().Id;
 
+                // When the application is installed in a protected folder (e.g. Program Files), the
+                // copy requires administrator rights: the script is then started elevated.
+                bool needsElevation = !IsFolderWritable(applicationFolder);
+
                 var script = new StringBuilder();
                 script.AppendLine("@echo off");
                 script.AppendLine("setlocal");
@@ -160,7 +164,18 @@ namespace Dopamine.Services.Update
                 script.AppendLine("  goto wait");
                 script.AppendLine(")");
                 script.AppendLine($"robocopy \"{updateSourceDirectory}\" \"{applicationFolder}\" /E /R:5 /W:2 /NFL /NDL /NJH /NJS >nul");
-                script.AppendLine($"start \"\" \"{applicationPath}\"");
+
+                if (needsElevation)
+                {
+                    // The script runs elevated: restart the application as the current, non
+                    // elevated user (explorer runs in the user's context).
+                    script.AppendLine($"explorer.exe \"{applicationPath}\"");
+                }
+                else
+                {
+                    script.AppendLine($"start \"\" \"{applicationPath}\"");
+                }
+
                 script.AppendLine("del \"%~f0\"");
 
                 // The command processor reads the script with the system code page.
@@ -174,8 +189,10 @@ namespace Dopamine.Services.Update
                 {
                     FileName = "cmd.exe",
                     Arguments = $"/c \"\"{scriptPath}\"\"",
-                    CreateNoWindow = true,
-                    UseShellExecute = false
+                    CreateNoWindow = !needsElevation,
+                    UseShellExecute = needsElevation,
+                    Verb = needsElevation ? "runas" : string.Empty,
+                    WindowStyle = ProcessWindowStyle.Hidden
                 });
 
                 LogClient.Info("Update: the update script was started.");
@@ -185,6 +202,21 @@ namespace Dopamine.Services.Update
             catch (Exception ex)
             {
                 LogClient.Error("Update: could not start the update script. Exception: {0}", ex.Message);
+                return false;
+            }
+        }
+
+        private static bool IsFolderWritable(string folder)
+        {
+            try
+            {
+                string testFile = Path.Combine(folder, "." + Guid.NewGuid().ToString("N") + ".tmp");
+                System.IO.File.WriteAllText(testFile, string.Empty);
+                System.IO.File.Delete(testFile);
+                return true;
+            }
+            catch
+            {
                 return false;
             }
         }
