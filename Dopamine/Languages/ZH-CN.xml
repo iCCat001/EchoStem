@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Language Code="ZH-CN" Name="Chinese (Simplified)">
   <Text Key="ISO639-1">ZH</Text>
   <Text Key="Ok">确认</Text>
@@ -502,6 +502,14 @@
   <Text Key="Enable_Non_Public_Experimental_Features">启用非公开实验性功能，这些功能暂未发布，需要密码开启</Text>
   <Text Key="Touch_Optimization">触摸优化</Text>
   <Text Key="Enable_Touch_Optimization">针对触摸输入优化页面布局和响应</Text>
+  <Text Key="Dsh_Plugin_Sync">支持 DSH 插件同步</Text>
+  <Text Key="Enable_Dsh_Plugin_Sync">允许 DeepSeek Harness（DSH）网页界面显示当前歌曲并控制播放。开启后 EchoStem 仅在 127.0.0.1:38721 上接受本机连接；关闭即可完全断开。</Text>
+  <Text Key="Plugins">插件</Text>
+  <Text Key="Plugins_Description">插件用于扩展 EchoStem 及其集成能力。随应用提供的插件位于程序目录的 Plugins 文件夹；用户插件也可以放在 %AppData%\Dopamine\Plugins。</Text>
+  <Text Key="Open_Plugins_Folder">打开插件目录</Text>
+  <Text Key="Open_Folder">打开文件夹</Text>
+  <Text Key="No_Plugins_Found">未找到插件包。</Text>
+  <Text Key="Plugin_Kind_Dsh_Web">DeepSeek Harness 网页插件</Text>
   <Text Key="Enter_Password">请输入密码</Text>
   <Text Key="Ncm_Write_Not_Supported">NCM格式文件不支持写入</Text>
   <Text Key="Convert_Ncm_To_Public_Format">转换NCM到公开格式</Text>

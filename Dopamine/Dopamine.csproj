@@ -314,6 +314,8 @@
     <Compile Include="ViewModels\FullPlayer\Settings\SettingsBehaviourViewModel.cs" />
     <Compile Include="ViewModels\FullPlayer\Settings\SettingsBlacklistViewModel.cs" />
     <Compile Include="ViewModels\FullPlayer\Settings\SettingsFeaturesViewModel.cs" />
+    <Compile Include="ViewModels\FullPlayer\Settings\PluginPackageViewModel.cs" />
+    <Compile Include="ViewModels\FullPlayer\Settings\SettingsPluginsViewModel.cs" />
     <Compile Include="ViewModels\FullPlayer\Settings\SettingsMenuViewModel.cs" />
     <Compile Include="ViewModels\FullPlayer\Settings\SettingsOnlineAddEditSearchProviderViewModel.cs" />
     <Compile Include="ViewModels\FullPlayer\Settings\SettingsOnlineViewModel.cs" />
@@ -533,6 +535,9 @@
     </Compile>
     <Compile Include="Views\FullPlayer\Settings\SettingsFeatures.xaml.cs">
       <DependentUpon>SettingsFeatures.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\FullPlayer\Settings\SettingsPlugins.xaml.cs">
+      <DependentUpon>SettingsPlugins.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FullPlayer\Settings\SettingsMenu.xaml.cs">
       <DependentUpon>SettingsMenu.xaml</DependentUpon>
@@ -882,6 +887,10 @@
     <ProjectReference Include="..\Dopamine.Data\Dopamine.Data.csproj">
       <Project>{3AA1D889-7AAF-4385-A373-8E2757D47FD4}</Project>
       <Name>Dopamine.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Dopamine.Plugins\Dopamine.Plugins.csproj">
+      <Project>{4914E1E4-428D-48B6-A167-DB9A070FF31E}</Project>
+      <Name>Dopamine.Plugins</Name>
     </ProjectReference>
     <ProjectReference Include="..\Dopamine.Services\Dopamine.Services.csproj">
       <Project>{C7C13D3A-BEF1-4825-9C60-14AAEC9714B3}</Project>
@@ -1394,6 +1403,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\FullPlayer\Settings\SettingsFeatures.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\FullPlayer\Settings\SettingsPlugins.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

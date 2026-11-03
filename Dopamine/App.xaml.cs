@@ -9,6 +9,7 @@ using Dopamine.Core.Helpers;
 using Dopamine.Core.IO;
 using Dopamine.Data;
 using Dopamine.Data.Repositories;
+using Dopamine.Plugins;
 using Dopamine.Services.Appearance;
 using Dopamine.Services.Blacklist;
 using Dopamine.Services.Cache;
@@ -35,6 +36,7 @@ using Dopamine.Services.Scrobbling;
 using Dopamine.Services.Search;
 using Dopamine.Services.Shell;
 using Dopamine.Services.Statistics;
+using Dopamine.Services.Sync;
 using Dopamine.Services.Taskbar;
 using Dopamine.Services.Update;
 using Dopamine.Services.Win32Input;
@@ -163,6 +165,11 @@ namespace Dopamine
                 Container.Resolve<IIndexingService>().RefreshCollectionAsync();
             }
 
+            // Construct the optional DSH sync bridge after the shell is visible. Its
+            // listener is started at ApplicationIdle priority, so binding a local
+            // socket can never delay the first window or the settings/log setup.
+            Container.Resolve<IDshSyncService>();
+
             this.ScheduleStartupUpdateCheck();
         }
 
@@ -276,11 +283,13 @@ namespace Dopamine
                 containerRegistry.RegisterSingleton<IExternalControlService, ExternalControlService>();
                 containerRegistry.RegisterSingleton<IWindowsIntegrationService, WindowsIntegrationService>();
                 containerRegistry.RegisterSingleton<ILyricsService, LyricsService>();
+                containerRegistry.RegisterSingleton<IDshSyncService, DshSyncService>();
                 containerRegistry.RegisterSingleton<IShellService, ShellService>();
                 containerRegistry.RegisterSingleton<ILifetimeService, LifetimeService>();
                 containerRegistry.RegisterSingleton<IInfoDownloadService, InfoDownloadService>();
                 containerRegistry.RegisterSingleton<IRichPresenceService, RichPresenceService>();
                 containerRegistry.RegisterSingleton<IBlacklistService, BlacklistService>();
+                containerRegistry.RegisterSingleton<IPluginCatalogService, PluginCatalogService>();
 
                 INotificationService notificationService;
 
@@ -384,6 +393,7 @@ namespace Dopamine
                 containerRegistry.Register<object, SettingsStartup>(typeof(SettingsStartup).FullName);
                 containerRegistry.Register<object, SettingsBlacklist>(typeof(SettingsBlacklist).FullName);
                 containerRegistry.Register<object, SettingsFeatures>(typeof(SettingsFeatures).FullName);
+                containerRegistry.Register<object, SettingsPlugins>(typeof(SettingsPlugins).FullName);
 
                 // Information
                 containerRegistry.Register<object, InformationMenu>(typeof(InformationMenu).FullName);

@@ -1,0 +1,6 @@
+{
+  "meta": {
+    "title": "EchoStem Now Playing",
+    "description": "Embeds the current EchoStem song, album art, synced lyrics and playback controls in the left sidebar of the DeepSeek Harness (DSH) Web UI, above Settings."
+  }
+}

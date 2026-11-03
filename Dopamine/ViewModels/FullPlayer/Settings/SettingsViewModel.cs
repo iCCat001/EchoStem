@@ -57,6 +57,9 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
                 case SettingsPage.Features:
                     this.regionManager.RequestNavigate(RegionNames.SettingsRegion, typeof(SettingsFeatures).FullName);
                     break;
+                case SettingsPage.Plugins:
+                    this.regionManager.RequestNavigate(RegionNames.SettingsRegion, typeof(SettingsPlugins).FullName);
+                    break;
                 default:
                     break;
             }

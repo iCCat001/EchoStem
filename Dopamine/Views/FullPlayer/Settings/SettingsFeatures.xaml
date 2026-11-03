@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Dopamine.Views.FullPlayer.Settings.SettingsFeatures"
+<UserControl x:Class="Dopamine.Views.FullPlayer.Settings.SettingsFeatures"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -20,6 +20,11 @@
             <StackPanel Margin="0,5,0,0">
                 <TextBlock Text="{DynamicResource Language_Enable_Touch_Optimization}" Foreground="{DynamicResource Brush_PrimaryText}" TextWrapping="Wrap"/>
                 <dc:Windows10ToggleSwitch x:Name="CheckBoxTouchOptimization" Margin="0,10,0,0" HorizontalAlignment="Left" FontSize="12" OnLabel="{DynamicResource Language_Yes}" OffLabel="{DynamicResource Language_No}" Foreground="{DynamicResource Brush_PrimaryText}" Accent="{DynamicResource Brush_Accent}" IsChecked="{Binding CheckBoxTouchOptimizationChecked}"/>
+            </StackPanel>
+            <Label Margin="0,20,0,0" Style="{StaticResource TitleLabel}" Content="{DynamicResource Language_Dsh_Plugin_Sync}" />
+            <StackPanel Margin="0,5,0,0">
+                <TextBlock Text="{Binding DshSyncDescription}" Foreground="{DynamicResource Brush_PrimaryText}" TextWrapping="Wrap"/>
+                <dc:Windows10ToggleSwitch x:Name="CheckBoxDshSync" Margin="0,10,0,0" HorizontalAlignment="Left" FontSize="12" OnLabel="{DynamicResource Language_Yes}" OffLabel="{DynamicResource Language_No}" Foreground="{DynamicResource Brush_PrimaryText}" Accent="{DynamicResource Brush_Accent}" IsChecked="{Binding CheckBoxDshSyncChecked}"/>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>

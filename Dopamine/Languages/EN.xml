@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Language Code="EN" Name="English">
   <Text Key="ISO639-1">EN</Text>
   <Text Key="Ok">Ok</Text>
@@ -502,6 +502,14 @@
   <Text Key="Enable_Non_Public_Experimental_Features">Enable non-public experimental features. These features are not released yet and require a password to unlock.</Text>
   <Text Key="Touch_Optimization">Touch optimization</Text>
   <Text Key="Enable_Touch_Optimization">Optimize the page layout and responsiveness for touch input.</Text>
+  <Text Key="Dsh_Plugin_Sync">DSH plugin sync support</Text>
+  <Text Key="Enable_Dsh_Plugin_Sync">Allow the DeepSeek Harness (DSH) Web UI to show the current song and control playback. While enabled, EchoStem only listens on 127.0.0.1:38721 for local connections; turn this off to cut access completely.</Text>
+  <Text Key="Plugins">Plugins</Text>
+  <Text Key="Plugins_Description">Plugins extend EchoStem and its integrations. Bundled plugin packages live in the application's Plugins folder; user packages can also be placed in %AppData%\Dopamine\Plugins.</Text>
+  <Text Key="Open_Plugins_Folder">Open plugins folder</Text>
+  <Text Key="Open_Folder">Open folder</Text>
+  <Text Key="No_Plugins_Found">No plugin packages were found.</Text>
+  <Text Key="Plugin_Kind_Dsh_Web">DeepSeek Harness Web UI plugin</Text>
   <Text Key="Enter_Password">Enter password</Text>
   <Text Key="Ncm_Write_Not_Supported">NCM format files don't support writing</Text>
   <Text Key="Convert_Ncm_To_Public_Format">Convert NCM to a public format</Text>

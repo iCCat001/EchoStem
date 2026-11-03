@@ -1,0 +1,3 @@
+- insert:
+    - id: echostem-sync
+      name: '@local/echostem-sync'

@@ -235,6 +235,8 @@
     <Compile Include="Shell\IShellService.cs" />
     <Compile Include="Statistics\IStatisticsService.cs" />
     <Compile Include="Statistics\StatisticsService.cs" />
+    <Compile Include="Sync\DshSyncService.cs" />
+    <Compile Include="Sync\IDshSyncService.cs" />
     <Compile Include="Taskbar\ITaskbarService.cs" />
     <Compile Include="Taskbar\TaskbarService.cs" />
     <Compile Include="Update\IUpdateService.cs" />

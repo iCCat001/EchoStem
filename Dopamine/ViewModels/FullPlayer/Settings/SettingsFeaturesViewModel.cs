@@ -1,18 +1,24 @@
-﻿using Digimezzo.Foundation.Core.Settings;
+using Digimezzo.Foundation.Core.Settings;
 using Digimezzo.Foundation.Core.Utils;
 using Dopamine.Core.Base;
+using Dopamine.Plugins;
 using Dopamine.Services.Dialog;
 using Dopamine.Views.Common;
 using Prism.Events;
 using Prism.Mvvm;
+using System;
+using System.Linq;
 
 namespace Dopamine.ViewModels.FullPlayer.Settings
 {
     public class SettingsFeaturesViewModel : BindableBase
     {
+        private readonly IPluginCatalogService pluginCatalogService;
         private IDialogService dialogService;
         private bool checkBoxNonPublicServicesChecked;
         private bool checkBoxTouchOptimizationChecked;
+        private bool checkBoxDshSyncChecked;
+        private string dshSyncDescription;
 
         public bool CheckBoxNonPublicServicesChecked
         {
@@ -47,11 +53,55 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
             }
         }
 
-        public SettingsFeaturesViewModel(IEventAggregator eventAggregator, IDialogService dialogService)
+        public SettingsFeaturesViewModel(IEventAggregator eventAggregator, IDialogService dialogService, IPluginCatalogService pluginCatalogService)
         {
             this.dialogService = dialogService;
+            this.pluginCatalogService = pluginCatalogService;
             this.checkBoxNonPublicServicesChecked = SettingsClient.Get<bool>("Features", "NonPublicExperimentalServices");
             this.checkBoxTouchOptimizationChecked = SettingsClient.Get<bool>("Features", "TouchOptimization");
+            this.checkBoxDshSyncChecked = SettingsClient.Get<bool>("Integration", "DshSyncEnabled");
+            this.dshSyncDescription = this.GetDshSyncDescription();
+        }
+
+        /// <summary>
+        /// Description of the DSH sync plugin, read from the plugin's own
+        /// <c>plugin.json</c> in the Plugins folder. The localized string is only
+        /// a fallback for the case where the plugin package is not present.
+        /// </summary>
+        public string DshSyncDescription
+        {
+            get { return this.dshSyncDescription; }
+            private set { this.SetProperty<string>(ref this.dshSyncDescription, value); }
+        }
+
+        private string GetDshSyncDescription()
+        {
+            try
+            {
+                PluginPackage plugin = this.pluginCatalogService.GetPlugins()
+                    .FirstOrDefault(package => string.Equals(package.Manifest.Id, "echostem-sync", StringComparison.OrdinalIgnoreCase));
+
+                if (plugin != null && !string.IsNullOrWhiteSpace(plugin.Manifest.Description))
+                {
+                    return plugin.Manifest.Description;
+                }
+            }
+            catch
+            {
+                // The catalog is best-effort; fall back to the localized text below.
+            }
+
+            return ResourceUtils.GetString("Language_Enable_Dsh_Plugin_Sync");
+        }
+
+        public bool CheckBoxDshSyncChecked
+        {
+            get { return this.checkBoxDshSyncChecked; }
+            set
+            {
+                SettingsClient.Set<bool>("Integration", "DshSyncEnabled", value, true);
+                SetProperty<bool>(ref this.checkBoxDshSyncChecked, value);
+            }
         }
 
         public bool CheckBoxTouchOptimizationChecked

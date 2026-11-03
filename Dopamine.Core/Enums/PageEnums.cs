@@ -40,7 +40,8 @@
         Startup = 3,
         Online = 4,
         Blacklist = 5,
-        Features = 6
+        Features = 6,
+        Plugins = 7
     }
 
     public enum InformationPage

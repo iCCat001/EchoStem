@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64" role="img" aria-label="EchoStem Now Playing">
+  <defs>
+    <linearGradient id="esmp-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#3967d8"/>
+      <stop offset="1" stop-color="#7c4dd8"/>
+    </linearGradient>
+  </defs>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="url(#esmp-bg)"/>
+  <path d="M24 41.5V22.8l18-3.6v17.3" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="20.4" cy="43.1" r="4.4" fill="#fff"/>
+  <circle cx="38.2" cy="38.9" r="4.4" fill="#fff"/>
+  <path d="M44 46.5c3.6-1.6 6-4.6 6.7-8.4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" opacity=".72"/>
+</svg>

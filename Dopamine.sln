@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dopamine.Core", "Dopamine.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dopamine.Services", "Dopamine.Services\Dopamine.Services.csproj", "{C7C13D3A-BEF1-4825-9C60-14AAEC9714B3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dopamine.Plugins", "Dopamine.Plugins\Dopamine.Plugins.csproj", "{4914E1E4-428D-48B6-A167-DB9A070FF31E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -105,6 +107,22 @@ Global
 		{C7C13D3A-BEF1-4825-9C60-14AAEC9714B3}.Release|x64.Build.0 = Release|Any CPU
 		{C7C13D3A-BEF1-4825-9C60-14AAEC9714B3}.Release|x86.ActiveCfg = Release|Any CPU
 		{C7C13D3A-BEF1-4825-9C60-14AAEC9714B3}.Release|x86.Build.0 = Release|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Debug|ARM.Build.0 = Debug|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Debug|x64.Build.0 = Debug|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Debug|x86.Build.0 = Debug|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Release|ARM.ActiveCfg = Release|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Release|ARM.Build.0 = Release|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Release|x64.ActiveCfg = Release|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Release|x64.Build.0 = Release|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Release|x86.ActiveCfg = Release|Any CPU
+		{4914E1E4-428D-48B6-A167-DB9A070FF31E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
