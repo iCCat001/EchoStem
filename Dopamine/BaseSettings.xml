@@ -2,7 +2,7 @@
 <Settings>
   <Namespace Name="Configuration">
     <Setting Name="Version">
-      <Value>129</Value>
+      <Value>130</Value>
     </Setting>
     <Setting Name="IsPortable">
       <Value>False</Value>
@@ -384,6 +384,14 @@
     </Setting>
     <Setting Name="TouchOptimization">
       <Value>false</Value>
+    </Setting>
+  </Namespace>
+  <Namespace Name="Integration">
+    <Setting Name="DshSyncEnabled">
+      <Value>false</Value>
+    </Setting>
+    <Setting Name="DshSyncPort">
+      <Value>38721</Value>
     </Setting>
   </Namespace>
 </Settings>

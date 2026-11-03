@@ -34,10 +34,10 @@ namespace Dopamine.Services.Sync
     /// </summary>
     public sealed class DshSyncService : IDshSyncService, IDisposable
     {
-        public const string SettingsSection = "Integration";
-        public const string EnabledSettingKey = "DshSyncEnabled";
-        public const string PortSettingKey = "DshSyncPort";
-        public const int DefaultPort = 38721;
+        public const string SettingsSection = DshSyncSettings.Section;
+        public const string EnabledSettingKey = DshSyncSettings.EnabledKey;
+        public const string PortSettingKey = DshSyncSettings.PortKey;
+        public const int DefaultPort = DshSyncSettings.DefaultPort;
 
         private const int MaxHeaderBytes = 32 * 1024;
         private const int MaxBodyBytes = 64 * 1024;
@@ -76,7 +76,7 @@ namespace Dopamine.Services.Sync
             this.playbackService.PlayingTrackChanged += this.PlaybackService_PlayingTrackChanged;
             this.playbackService.PlaybackSuccess += this.PlaybackService_PlaybackSuccess;
 
-            if (SettingsClient.Get<bool>(SettingsSection, EnabledSettingKey))
+            if (DshSyncSettings.IsEnabled())
             {
                 this.ScheduleStart();
             }
@@ -130,8 +130,7 @@ namespace Dopamine.Services.Sync
 
         private int GetConfiguredPort()
         {
-            int configured = SettingsClient.Get<int>(SettingsSection, PortSettingKey);
-            return configured > 0 && configured <= 65535 ? configured : DefaultPort;
+            return DshSyncSettings.GetPort();
         }
 
         public void Start()
@@ -628,7 +627,7 @@ namespace Dopamine.Services.Sync
             else if (SettingsClient.IsSettingChanged(e, SettingsSection, PortSettingKey))
             {
                 this.Stop();
-                if (SettingsClient.Get<bool>(SettingsSection, EnabledSettingKey))
+                if (DshSyncSettings.IsEnabled())
                 {
                     this.Start();
                 }

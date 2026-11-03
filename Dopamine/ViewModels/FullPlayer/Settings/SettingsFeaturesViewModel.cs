@@ -3,6 +3,7 @@ using Digimezzo.Foundation.Core.Utils;
 using Dopamine.Core.Base;
 using Dopamine.Plugins;
 using Dopamine.Services.Dialog;
+using Dopamine.Services.Sync;
 using Dopamine.Views.Common;
 using Prism.Events;
 using Prism.Mvvm;
@@ -59,7 +60,7 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
             this.pluginCatalogService = pluginCatalogService;
             this.checkBoxNonPublicServicesChecked = SettingsClient.Get<bool>("Features", "NonPublicExperimentalServices");
             this.checkBoxTouchOptimizationChecked = SettingsClient.Get<bool>("Features", "TouchOptimization");
-            this.checkBoxDshSyncChecked = SettingsClient.Get<bool>("Integration", "DshSyncEnabled");
+            this.checkBoxDshSyncChecked = DshSyncSettings.IsEnabled();
             this.dshSyncDescription = this.GetDshSyncDescription();
         }
 
@@ -99,7 +100,7 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
             get { return this.checkBoxDshSyncChecked; }
             set
             {
-                SettingsClient.Set<bool>("Integration", "DshSyncEnabled", value, true);
+                DshSyncSettings.SetEnabled(value);
                 SetProperty<bool>(ref this.checkBoxDshSyncChecked, value);
             }
         }
