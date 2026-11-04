@@ -6,7 +6,7 @@
 <img width="2880" height="1920" alt="屏幕截图 2026-11-04 172045" src="https://github.com/user-attachments/assets/a0ec4574-f67a-4915-aa8c-f5848c9dc28e" />
 
 
-EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows)（即 Dopamine 2 音乐播放器）的**非官方个人 fork**，仅为本人使用习惯而改造。
+EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows)的**非官方个人 fork**，仅为本人使用习惯而改造。
 本项目**以个人使用为主要设计方向**：功能取舍、界面调整与默认行为都围绕单人日常听歌场景，不追求通用性，也不保证与上游特性保持同步。
 
 [![Build & Release](https://github.com/iCCat001/EchoStem/actions/workflows/build-release.yml/badge.svg)](https://github.com/iCCat001/EchoStem/actions/workflows/build-release.yml)
@@ -66,7 +66,7 @@ msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 **EchoStem is a music player built around the local experience.** It plays local music, maintains a local library, and puts the album-art wall at the center of its interface. Network resources only supplement that experience; EchoStem does not include — and does not plan to add — online music sources.
 <img width="2880" height="1920" alt="屏幕截图 2026-11-04 172045" src="https://github.com/user-attachments/assets/a0ec4574-f67a-4915-aa8c-f5848c9dc28e" />
 
-EchoStem is an **unofficial, personal fork** of [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows) (the "Dopamine 2" music player), customized for my own daily use.
+EchoStem is an **unofficial, personal fork** of [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows), customized for my own daily use.
 It is **designed primarily for personal use**: features, UI and defaults are tuned for a single-listener workflow. It does not aim for generality and is not kept in sync with upstream.
 
 It is based on Dopamine and licensed under the **GNU GPL v3**. All original copyright belongs to Digimezzo.
