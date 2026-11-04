@@ -19,8 +19,9 @@ EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-
 
 ## 相对原版 Dopamine 的主要改动
 
-- **重新设计的专辑页与歌手页**：更大的专辑墙展示区域，以及全新的交互面板（点击专辑 / 歌手即可滑出详细信息与曲目列表，两页保持一致的操作逻辑）。
-- **触摸优化**：面向 Surface 等触屏设备整体优化（更高的列表行、更宽的滚动条、常驻播放控制、点击展开歌词、关闭悬浮提示等），可在 **设置 → 功能** 中开关。
+- **引入更现代的Windows渲染材质**：支持Windows 10/11专属的亚克力/云母窗体材质（需要系统版本支持）。
+- **重新设计的专辑页与歌手页**：更大的专辑墙展示区域，以及全新的交互面板。
+- **触摸优化**：面向 Surface 等触屏设备整体优化。
 - **更换播放内核**：从 CSCore + FFmpeg 迁移到 [NAudio](https://github.com/naudio/NAudio)。
 - **强化的歌词体验**：支持来自网易云的双语（带翻译）歌词、本地歌词，以及控制栏歌词。
 - **稳定性与性能**：彻底解决内存泄漏问题，带来性能提升，并修复了多项稳定性问题。
@@ -63,6 +64,7 @@ msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 ## English
 
 **EchoStem is a music player built around the local experience.** It plays local music, maintains a local library, and puts the album-art wall at the center of its interface. Network resources only supplement that experience; EchoStem does not include — and does not plan to add — online music sources.
+<img width="2880" height="1920" alt="屏幕截图 2026-11-04 172045" src="https://github.com/user-attachments/assets/a0ec4574-f67a-4915-aa8c-f5848c9dc28e" />
 
 EchoStem is an **unofficial, personal fork** of [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows) (the "Dopamine 2" music player), customized for my own daily use.
 It is **designed primarily for personal use**: features, UI and defaults are tuned for a single-listener workflow. It does not aim for generality and is not kept in sync with upstream.
@@ -72,8 +74,9 @@ It is based on Dopamine and licensed under the **GNU GPL v3**. All original copy
 
 ### Main changes vs. upstream Dopamine
 
-- **Redesigned Albums and Artists pages**: a larger album-wall area plus a new interaction panel (clicking an album or artist slides out details and the track list, with a consistent layout on both pages).
-- **Touch optimization** for touch-screen devices (e.g. Surface): taller list rows, wider scrollbars, always-visible playback controls, tap-to-reveal lyrics, no tooltips, etc. Toggleable in Settings → Features.
+- **Introducing more modern Windows rendering materials**: Supports Windows 10/11 exclusive acrylic/mica window materials (requires system version support).
+- **Redesigned Albums and Artists pages**: a larger album-wall area plus a new interaction panel.
+- **Touch optimization** for touch-screen devices (e.g. Surface).
 - **New audio engine**: migrated from CSCore + FFmpeg to [NAudio](https://github.com/naudio/NAudio).
 - **Enhanced lyrics experience**: bilingual NetEase lyrics (with translations), local lyrics, and control-bar lyrics.
 - **Stability & performance**: memory leaks fully resolved, performance improved, and many stability issues fixed.
