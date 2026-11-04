@@ -3,6 +3,7 @@
 **中文** | [English](#english)
 
 **EchoStem 是一款专注本地体验的音乐播放器。** 它播放本地音乐、维护本地音乐库，以专辑封面墙作为主视觉；网络资源只用于补强本地体验，不提供、也不打算接入在线音乐源。
+<img width="2880" height="1920" alt="屏幕截图 2026-11-04 171221" src="https://github.com/user-attachments/assets/bda03dfd-914b-401b-9c12-626628872e28" />
 
 EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-Windows)（即 Dopamine 2 音乐播放器）的**非官方个人 fork**，仅为本人使用习惯而改造。
 本项目**以个人使用为主要设计方向**：功能取舍、界面调整与默认行为都围绕单人日常听歌场景，不追求通用性，也不保证与上游特性保持同步。
