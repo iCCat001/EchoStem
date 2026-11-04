@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Windows;
 using Digimezzo.Foundation.Core.Utils;
 
@@ -64,6 +64,24 @@ namespace Dopamine.Core.Base
         // Nano Player
         public static readonly double NanoPlayerWidth = 460;
         public static readonly double NanoPlayerHeight = 48;
+
+        // Mini player touch window controls panel. On a touch screen the window buttons can't be
+        // revealed by hovering (there is no mouse pointer), so a panel with those buttons is revealed
+        // by expanding the mini player window to the left. The width is added to the window; the
+        // height is the room the vertically stacked buttons need. The Nano Player is only 48 px high,
+        // so it stacks the same buttons horizontally (and never gets taller).
+        public static readonly double MiniPlayerTouchButtonSize = 44;
+        public static readonly double MiniPlayerTouchButtonSpacing = 2;
+        public static readonly double MiniPlayerTouchExpandButtonSize = 40;
+        public static readonly double MiniPlayerTouchPanelWidth = 56;
+        public static readonly double MiniPlayerTouchPanelHeight = 3 * MiniPlayerTouchButtonSize + 2 * MiniPlayerTouchButtonSpacing;
+        public static readonly double MiniPlayerTouchNanoPanelWidth = 3 * MiniPlayerTouchButtonSize + 2 * MiniPlayerTouchButtonSpacing;
+        public static readonly Thickness MiniPlayerTouchButtonMargin = new Thickness(0, MiniPlayerTouchButtonSpacing, 0, 0);
+
+        // The expand/collapse button sits in the playback controls row. In the Micro Player that row
+        // only has 324 px (459 - 135 for the cover art) and is already full without it, so touch mode
+        // gives the player a bit more width instead of squeezing the buttons closer together.
+        public static readonly double MiniPlayerTouchExtraWidth = 48;
 
         // Cover Player playlist
         public static readonly double CoverPlayerHorizontalPlaylistWidth = 460;

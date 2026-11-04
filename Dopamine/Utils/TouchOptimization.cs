@@ -56,6 +56,21 @@ namespace Dopamine.Utils
             // Tooltips are hover-triggered: they are useless on a touch screen.
             resources["Touch_ToolTipVisibility"] = on ? Visibility.Collapsed : Visibility.Visible;
 
+            // Context menus and all other menus (right click menus, the "open menu" button's menu,
+            // the mini player menus). A finger needs a much larger hit area than a mouse pointer:
+            // rows become at least 44 px high (Windows touch guidance) and at least 220 px wide,
+            // with a 12 px horizontal padding. The mouse values are the original ones (padding 4,
+            // margin 0,4,0,4, no minimum size), so mouse input stays pixel-identical.
+            resources["Touch_MenuItemPadding"] = on ? new Thickness(12, 14, 12, 14) : new Thickness(4);
+            resources["Touch_MenuItemMargin"] = on ? new Thickness(0) : new Thickness(0, 4, 0, 4);
+            resources["Touch_MenuItemMinHeight"] = on ? 44.0 : 0.0;
+            resources["Touch_MenuItemMinWidth"] = on ? 220.0 : 0.0;
+            resources["Touch_MenuSeparatorMargin"] = on ? new Thickness(5, 4, 5, 4) : new Thickness(5, 0, 5, 0);
+
+            // The "−" / "+" buttons inside the lyrics font size menu get a touch sized hit area.
+            resources["Touch_ContextMenuButtonSize"] = on ? 40.0 : 20.0;
+            resources["Touch_ContextMenuButtonFontSize"] = on ? 18.0 : 12.0;
+
             // On a touch screen, panning the songs list makes rows pass under the finger, which
             // highlights many rows (hover) and marks them selected. Hide both colors in touch mode.
             // When touch optimization is off, the original theme brushes are used (copied here, and

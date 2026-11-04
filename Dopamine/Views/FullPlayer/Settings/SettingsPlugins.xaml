@@ -17,10 +17,10 @@
                        TextWrapping="Wrap" />
 
             <StackPanel Margin="0,12,0,0" Orientation="Horizontal">
-                <Button Content="{DynamicResource Language_Refresh}"
+                <Button Content="{DynamicResource Language_Rescan_Plugins}"
                         Command="{Binding RefreshCommand}"
                         Style="{StaticResource RegularButton}"
-                        MinWidth="100"
+                        MinWidth="150"
                         Margin="0,0,10,0" />
                 <Button Content="{DynamicResource Language_Open_Plugins_Folder}"
                         Command="{Binding OpenPluginsFolderCommand}"

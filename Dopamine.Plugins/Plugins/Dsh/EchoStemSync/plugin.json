@@ -3,7 +3,7 @@
   "name": "EchoStem Now Playing（DSH）",
   "version": "1.0.0",
   "kind": "dsh-web",
-  "description": "允许 DeepSeek Harness（DSH）网页界面显示 EchoStem 当前歌曲、专辑封面、同步歌词与播放控制。开启后 EchoStem 仅在 127.0.0.1:38721 上接受本机连接；关闭即可完全断开。",
+  "description": "允许 DeepSeek Harness (DSH) 页面左下角显示 EchoStem 的播放状态与播放控制。（请前往 DSH 从下方显示的文件路径中进行安装插件）",
   "entry": "client.js",
   "host": "index.js"
 }

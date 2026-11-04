@@ -3,6 +3,7 @@
                               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                              xmlns:corebase="clr-namespace:Dopamine.Core.Base;assembly=Dopamine.Core"
                               xmlns:utils="clr-namespace:Dopamine.Utils"
                               xmlns:commonviews="clr-namespace:Dopamine.Views.Common"
                               xmlns:baseviews="clr-namespace:Dopamine.Views.Common.Base"
@@ -99,7 +100,19 @@
         </ContextMenu>
     </baseviews:MiniPlayerViewBase.ContextMenu>
 
-    <StackPanel>
+    <Grid x:Name="PlayerPanel">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="TouchWindowControlsPanelColumn" Width="0"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Touch optimization: the window buttons panel, which is revealed by growing the window to
+             the left. It is collapsed in mouse mode. -->
+        <commonviews:MiniPlayerTouchWindowControlsPanel x:Name="TouchWindowControlsPanel" Grid.Column="0"/>
+
+        <!-- The mini player keeps its original size and position on the screen: when the window grows
+             to the left for the panel, this content stays on the right. -->
+        <StackPanel Grid.Column="1" Width="{x:Static corebase:Constants.CoverPlayerWidth}" HorizontalAlignment="Center">
         <!-- Covert art -->
         <Grid x:Name="CoverGrid" Cursor="Hand" MouseLeftButtonDown="CoverGrid_MouseLeftButtonDown">
             <Grid.Triggers>
@@ -151,4 +164,5 @@
             <commonviews:CoverPlayerControls Panel.ZIndex="1" Margin="0,-3,0,0" VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </Grid>
     </StackPanel>
+    </Grid>
 </baseviews:MiniPlayerViewBase>

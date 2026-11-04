@@ -1,4 +1,4 @@
-﻿using Dopamine.ViewModels.Common;
+using Dopamine.ViewModels.Common;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -32,6 +32,30 @@ namespace Dopamine.Views.Common
         {
             get { return (bool)GetValue(LeftAlignLyricsProperty); }
             set { SetValue(LeftAlignLyricsProperty, value); }
+        }
+
+        /// <summary>
+        /// Alignment of the box which holds the control bar. The mini players keep it centered; a
+        /// player that wants its row aligned with the text above it stretches the box and left aligns
+        /// the content.
+        /// </summary>
+        public static readonly DependencyProperty ControlsContainerHorizontalAlignmentProperty =
+            DependencyProperty.Register(nameof(ControlsContainerHorizontalAlignment), typeof(HorizontalAlignment), typeof(PlaybackControlsWithPlaylistNotification), new PropertyMetadata(HorizontalAlignment.Center));
+
+        public HorizontalAlignment ControlsContainerHorizontalAlignment
+        {
+            get { return (HorizontalAlignment)GetValue(ControlsContainerHorizontalAlignmentProperty); }
+            set { SetValue(ControlsContainerHorizontalAlignmentProperty, value); }
+        }
+
+        /// <summary>Alignment of the control bar inside its box.</summary>
+        public static readonly DependencyProperty ControlsContentHorizontalAlignmentProperty =
+            DependencyProperty.Register(nameof(ControlsContentHorizontalAlignment), typeof(HorizontalAlignment), typeof(PlaybackControlsWithPlaylistNotification), new PropertyMetadata(HorizontalAlignment.Center));
+
+        public HorizontalAlignment ControlsContentHorizontalAlignment
+        {
+            get { return (HorizontalAlignment)GetValue(ControlsContentHorizontalAlignmentProperty); }
+            set { SetValue(ControlsContentHorizontalAlignmentProperty, value); }
         }
 
         /// <summary>

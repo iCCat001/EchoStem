@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="Dopamine.Views.Common.MicroPlayerControls"
+<UserControl x:Class="Dopamine.Views.Common.MicroPlayerControls"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,6 +17,9 @@
     <commonviews:PlaybackControlsWithPlaylistNotification HorizontalAlignment="Stretch" LeftAlignLyrics="True" LyricsLeftMargin="20" LyricsRightMargin="15">
         <commonviews:PlaybackControlsWithPlaylistNotification.ControlsContent>
             <StackPanel Orientation="Horizontal">
+                <!-- Touch optimization: expands the panel with the window buttons. Hidden in mouse mode.
+                     Same size and spacing as the 30 px buttons next to it, so the row stays uniform. -->
+                <commonviews:MiniPlayerTouchWindowControlsButton ButtonSize="30" IconFontSize="16" Margin="0,0,13,0" VerticalAlignment="Center"/>
                 <ToggleButton Style="{StaticResource TransparentToggleButton}" Width="30" Height="30" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Margin="0,0,13,0" ToolTip="{DynamicResource Language_Playlist}" Command="{x:Static cp:ApplicationCommands.MicroPlayerPlaylistButtonCommand}" CommandParameter="{Binding Path=IsChecked, RelativeSource={RelativeSource Self}}">
                     <Grid>
                         <TextBlock Text="&#xEA37;" Style="{StaticResource SegoeAssets}" Foreground="{DynamicResource Brush_PrimaryText}" FontSize="20" Visibility="{Binding IsChecked,RelativeSource={RelativeSource AncestorType={x:Type ToggleButton}},Converter={StaticResource InvertingBooleanToVisibilityConverter}}"/>

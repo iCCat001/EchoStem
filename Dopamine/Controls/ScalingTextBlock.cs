@@ -1,4 +1,4 @@
-﻿using Digimezzo.Foundation.Core.Logging;
+using Digimezzo.Foundation.Core.Logging;
 using Dopamine.Core.Base;
 using System;
 using System.ComponentModel;
@@ -21,8 +21,22 @@ namespace Dopamine.Controls
             set { SetValue(MaxFontSizeProperty, value); }
         }
 
-        public static readonly DependencyProperty MinFontSizeProperty = DependencyProperty.Register("MinFontSize", typeof(double), typeof(ScalingTextBlock), new PropertyMetadata(Constants.GlobalFontSize));
-        public static readonly DependencyProperty MaxFontSizeProperty = DependencyProperty.Register("MaxFontSize", typeof(double), typeof(ScalingTextBlock), new PropertyMetadata(Constants.GlobalFontSize * 2));
+        public static readonly DependencyProperty MinFontSizeProperty = DependencyProperty.Register("MinFontSize", typeof(double), typeof(ScalingTextBlock), new PropertyMetadata(Constants.GlobalFontSize, OnFontSizeRangeChanged));
+        public static readonly DependencyProperty MaxFontSizeProperty = DependencyProperty.Register("MaxFontSize", typeof(double), typeof(ScalingTextBlock), new PropertyMetadata(Constants.GlobalFontSize * 2, OnFontSizeRangeChanged));
+
+        /// <summary>
+        /// The font size range is animated (e.g. when the cover art resizes), so the text has to be
+        /// re-fitted when it changes instead of only when its text or its own size changes.
+        /// </summary>
+        private static void OnFontSizeRangeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var textBlock = d as ScalingTextBlock;
+
+            if (textBlock != null && textBlock.IsLoaded)
+            {
+                textBlock.SetFontSize();
+            }
+        }
 
         static ScalingTextBlock()
         {

@@ -9,7 +9,7 @@
     <!-- Separator -->
     <Style TargetType="{x:Type Separator}" x:Key="{x:Static MenuItem.SeparatorStyleKey}">
         <Setter Property="Height" Value="1" />
-        <Setter Property="Margin" Value="5,0,5,0"/>
+        <Setter Property="Margin" Value="{DynamicResource Touch_MenuSeparatorMargin}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Separator}">
@@ -61,7 +61,12 @@
 
     <!-- SubmenuItem -->
     <ControlTemplate x:Key="{x:Static MenuItem.SubmenuItemTemplateKey}" TargetType="{x:Type MenuItem}">
-        <Border Name="Border" Padding="4" Margin="0,4,0,4" Background="#00000000">
+        <Border Name="Border"
+                Padding="{DynamicResource Touch_MenuItemPadding}"
+                Margin="{DynamicResource Touch_MenuItemMargin}"
+                MinHeight="{DynamicResource Touch_MenuItemMinHeight}"
+                MinWidth="{DynamicResource Touch_MenuItemMinWidth}"
+                Background="#00000000">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"
@@ -131,7 +136,12 @@
     <!-- SubmenuHeader -->
     <ControlTemplate x:Key="{x:Static MenuItem.SubmenuHeaderTemplateKey}"
                      TargetType="{x:Type MenuItem}">
-        <Border Name="Border" Padding="4" Margin="0,4,0,4" Background="#00000000">
+        <Border Name="Border"
+                Padding="{DynamicResource Touch_MenuItemPadding}"
+                Margin="{DynamicResource Touch_MenuItemMargin}"
+                MinHeight="{DynamicResource Touch_MenuItemMinHeight}"
+                MinWidth="{DynamicResource Touch_MenuItemMinWidth}"
+                Background="#00000000">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" SharedSizeGroup="Icon" />

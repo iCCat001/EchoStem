@@ -1,4 +1,4 @@
-﻿using CommonServiceLocator;
+using CommonServiceLocator;
 using Digimezzo.Foundation.Core.IO;
 using Digimezzo.Foundation.Core.Logging;
 using Digimezzo.Foundation.Core.Settings;
@@ -54,6 +54,7 @@ using Prism.DryIoc;
 using Prism.Ioc;
 using Prism.Regions;
 using System;
+using System.IO;
 using System.Linq;
 using System.ServiceModel;
 using System.Threading;
@@ -71,26 +72,87 @@ namespace Dopamine
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            // Create a jump-list and assign it to the current application
-            JumpList.SetJumpList(Current, new JumpList());
+            // Digimezzo's log writer retries a failed write in a tight loop while holding the logging
+            // lock (LogClient.TryWrite). An unwritable log file therefore freezes the whole
+            // application: no window, one CPU core spinning, nothing logged. Make the file usable
+            // before anything is logged.
+            EnsureLogFileIsWritable();
 
-            // Check that there is only one instance of the application running
+            // The single instance check must run BEFORE the first log call: when another instance is
+            // already running, this one has to exit instead of waiting for the log lock.
             this.instanceMutex = new Mutex(true, $"{ProductInformation.ApplicationGuid}-{ProcessExecutable.AssemblyVersion()}", out bool isNewInstance);
 
-            // Process the command-line arguments
-            this.ProcessCommandLineArguments(isNewInstance);
-
-            if (isNewInstance)
-            {
-                this.instanceMutex.ReleaseMutex();
-                this.LaunchInitializer();
-                base.OnStartup(e);
-            }
-            else
+            if (!isNewInstance)
             {
                 // HACK: because shutdown is too fast, some logging might be missing in the log file.
                 LogClient.Warning("{0} is already running. Shutting down.", ProductInformation.ApplicationName);
                 this.Shutdown();
+                return;
+            }
+
+            // Startup tracing: a startup problem is invisible when the process hangs before the shell
+            // exists, so each early step is logged.
+            LogClient.Info("Startup: creating the jump list");
+
+            // Create a jump-list and assign it to the current application
+            JumpList.SetJumpList(Current, new JumpList());
+
+            LogClient.Info("Startup: jump list created");
+
+            // Process the command-line arguments
+            this.ProcessCommandLineArguments(isNewInstance);
+
+            this.instanceMutex.ReleaseMutex();
+            this.LaunchInitializer();
+
+            LogClient.Info("Startup: creating the shell");
+            base.OnStartup(e);
+        }
+
+        /// <summary>
+        /// Makes sure the log file can be appended to. The file can be briefly locked by another
+        /// process (a previous instance which is still shutting down, an editor that has the log
+        /// open, a backup or antivirus tool). Because a failed log write freezes the application,
+        /// this waits for the lock to disappear and, as a last resort, moves the file aside so a new
+        /// one is created.
+        /// </summary>
+        private static void EnsureLogFileIsWritable()
+        {
+            string logfile;
+
+            try
+            {
+                logfile = LogClient.Logfile();
+            }
+            catch (Exception)
+            {
+                // Without a log path there is nothing to check; logging itself will report errors.
+                return;
+            }
+
+            for (int attempt = 0; attempt < 20; attempt++)
+            {
+                try
+                {
+                    using (new FileStream(logfile, FileMode.Append, FileAccess.Write, FileShare.Read))
+                    {
+                    }
+
+                    return;
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(100);
+                }
+            }
+
+            try
+            {
+                File.Move(logfile, logfile + ".locked-" + DateTime.Now.ToString("yyyyMMdd-HHmmss"));
+            }
+            catch (Exception)
+            {
+                // Still locked: the application can only try to start and log as usual.
             }
         }
 
@@ -98,8 +160,12 @@ namespace Dopamine
         {
             var initializer = new Initializer();
 
+            LogClient.Info("Startup: checking for settings/database migration");
+
             if (initializer.IsMigrationNeeded())
             {
+                LogClient.Info("Startup: migration needed, showing the initialize window");
+
                 // Show the Update Window
                 var initWin = new Initialize();
 

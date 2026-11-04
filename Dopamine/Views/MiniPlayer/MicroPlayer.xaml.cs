@@ -1,4 +1,6 @@
-﻿using Dopamine.Views.Common.Base;
+using Dopamine.Core.Base;
+using Dopamine.Utils;
+using Dopamine.Views.Common.Base;
 using System;
 using System.Windows;
 using System.Windows.Input;
@@ -11,10 +13,22 @@ namespace Dopamine.Views.MiniPlayer
         public MicroPlayer()
         {
             InitializeComponent();
+
+            // Touch optimization: the cover art does not drag the window (it keeps Windows' own
+            // press and hold / right click for its menu), the rest of the player drags the window and
+            // ignores right clicks.
+            this.EnableTouchDragArea(this.PlayerPanel, this.CoverGrid);
+            this.LimitContextMenuToTouchTarget(this.CoverGrid);
         }
 
         private void CoverGrid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            // On a touch screen the cover art responds to a long press, not to a drag.
+            if (TouchOptimization.IsEnabled)
+            {
+                return;
+            }
+
             this.MouseLeftButtonDownHandler(sender, e);
         }
 
@@ -49,6 +63,22 @@ namespace Dopamine.Views.MiniPlayer
         private void CommonMiniPlayerView_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             this.AlignSpectrumAnalyzer();
+        }
+
+        protected override void UpdateTouchWindowControlsVisibility()
+        {
+            // Touch optimization: the window buttons which are revealed by hovering the cover art are
+            // useless on a touch screen. Hide them completely, so they can't be tapped by accident.
+            bool touchOptimization = TouchOptimization.IsEnabled;
+
+            this.CoverControls.Visibility = touchOptimization ? Visibility.Collapsed : Visibility.Visible;
+            this.CoverControls.IsHitTestVisible = !touchOptimization;
+        }
+
+        protected override void UpdateTouchWindowControlsPanelLayout(bool isExpanded)
+        {
+            this.TouchWindowControlsPanelColumn.Width = new GridLength(isExpanded ? Constants.MiniPlayerTouchPanelWidth : 0);
+            this.TouchWindowControlsPanel.Visibility = isExpanded ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

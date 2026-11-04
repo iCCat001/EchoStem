@@ -161,6 +161,7 @@
   <Text Key="Error_Removing_From_Playlist">在从播放列表 '{playlistname}' 移除歌曲时发生了一个错误，请查看日志文件获取更多信息</Text>
   <Text Key="Ignore_Previously_Removed_Files">忽略之前从音乐库中移除的歌曲</Text>
   <Text Key="Refresh">更新音乐库</Text>
+  <Text Key="Rescan_Plugins">重新扫描插件库</Text>
   <Text Key="Remove">删除</Text>
   <Text Key="Remove_Song">移除歌曲</Text>
   <Text Key="Remove_Songs">移除歌曲</Text>
@@ -463,6 +464,7 @@
   <Text Key="Import_Playlists">导入播放列表</Text>
   <Text Key="Error_Importing_Playlists">导入播放列表时出现了一个错误。请至日志文件以获取更多信息</Text>
   <Text Key="Switch_Player">切换播放器</Text>
+  <Text Key="Window_Buttons">窗口按钮</Text>
   <Text Key="Music">音乐</Text>
   <Text Key="Smart_Playlist">智能播放列表</Text>
   <Text Key="Create_Smart_Playlist_Where">建立智能播放列表于</Text>
@@ -503,7 +505,7 @@
   <Text Key="Touch_Optimization">触摸优化</Text>
   <Text Key="Enable_Touch_Optimization">针对触摸输入优化页面布局和响应</Text>
   <Text Key="Dsh_Plugin_Sync">支持 DSH 插件同步</Text>
-  <Text Key="Enable_Dsh_Plugin_Sync">允许 DeepSeek Harness（DSH）网页界面显示当前歌曲并控制播放。开启后 EchoStem 仅在 127.0.0.1:38721 上接受本机连接；关闭即可完全断开。</Text>
+  <Text Key="Enable_Dsh_Plugin_Sync">允许 DeepSeek Harness（DSH）网页界面显示当前歌曲并控制播放；仅在 127.0.0.1:38721 上接受本机连接。</Text>
   <Text Key="Plugins">插件</Text>
   <Text Key="Plugins_Description">插件用于扩展 EchoStem 及其集成能力。随应用提供的插件位于程序目录的 Plugins 文件夹；用户插件也可以放在 %AppData%\Dopamine\Plugins。</Text>
   <Text Key="Open_Plugins_Folder">打开插件目录</Text>

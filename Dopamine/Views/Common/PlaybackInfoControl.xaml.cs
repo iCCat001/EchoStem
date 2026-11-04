@@ -37,6 +37,8 @@ namespace Dopamine.Views.Common
             DependencyProperty.Register(nameof(ShowLoveAndRating), typeof(bool), typeof(PlaybackInfoControl), new PropertyMetadata(false));
         public static readonly DependencyProperty IsBottomAlignedProperty = 
             DependencyProperty.Register(nameof(IsBottomAligned), typeof(bool), typeof(PlaybackInfoControl), new PropertyMetadata(false));
+        public static readonly DependencyProperty LoveAndRatingAlignmentProperty =
+            DependencyProperty.Register(nameof(LoveAndRatingAlignment), typeof(HorizontalAlignment), typeof(PlaybackInfoControl), new PropertyMetadata(HorizontalAlignment.Left));
     
         public new object DataContext
         {
@@ -145,6 +147,17 @@ namespace Dopamine.Views.Common
             get { return Convert.ToBoolean(GetValue(IsBottomAlignedProperty)); }
 
             set { SetValue(IsBottomAlignedProperty, value); }
+        }
+
+        /// <summary>
+        /// Horizontal alignment of the Love/Rating row. Centered when the text is centered below the
+        /// cover art; left aligned in the side-by-side layout.
+        /// </summary>
+        public HorizontalAlignment LoveAndRatingAlignment
+        {
+            get { return (HorizontalAlignment)GetValue(LoveAndRatingAlignmentProperty); }
+
+            set { SetValue(LoveAndRatingAlignmentProperty, value); }
         }
      
         public PlaybackInfoControl()

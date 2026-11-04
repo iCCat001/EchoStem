@@ -161,6 +161,7 @@
   <Text Key="Error_Removing_From_Playlist">An error occurred while removing songs from playlists. Please consult the log file for more information.</Text>
   <Text Key="Ignore_Previously_Removed_Files">Ignore files which were previously removed from the collection</Text>
   <Text Key="Refresh">Refresh</Text>
+  <Text Key="Rescan_Plugins">Rescan plugin library</Text>
   <Text Key="Remove">Remove</Text>
   <Text Key="Remove_Song">Remove song</Text>
   <Text Key="Remove_Songs">Remove songs</Text>
@@ -463,6 +464,7 @@
   <Text Key="Import_Playlists">Import playlists</Text>
   <Text Key="Error_Importing_Playlists">An error occurred while importing playlists. Please consult the log file for more information.</Text>
   <Text Key="Switch_Player">Switch player</Text>
+  <Text Key="Window_Buttons">Window buttons</Text>
   <Text Key="Music">Music</Text>
   <Text Key="Smart_Playlist">Smart playlist</Text>
   <Text Key="Create_Smart_Playlist_Where">Create smart playlist where</Text>
@@ -503,7 +505,7 @@
   <Text Key="Touch_Optimization">Touch optimization</Text>
   <Text Key="Enable_Touch_Optimization">Optimize the page layout and responsiveness for touch input.</Text>
   <Text Key="Dsh_Plugin_Sync">DSH plugin sync support</Text>
-  <Text Key="Enable_Dsh_Plugin_Sync">Allow the DeepSeek Harness (DSH) Web UI to show the current song and control playback. While enabled, EchoStem only listens on 127.0.0.1:38721 for local connections; turn this off to cut access completely.</Text>
+  <Text Key="Enable_Dsh_Plugin_Sync">Allow the DeepSeek Harness (DSH) Web UI to show the current song and control playback; EchoStem only listens on 127.0.0.1:38721.</Text>
   <Text Key="Plugins">Plugins</Text>
   <Text Key="Plugins_Description">Plugins extend EchoStem and its integrations. Bundled plugin packages live in the application's Plugins folder; user packages can also be placed in %AppData%\Dopamine\Plugins.</Text>
   <Text Key="Open_Plugins_Folder">Open plugins folder</Text>

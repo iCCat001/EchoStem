@@ -1,4 +1,4 @@
-﻿using Dopamine.Views.Common.Base;
+using Dopamine.Views.Common.Base;
 using Dopamine.Core.Prism;
 using Dopamine.Services.Entities;
 using Dopamine.Services.Playback;
@@ -27,6 +27,10 @@ namespace Dopamine.Views.FullPlayer.Collection
         private const double FloatingCoverClosedScale = 0.9;
 
         private bool isTracksPaneOpen;
+
+        // True while the album wall is handling a right click: the selection it causes must not open
+        // the track panel (the context menu needs the wall to stay visible).
+        private bool suppressSelectionExpansion;
         private double tracksPaneWidth;
 
         // Used to ignore the 2nd click of a double click when playing on single click.
@@ -59,6 +63,66 @@ namespace Dopamine.Views.FullPlayer.Collection
 
             // PubSub Events
             this.eventAggregator.GetEvent<ScrollToPlayingTrack>().Subscribe(async (_) => await this.ScrollToPlayingTrackAsync(this.ListBoxTracks));
+
+            // A right click must not open the track panel (the context menu needs the wall visible).
+            this.ListBoxAlbums.PreviewMouseRightButtonDown += (sender, e) => this.suppressSelectionExpansion = true;
+            this.ListBoxAlbums.PreviewMouseRightButtonUp += (sender, e) => this.suppressSelectionExpansion = false;
+
+            // Clicking an album which is already selected does not raise SelectionChanged (this
+            // happens after a right click selected it), so the pane has to be opened explicitly.
+            this.ListBoxAlbums.AddHandler(UIElement.PreviewMouseLeftButtonUpEvent,
+                new MouseButtonEventHandler(this.ListBoxAlbums_PreviewMouseLeftButtonUp), true);
+
+            // A right click selects the album for its context menu but does not open the pane. Such a
+            // selection must not survive a page change: when the page is shown again, the selection
+            // would look like a normal selection and open the pane by itself.
+            this.ListBoxAlbums.Unloaded += (sender, e) =>
+            {
+                if (!this.isTracksPaneOpen)
+                {
+                    this.ListBoxAlbums.UnselectAll();
+                }
+            };
+        }
+
+        private void ListBoxAlbums_PreviewMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        {
+            if (this.isTracksPaneOpen || this.ListBoxAlbums.SelectedItems.Count != 1)
+            {
+                return;
+            }
+
+            var item = FindAncestor<ListBoxItem>(e.OriginalSource as DependencyObject);
+
+            if (item == null || !object.ReferenceEquals(item.DataContext, this.ListBoxAlbums.SelectedItem))
+            {
+                return;
+            }
+
+            // The clicked album was already the selected one: nothing changed in the selection, so
+            // open its tracks pane here.
+            this.SetTracksPaneOpen(true, true);
+        }
+
+        private static T FindAncestor<T>(DependencyObject element) where T : DependencyObject
+        {
+            DependencyObject current = element;
+
+            while (current != null)
+            {
+                var typed = current as T;
+
+                if (typed != null)
+                {
+                    return typed;
+                }
+
+                current = current is Visual || current is System.Windows.Media.Media3D.Visual3D
+                    ? VisualTreeHelper.GetParent(current) ?? LogicalTreeHelper.GetParent(current)
+                    : LogicalTreeHelper.GetParent(current);
+            }
+
+            return null;
         }
 
         public DelegateCommand LocatePlayingAlbumCommand { get; set; }
@@ -261,7 +325,11 @@ namespace Dopamine.Views.FullPlayer.Collection
                 this.FloatingCoverArtworkPath = (this.ListBoxAlbums.SelectedItem as AlbumViewModel)?.ArtworkPath;
             }
 
-            this.SetTracksPaneOpen(open, true);
+            // A right click selects the album so its context menu acts on it, but it must not open
+            // the track panel (the panel and its dim overlay would cover the context menu).
+            // A right click selects the album so its context menu acts on it, but it must not open
+            // the track panel (the panel and its dim overlay would cover the context menu).
+            this.SetTracksPaneOpen(open && !this.suppressSelectionExpansion, true);
         }
 
         private void AlbumsDimOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -491,3 +559,4 @@ namespace Dopamine.Views.FullPlayer.Collection
         }
     }
 }
+

@@ -1,4 +1,5 @@
-﻿using Digimezzo.Foundation.Core.Settings;
+using Digimezzo.Foundation.Core.Logging;
+using Digimezzo.Foundation.Core.Settings;
 using Dopamine.Core.Base;
 using Dopamine.Core.Enums;
 using Dopamine.Core.Prism;
@@ -165,6 +166,10 @@ namespace Dopamine.Services.Shell
         {
             string screenName = typeof(Empty).FullName;
 
+            // The touch window controls panel can only exist in a mini player. Forget its state: the
+            // geometry of the new player is set below.
+            MiniPlayerTouchPanelManager.Reset();
+
             // Clear player content
             this.regionManager.RequestNavigate(RegionNames.PlayerTypeRegion, typeof(Empty).FullName);
 
@@ -303,7 +308,9 @@ namespace Dopamine.Services.Shell
                     height = Constants.CoverPlayerHeight;
                     break;
                 case MiniPlayerType.MicroPlayer:
-                    width = Constants.MicroPlayerWidth;
+                    // Touch mode adds the expand/collapse button to the controls row, which needs
+                    // more width than the row has next to the cover art.
+                    width = Constants.MicroPlayerWidth + (Dopamine.Utils.TouchOptimization.IsEnabled ? Constants.MiniPlayerTouchExtraWidth : 0);
                     height = Constants.MicroPlayerHeight;
                     break;
                 case MiniPlayerType.NanoPlayer:
@@ -327,10 +334,12 @@ namespace Dopamine.Services.Shell
 
             this.MinimumSizeChangeRequested(this, new MinimumSizeChangeRequestedEventArgs(minimumSize));
 
-            this.GeometryChangeRequested(this, new GeometryChangeRequestedEventArgs(
-                SettingsClient.Get<int>("MiniPlayer", "Top"),
-                SettingsClient.Get<int>("MiniPlayer", "Left"),
-                minimumSize));
+            double top = SettingsClient.Get<int>("MiniPlayer", "Top");
+            double left = SettingsClient.Get<int>("MiniPlayer", "Left");
+
+            this.EnsureGeometryIsOnScreen(ref top, ref left, minimumSize);
+
+            this.GeometryChangeRequested(this, new GeometryChangeRequestedEventArgs(top, left, minimumSize));
 
             // Show the playlist AFTER changing window dimensions to avoid strange behavior
             if (openPlaylist)
@@ -348,11 +357,59 @@ namespace Dopamine.Services.Shell
             }
             else
             {
-                bool isMiniPlayer = SettingsClient.Get<bool>("General", "IsMiniPlayer");
                 bool isMaximized = SettingsClient.Get<bool>("FullPlayer", "IsMaximized");
-                this.WindowStateChangeRequested(this, new WindowStateChangeRequestedEventArgs(isMaximized & !isMiniPlayer ? WindowState.Maximized : WindowState.Normal));
 
-                this.SetPlayer(isMiniPlayer, (MiniPlayerType)SettingsClient.Get<int>("General", "MiniPlayerType"), isInitializing);
+                if (isInitializing)
+                {
+                    // A session always starts with the full player: only the full player's window
+                    // geometry is remembered. Restoring the mini player would be surprising, and a
+                    // mini player position saved under another screen layout can leave the window
+                    // off-screen (i.e. an application that appears not to start at all).
+                    this.WindowStateChangeRequested(this, new WindowStateChangeRequestedEventArgs(isMaximized ? WindowState.Maximized : WindowState.Normal));
+                    this.SetPlayer(false, (MiniPlayerType)SettingsClient.Get<int>("General", "MiniPlayerType"), isInitializing);
+                }
+                else
+                {
+                    bool isMiniPlayer = SettingsClient.Get<bool>("General", "IsMiniPlayer");
+                    this.WindowStateChangeRequested(this, new WindowStateChangeRequestedEventArgs(isMaximized & !isMiniPlayer ? WindowState.Maximized : WindowState.Normal));
+                    this.SetPlayer(isMiniPlayer, (MiniPlayerType)SettingsClient.Get<int>("General", "MiniPlayerType"), isInitializing);
+                }
+            }
+        }
+
+        /// <summary>
+        /// A window position saved on another monitor layout can be outside the current virtual
+        /// screen. Center the window instead of restoring a position where nobody can see it.
+        /// </summary>
+        private void EnsureGeometryIsOnScreen(ref double top, ref double left, Size size)
+        {
+            try
+            {
+                double screenLeft = SystemParameters.VirtualScreenLeft;
+                double screenTop = SystemParameters.VirtualScreenTop;
+                double screenRight = screenLeft + SystemParameters.VirtualScreenWidth;
+                double screenBottom = screenTop + SystemParameters.VirtualScreenHeight;
+
+                bool isOnScreen =
+                    left + size.Width > screenLeft &&
+                    left < screenRight &&
+                    top + size.Height > screenTop &&
+                    top < screenBottom;
+
+                if (isOnScreen)
+                {
+                    return;
+                }
+
+                left = screenLeft + Math.Max(0, (SystemParameters.VirtualScreenWidth - size.Width) / 2);
+                top = screenTop + Math.Max(0, (SystemParameters.VirtualScreenHeight - size.Height) / 2);
+
+                LogClient.Warning("The saved mini player position was outside the screen; centering the window instead.");
+            }
+            catch (Exception ex)
+            {
+                // Never let a screen geometry problem prevent the mini player from being shown.
+                LogClient.Error("Could not validate the mini player position. Exception: {0}", ex.Message);
             }
         }
 
@@ -362,6 +419,12 @@ namespace Dopamine.Services.Shell
             {
                 if (this.isMiniPlayerActive)
                 {
+                    // When the touch window controls panel is expanded, the window is shifted to the
+                    // left and made wider. Save the position the window would have with a collapsed
+                    // panel, so the window position restore is not affected by the panel.
+                    top = MiniPlayerTouchPanelManager.GetSavedTop(top);
+                    left = MiniPlayerTouchPanelManager.GetSavedLeft(left);
+
                     SettingsClient.Set<int>("MiniPlayer", "Top", Convert.ToInt32(top));
                     SettingsClient.Set<int>("MiniPlayer", "Left", Convert.ToInt32(left));
                 }

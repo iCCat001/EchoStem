@@ -14,7 +14,6 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
 {
     public class SettingsFeaturesViewModel : BindableBase
     {
-        private readonly IPluginCatalogService pluginCatalogService;
         private IDialogService dialogService;
         private bool checkBoxNonPublicServicesChecked;
         private bool checkBoxTouchOptimizationChecked;
@@ -54,10 +53,9 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
             }
         }
 
-        public SettingsFeaturesViewModel(IEventAggregator eventAggregator, IDialogService dialogService, IPluginCatalogService pluginCatalogService)
+        public SettingsFeaturesViewModel(IEventAggregator eventAggregator, IDialogService dialogService)
         {
             this.dialogService = dialogService;
-            this.pluginCatalogService = pluginCatalogService;
             this.checkBoxNonPublicServicesChecked = SettingsClient.Get<bool>("Features", "NonPublicExperimentalServices");
             this.checkBoxTouchOptimizationChecked = SettingsClient.Get<bool>("Features", "TouchOptimization");
             this.checkBoxDshSyncChecked = DshSyncSettings.IsEnabled();
@@ -65,9 +63,9 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
         }
 
         /// <summary>
-        /// Description of the DSH sync plugin, read from the plugin's own
-        /// <c>plugin.json</c> in the Plugins folder. The localized string is only
-        /// a fallback for the case where the plugin package is not present.
+        /// Description shown next to the DSH sync switch. It is deliberately independent from the
+        /// plugin package's own description: that one describes the plugin and is shown on the
+        /// Plugins page, while this one explains the switch itself.
         /// </summary>
         public string DshSyncDescription
         {
@@ -77,21 +75,6 @@ namespace Dopamine.ViewModels.FullPlayer.Settings
 
         private string GetDshSyncDescription()
         {
-            try
-            {
-                PluginPackage plugin = this.pluginCatalogService.GetPlugins()
-                    .FirstOrDefault(package => string.Equals(package.Manifest.Id, "echostem-sync", StringComparison.OrdinalIgnoreCase));
-
-                if (plugin != null && !string.IsNullOrWhiteSpace(plugin.Manifest.Description))
-                {
-                    return plugin.Manifest.Description;
-                }
-            }
-            catch
-            {
-                // The catalog is best-effort; fall back to the localized text below.
-            }
-
             return ResourceUtils.GetString("Language_Enable_Dsh_Plugin_Sync");
         }
 

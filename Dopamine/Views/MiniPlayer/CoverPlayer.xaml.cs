@@ -1,4 +1,6 @@
-﻿using Dopamine.Views.Common.Base;
+using Dopamine.Core.Base;
+using Dopamine.Utils;
+using Dopamine.Views.Common.Base;
 using System;
 using System.Windows;
 using System.Windows.Input;
@@ -10,6 +12,10 @@ namespace Dopamine.Views.MiniPlayer
         public CoverPlayer()
         {
             InitializeComponent();
+
+            // This player is one large cover art with a control strip at the bottom: splitting it into
+            // "cover = long press" and "background = drag" left no place to move the window at all,
+            // so it keeps the original behaviour (the whole cover drags the window).
         }
 
         protected void CoverGrid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -48,6 +54,22 @@ namespace Dopamine.Views.MiniPlayer
         private void CommonMiniPlayerView_Loaded(object sender, System.Windows.RoutedEventArgs e)
         {
             this.AlignSpectrumAnalyzer();
+        }
+
+        protected override void UpdateTouchWindowControlsVisibility()
+        {
+            // Touch optimization: the window buttons which are revealed by hovering the cover art are
+            // useless on a touch screen. Hide them completely, so they can't be tapped by accident.
+            bool touchOptimization = TouchOptimization.IsEnabled;
+
+            this.CoverControls.Visibility = touchOptimization ? Visibility.Collapsed : Visibility.Visible;
+            this.CoverControls.IsHitTestVisible = !touchOptimization;
+        }
+
+        protected override void UpdateTouchWindowControlsPanelLayout(bool isExpanded)
+        {
+            this.TouchWindowControlsPanelColumn.Width = new GridLength(isExpanded ? Constants.MiniPlayerTouchPanelWidth : 0);
+            this.TouchWindowControlsPanel.Visibility = isExpanded ? Visibility.Visible : Visibility.Collapsed;
         }
     }
 }

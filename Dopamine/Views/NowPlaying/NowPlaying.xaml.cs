@@ -1,4 +1,4 @@
-﻿using Digimezzo.Foundation.Core.Settings;
+using Digimezzo.Foundation.Core.Settings;
 using Dopamine.Utils;
 using Dopamine.ViewModels.NowPlaying;
 using System;
@@ -202,6 +202,29 @@ namespace Dopamine.Views.NowPlaying
         {
             this.AlignSpectrumAnalyzer();
             this.AlignBackgroundCoverArt();
+            this.UpdateResponsiveMargins();
+        }
+
+        /// <summary>
+        /// In portrait the wide 100 DIP page gutters eat most of the scarce width, so they shrink the
+        /// same way a web page's side padding does. The bottom margin leaves room for the playback
+        /// controls that overlay the page.
+        /// </summary>
+        private void UpdateResponsiveMargins()
+        {
+            if (this.ActualWidth <= 0 || this.ActualHeight <= 0)
+            {
+                return;
+            }
+
+            var margin = ResponsiveLayout.ShouldStackVertically(this.ActualWidth, this.ActualHeight)
+                ? new Thickness(20, 56, 20, 24)
+                : new Thickness(100, 90, 100, 40);
+
+            if (!margin.Equals(this.NowPlayingSubPageRegion.Margin))
+            {
+                this.NowPlayingSubPageRegion.Margin = margin;
+            }
         }
 
         private void AlignSpectrumAnalyzer()

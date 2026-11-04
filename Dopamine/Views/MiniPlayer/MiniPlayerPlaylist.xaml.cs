@@ -5,6 +5,7 @@ using Dopamine.Core.Base;
 using Dopamine.Core.Enums;
 using Dopamine.Core.Prism;
 using Dopamine.Services.Playback;
+using Dopamine.Services.Shell;
 using Dopamine.Views.Common;
 using Prism.Events;
 using Prism.Regions;
@@ -110,27 +111,35 @@ namespace Dopamine.Views.MiniPlayer
 
         private async Task SetGeometry()
         {
+            // Touch optimization: while the mini player window is expanded to the left to show the
+            // window buttons panel, the playlist must stay aligned with the player content instead of
+            // with the (wider and possibly taller) window.
+            double parentLeft = MiniPlayerTouchPanelManager.GetContentLeft(this.parent.Left);
+            double parentTop = this.parent.Top;
+            double parentWidth = MiniPlayerTouchPanelManager.GetContentWidth(this.parent.ActualWidth);
+            double parentHeight = MiniPlayerTouchPanelManager.GetContentHeight(this.parent.ActualHeight);
+
             switch (this.miniPlayerType)
             {
                 case MiniPlayerType.CoverPlayer:
 
                     if (this.alignCoverPlayerPlaylistVertically)
                     {
-                        this.Width = this.parent.ActualWidth;
+                        this.Width = parentWidth;
                         this.Height = Constants.CoverPlayerVerticalPlaylistHeight;
                     }
                     else
                     {
                         this.Width = Constants.CoverPlayerHorizontalPlaylistWidth;
-                        this.Height = this.parent.ActualHeight;
+                        this.Height = parentHeight;
                     }
                     break;
                 case MiniPlayerType.MicroPlayer:
-                    this.Width = this.parent.ActualWidth;
+                    this.Width = parentWidth;
                     this.Height = Constants.MicroPlayerPlaylistHeight;
                     break;
                 case MiniPlayerType.NanoPlayer:
-                    this.Width = this.parent.ActualWidth;
+                    this.Width = parentWidth;
                     this.Height = Constants.NanoPlayerPlaylistHeight;
                     break;
                 default:
@@ -138,8 +147,8 @@ namespace Dopamine.Views.MiniPlayer
                     // Doesn't happen
             }
 
-            var tal = await this.GetTopAndLeft(this.Width, this.Height, this.parent.Top, this.parent.Left,
-                this.parent.ActualWidth, this.parent.ActualHeight);
+            var tal = await this.GetTopAndLeft(this.Width, this.Height, parentTop, parentLeft,
+                parentWidth, parentHeight);
             var top = tal.Item1;
             var left = tal.Item2;
 

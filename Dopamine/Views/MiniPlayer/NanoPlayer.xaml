@@ -1,4 +1,4 @@
-﻿<baseviews:MiniPlayerViewBase x:Class="Dopamine.Views.MiniPlayer.NanoPlayer"
+<baseviews:MiniPlayerViewBase x:Class="Dopamine.Views.MiniPlayer.NanoPlayer"
                               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
                               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -96,7 +96,20 @@
         </ContextMenu>
     </baseviews:MiniPlayerViewBase.ContextMenu>
 
-    <Grid x:Name="PlayerPanel" Width="{x:Static corebase:Constants.NanoPlayerWidth}" Height="{x:Static corebase:Constants.NanoPlayerHeight}">
+    <Grid x:Name="PlayerPanel">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition x:Name="TouchWindowControlsPanelColumn" Width="0"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Touch optimization: the window buttons panel, which is revealed by growing the window to
+             the left. The Nano Player is only 48 px high, so the buttons are stacked horizontally and
+             the window never gets taller. It is collapsed in mouse mode. -->
+        <commonviews:MiniPlayerTouchWindowControlsPanel x:Name="TouchWindowControlsPanel" Grid.Column="0" PanelOrientation="Horizontal"/>
+
+        <!-- The mini player keeps its original size and position on the screen: when the window grows,
+             this content stays at the top right. -->
+        <Grid Grid.Column="1" Width="{x:Static corebase:Constants.NanoPlayerWidth}" Height="{x:Static corebase:Constants.NanoPlayerHeight}" HorizontalAlignment="Center" VerticalAlignment="Top">
         <StackPanel Orientation="Horizontal" Panel.ZIndex="0" Height="44" VerticalAlignment="Top">
             <commonviews:NanoPlayerControls Margin="10,1,0,0" VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Grid>
@@ -120,5 +133,6 @@
             </Grid>
         </StackPanel>
         <commonviews:ProgressControlsThin DockPanel.Dock="Bottom" Panel.ZIndex="1" Height="16" Margin="0" VerticalAlignment="Bottom"/>
+        </Grid>
     </Grid>
 </baseviews:MiniPlayerViewBase>

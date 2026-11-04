@@ -1,0 +1,43 @@
+<UserControl x:Class="Dopamine.Views.Common.MiniPlayerTouchWindowControlsButton"
+             x:Name="Me"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:corebase="clr-namespace:Dopamine.Core.Base;assembly=Dopamine.Core"
+             mc:Ignorable="d"
+             d:DesignHeight="30" d:DesignWidth="30"
+             Visibility="Collapsed"
+             IsTabStop="False">
+
+    <!-- Touch optimization: expands/collapses the panel with the window buttons. The icon points to
+         the left while collapsed (the panel can be revealed on the left) and to the right while
+         expanded (the panel can be collapsed again). The size matches the buttons next to it in each
+         player, so the row keeps a uniform look. -->
+    <ToggleButton x:Name="Button"
+                  Style="{StaticResource TransparentToggleButton}"
+                  Width="{Binding ButtonSize, ElementName=Me}"
+                  Height="{Binding ButtonSize, ElementName=Me}"
+                  HorizontalContentAlignment="Center"
+                  VerticalContentAlignment="Center"
+                  Cursor="Hand"
+                  ToolTip="{DynamicResource Language_Window_Buttons}"
+                  Click="Button_Click">
+        <Grid>
+            <TextBlock Text="&#xE76B;"
+                       Style="{StaticResource SegoeAssets}"
+                       Foreground="{DynamicResource Brush_PrimaryText}"
+                       FontSize="{Binding IconFontSize, ElementName=Me}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding IsChecked, ElementName=Button, Converter={StaticResource InvertingBooleanToVisibilityConverter}}"/>
+            <TextBlock Text="&#xE76C;"
+                       Style="{StaticResource SegoeAssets}"
+                       Foreground="{DynamicResource Brush_PrimaryText}"
+                       FontSize="{Binding IconFontSize, ElementName=Me}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Visibility="{Binding IsChecked, ElementName=Button, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        </Grid>
+    </ToggleButton>
+</UserControl>
