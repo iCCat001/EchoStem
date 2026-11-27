@@ -75,6 +75,95 @@ namespace EchoStem.Tests
             }
         }
 
+        [Test]
+        public void SelectsNewestReleaseWithAssetsRegardlessOfApiOrder()
+        {
+            // The GitHub API returns releases in creation order: here the old release comes first.
+            var releases = new List<GitHubRelease>
+            {
+                CreateReleaseWithTag("V2.0.11-Beta9", "EchoStem-Portable-2.0.11-Beta9.zip", "EchoStem-Setup-2.0.11-Beta9.exe"),
+                CreateReleaseWithTag("V2.0.12-Beta1", "EchoStem-Portable-2.0.12-Beta1.zip", "EchoStem-Setup-2.0.12-Beta1.exe")
+            };
+
+            UpdateService.UpdateReleaseSelection selection =
+                UpdateService.SelectUpdateRelease(releases, AppVersion.Parse("V2.0.11-Beta8"));
+
+            Assert.That(selection.Release.TagName, Is.EqualTo("V2.0.12-Beta1"));
+            Assert.That(selection.PortableAsset.Name, Is.EqualTo("EchoStem-Portable-2.0.12-Beta1.zip"));
+            Assert.That(selection.InstallerAsset.Name, Is.EqualTo("EchoStem-Setup-2.0.12-Beta1.exe"));
+            Assert.That(selection.HasNewerReleaseWithoutPackage, Is.False);
+        }
+
+        [Test]
+        public void SkipsNewerReleaseWithoutPackageAndUsesNextOneWithAssets()
+        {
+            var releases = new List<GitHubRelease>
+            {
+                CreateReleaseWithTag("V2.0.12-Beta2"), // published, but assets were removed
+                CreateReleaseWithTag("V2.0.12-Beta1", "EchoStem-Portable-2.0.12-Beta1.zip")
+            };
+
+            UpdateService.UpdateReleaseSelection selection =
+                UpdateService.SelectUpdateRelease(releases, AppVersion.Parse("V2.0.11-Beta9"));
+
+            Assert.That(selection.Release.TagName, Is.EqualTo("V2.0.12-Beta1"));
+            Assert.That(selection.PortableAsset, Is.Not.Null);
+            Assert.That(selection.InstallerAsset, Is.Null);
+        }
+
+        [Test]
+        public void AssetLessOlderReleasesDoNotFailAnUpToDateInstallation()
+        {
+            // This was the reported bug: the newest release has no assets, but it is older than the
+            // installed build, so the result must be "up to date", not an error.
+            var releases = new List<GitHubRelease>
+            {
+                CreateReleaseWithTag("V2.0.11-Beta9")
+            };
+
+            UpdateService.UpdateReleaseSelection selection =
+                UpdateService.SelectUpdateRelease(releases, AppVersion.Parse("V2.0.12-Beta1"));
+
+            Assert.That(selection.Release, Is.Null);
+            Assert.That(selection.HasNewerReleaseWithoutPackage, Is.False);
+        }
+
+        [Test]
+        public void ReportsMissingPackageOnlyWhenANewerReleaseExists()
+        {
+            var releases = new List<GitHubRelease>
+            {
+                CreateReleaseWithTag("V2.0.12-Beta2") // newer, but no package
+            };
+
+            UpdateService.UpdateReleaseSelection selection =
+                UpdateService.SelectUpdateRelease(releases, AppVersion.Parse("V2.0.11-Beta9"));
+
+            Assert.That(selection.Release, Is.Null);
+            Assert.That(selection.HasNewerReleaseWithoutPackage, Is.True);
+        }
+
+        [Test]
+        public void EqualVersionIsNotAnUpdate()
+        {
+            var releases = new List<GitHubRelease>
+            {
+                CreateReleaseWithTag("V2.0.12-Beta1", "EchoStem-Portable-2.0.12-Beta1.zip")
+            };
+
+            UpdateService.UpdateReleaseSelection selection =
+                UpdateService.SelectUpdateRelease(releases, AppVersion.Parse("V2.0.12-Beta1"));
+
+            Assert.That(selection.Release, Is.Null);
+            Assert.That(selection.HasNewerReleaseWithoutPackage, Is.False);
+        }
+
+        private static GitHubRelease CreateReleaseWithTag(string tag, params string[] assetNames)
+        {
+            GitHubRelease release = CreateRelease(assetNames);
+            release.TagName = tag;
+            return release;
+        }
         private static GitHubRelease CreateRelease(params string[] assetNames)
         {
             var release = new GitHubRelease
