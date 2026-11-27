@@ -3,6 +3,7 @@ using Digimezzo.Foundation.Core.Logging;
 using Digimezzo.Foundation.Core.Settings;
 using EchoStem.Core.Api.GitHub;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
@@ -40,39 +41,42 @@ namespace EchoStem.Services.Update
 
                 LogClient.Info("Update check: installed version = {0}", result.InstalledVersion);
 
-                GitHubRelease release = await GitHubApi.GetLatestReleaseAsync(RepositoryOwner, RepositoryName);
+                List<GitHubRelease> releases = await GitHubApi.GetReleasesAsync(RepositoryOwner, RepositoryName);
 
-                if (release == null || string.IsNullOrEmpty(release.TagName))
+                if (releases == null || releases.Count == 0)
                 {
                     return this.CreateError(result, "No release was found.");
                 }
 
-                result.Release = release;
-                result.OnlineVersion = AppVersion.Parse(release.TagName);
+                // The GitHub API returns releases in creation order, which is not necessarily the
+                // version order (and a release can temporarily have no assets). Select the newest
+                // version which actually contains a downloadable update package; never let an older
+                // or asset-less release block the check.
+                UpdateReleaseSelection selection = SelectUpdateRelease(releases, result.InstalledVersion);
 
-                if (result.OnlineVersion == null)
+                if (selection.Release == null)
                 {
-                    return this.CreateError(result, $"Could not parse the release tag '{release.TagName}'.");
+                    if (selection.HasNewerReleaseWithoutPackage)
+                    {
+                        result.IsPackageMissing = true;
+                        return this.CreateError(result, "No release contains an update package.");
+                    }
+
+                    // No release newer than the installed version: nothing to install.
+                    result.Status = UpdateCheckStatus.UpToDate;
+                    return result;
                 }
 
-                LogClient.Info("Update check: online version = {0} (tag {1})", result.OnlineVersion, release.TagName);
+                result.Release = selection.Release;
+                result.OnlineVersion = selection.Version;
+                result.PortableAsset = selection.PortableAsset;
+                result.InstallerAsset = selection.InstallerAsset;
 
-
-                result.PortableAsset = FindPortableAsset(release);
-                result.InstallerAsset = FindInstallerAsset(release);
-
+                LogClient.Info("Update check: online version = {0} (tag {1})", result.OnlineVersion, selection.Release.TagName);
                 LogClient.Info("Update check: portable asset = {0}, installer asset = {1}",
                     result.PortableAsset?.Name ?? "(none)", result.InstallerAsset?.Name ?? "(none)");
 
-                if (result.PortableAsset == null && result.InstallerAsset == null)
-                {
-                    result.IsPackageMissing = true;
-                    return this.CreateError(result, "The release does not contain an update package.");
-                }
-
-                result.Status = result.OnlineVersion.CompareTo(result.InstalledVersion) > 0
-                    ? UpdateCheckStatus.UpdateAvailable
-                    : UpdateCheckStatus.UpToDate;
+                result.Status = UpdateCheckStatus.UpdateAvailable;
             }
             catch (Exception ex)
             {
@@ -81,6 +85,84 @@ namespace EchoStem.Services.Update
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Picks the newest release (by version, not by API order) which contains a portable package or
+        /// an installer and which is newer than the installed version.
+        /// </summary>
+        internal static UpdateReleaseSelection SelectUpdateRelease(IEnumerable<GitHubRelease> releases, AppVersion installedVersion)
+        {
+            var candidates = new List<KeyValuePair<GitHubRelease, AppVersion>>();
+
+            if (releases != null)
+            {
+                foreach (GitHubRelease release in releases)
+                {
+                    if (release == null || string.IsNullOrEmpty(release.TagName))
+                    {
+                        continue;
+                    }
+
+                    AppVersion version = AppVersion.Parse(release.TagName);
+
+                    if (version != null)
+                    {
+                        candidates.Add(new KeyValuePair<GitHubRelease, AppVersion>(release, version));
+                    }
+                }
+            }
+
+            var selection = new UpdateReleaseSelection();
+
+            if (candidates.Count == 0)
+            {
+                return selection;
+            }
+
+            // Sort by version, newest first.
+            candidates.Sort((left, right) => right.Value.CompareTo(left.Value));
+
+            selection.HasNewerReleaseWithoutPackage =
+                installedVersion != null && candidates[0].Value.CompareTo(installedVersion) > 0;
+
+            foreach (KeyValuePair<GitHubRelease, AppVersion> candidate in candidates)
+            {
+                if (installedVersion != null && candidate.Value.CompareTo(installedVersion) <= 0)
+                {
+                    // Sorted by version: everything from here on is not newer than the installed build.
+                    break;
+                }
+
+                GitHubReleaseAsset portableAsset = FindPortableAsset(candidate.Key);
+                GitHubReleaseAsset installerAsset = FindInstallerAsset(candidate.Key);
+
+                if (portableAsset != null || installerAsset != null)
+                {
+                    selection.Release = candidate.Key;
+                    selection.Version = candidate.Value;
+                    selection.PortableAsset = portableAsset;
+                    selection.InstallerAsset = installerAsset;
+                    selection.HasNewerReleaseWithoutPackage = false;
+                    return selection;
+                }
+            }
+
+            return selection;
+        }
+
+        internal sealed class UpdateReleaseSelection
+        {
+            public GitHubRelease Release { get; set; }
+
+            public AppVersion Version { get; set; }
+
+            public GitHubReleaseAsset PortableAsset { get; set; }
+
+            public GitHubReleaseAsset InstallerAsset { get; set; }
+
+            /// <summary>True when a newer version exists, but none of the newer releases has a package.</summary>
+            public bool HasNewerReleaseWithoutPackage { get; set; }
         }
 
         public async Task<string> DownloadAndPrepareUpdateAsync(GitHubReleaseAsset portableAsset,
