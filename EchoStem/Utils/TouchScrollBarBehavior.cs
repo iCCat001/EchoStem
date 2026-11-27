@@ -92,6 +92,8 @@ namespace EchoStem.Utils
             bar.Loaded += (sender, e) => OnBarLoaded(state);
             bar.Unloaded += (sender, e) => Collapse(state);
             bar.PreviewTouchDown += (sender, e) => OnBarTouchDown(state, e);
+            bar.PreviewTouchMove += (sender, e) => OnBarTouchMove(state, e);
+            bar.PreviewTouchUp += (sender, e) => OnBarTouchUp(state, e);
             bar.PreviewMouseLeftButtonDown += (sender, e) => OnBarMouseDown(state, e);
             bar.ValueChanged += (sender, e) => NotifyScrolled(state);
         }
@@ -169,6 +171,12 @@ namespace EchoStem.Utils
                 return;
             }
 
+            // A stray contact (second finger, palm, pen) must not interrupt an ongoing bubble drag.
+            if (state.DraggingBubble)
+            {
+                return;
+            }
+
             if (!state.Standby)
             {
                 // First touch: only expand and show the bubble, do not scroll (that is the whole point).
@@ -176,15 +184,64 @@ namespace EchoStem.Utils
                 return;
             }
 
-            // Standby: dragging the thumb keeps the native behavior (the bubble follows through
-            // ValueChanged). Any other touch in the bar jumps to that position.
-            if (IsInside(e.OriginalSource as DependencyObject, state.Thumb))
+            double positionY = e.GetTouchPoint(state.Bar).Position.Y;
+
+            if (IsInside(e.OriginalSource as DependencyObject, state.Thumb) || IsNearThumb(state, positionY))
+            {
+                // Drag the thumb ourselves. Left to the native Thumb it would be handled as a touch
+                // panning gesture by the ScrollViewer (which scrolls in the opposite direction).
+                // Around the thumb a generous touch band is accepted, so the thumb is easy to grab.
+                e.Handled = true;
+                BeginBubbleDrag(state, positionY, e.TouchDevice, false);
+                state.Bar.CaptureTouch(e.TouchDevice);
+                return;
+            }
+
+            e.Handled = true;
+            JumpToPosition(state, positionY);
+        }
+
+        /// <summary>
+        /// True when the touch position is close enough to the thumb to start dragging it. The thumb
+        /// itself is only a few pixels thick, which is hard to hit with a finger; the band around it
+        /// makes grabbing it reliable in touch mode.
+        /// </summary>
+        private static bool IsNearThumb(ScrollBarState state, double positionY)
+        {
+            if (state.Thumb == null || state.Viewer == null || state.Bar.Maximum <= state.Bar.Minimum)
+            {
+                return false;
+            }
+
+            Rect range = GetThumbRange(state);
+            double value = state.Viewer.VerticalOffset;
+            double fraction = Clamp((value - state.Bar.Minimum) / (state.Bar.Maximum - state.Bar.Minimum), 0, 1);
+            double centerY = range.Top + fraction * range.Height;
+            double halfBand = Math.Max(state.Thumb.ActualHeight / 2.0, 24.0);
+
+            return positionY >= centerY - halfBand && positionY <= centerY + halfBand;
+        }
+
+        private static void OnBarTouchMove(ScrollBarState state, TouchEventArgs e)
+        {
+            if (!state.DraggingBubble || state.DragIsMouse || !IsDragTouchDevice(state, e.TouchDevice))
             {
                 return;
             }
 
             e.Handled = true;
-            JumpToPosition(state, e.GetTouchPoint(state.Bar).Position.Y);
+            ContinueBubbleDrag(state, e.GetTouchPoint(state.Bar).Position.Y);
+        }
+
+        private static void OnBarTouchUp(ScrollBarState state, TouchEventArgs e)
+        {
+            if (!state.DraggingBubble || state.DragIsMouse || !IsDragTouchDevice(state, e.TouchDevice))
+            {
+                return;
+            }
+
+            e.Handled = true;
+            EndBubbleDrag(state);
         }
 
         private static void OnBarMouseDown(ScrollBarState state, MouseButtonEventArgs e)
@@ -195,6 +252,11 @@ namespace EchoStem.Utils
             }
 
             if (state.Track == null || state.Thumb == null || state.Viewer == null)
+            {
+                return;
+            }
+
+            if (state.DraggingBubble)
             {
                 return;
             }
@@ -261,6 +323,11 @@ namespace EchoStem.Utils
             CreateBubble(state);
             layer.Add(state.Adorner);
 
+            // While the scroll bar is in standby the list must not react to its own touch panning:
+            // otherwise pressing the (touch sized) thumb turns into a panning gesture and the list
+            // scrolls in the opposite direction.
+            SuspendPanning(state);
+
             HookWindow(state);
             NotifyScrolled(state);
             return true;
@@ -283,6 +350,9 @@ namespace EchoStem.Utils
             UnhookWindow(state);
 
             state.DraggingBubble = false;
+            state.DragIsMouse = false;
+            state.DragTouchDevice = null;
+            RestorePanning(state);
 
             if (state.Bubble != null)
             {
@@ -336,10 +406,14 @@ namespace EchoStem.Utils
 
             bubble.Child = letter;
 
+            // The bubble is moved with a render transform (no layout/arrange invalidation): this is
+            // cheap and does not disturb the touch capture while the finger is dragging.
+            bubble.RenderTransform = new TranslateTransform();
+
             bubble.PreviewTouchDown += (sender, e) => OnBubbleTouchDown(state, e);
             bubble.PreviewTouchMove += (sender, e) => OnBubbleTouchMove(state, e);
             bubble.PreviewTouchUp += (sender, e) => OnBubbleTouchUp(state, e);
-            bubble.LostTouchCapture += (sender, e) => { state.DraggingBubble = false; };
+            bubble.LostTouchCapture += (sender, e) => OnBubbleLostTouchCapture(state, e);
 
             bubble.PreviewMouseLeftButtonDown += (sender, e) => OnBubbleMouseDown(state, e);
             bubble.PreviewMouseMove += (sender, e) => OnBubbleMouseMove(state, e);
@@ -352,19 +426,19 @@ namespace EchoStem.Utils
 
         private static void OnBubbleTouchDown(ScrollBarState state, TouchEventArgs e)
         {
-            if (state.Bubble == null || !state.Standby)
+            if (state.Bubble == null || !state.Standby || state.DraggingBubble)
             {
                 return;
             }
 
             e.Handled = true;
-            BeginBubbleDrag(state, e.GetTouchPoint(state.Bar).Position.Y);
+            BeginBubbleDrag(state, e.GetTouchPoint(state.Bar).Position.Y, e.TouchDevice, false);
             state.Bubble.CaptureTouch(e.TouchDevice);
         }
 
         private static void OnBubbleTouchMove(ScrollBarState state, TouchEventArgs e)
         {
-            if (!state.DraggingBubble || state.Bubble == null)
+            if (!state.DraggingBubble || state.Bubble == null || state.DragIsMouse || !IsDragTouchDevice(state, e.TouchDevice))
             {
                 return;
             }
@@ -375,7 +449,7 @@ namespace EchoStem.Utils
 
         private static void OnBubbleTouchUp(ScrollBarState state, TouchEventArgs e)
         {
-            if (!state.DraggingBubble || state.Bubble == null)
+            if (!state.DraggingBubble || state.Bubble == null || state.DragIsMouse || !IsDragTouchDevice(state, e.TouchDevice))
             {
                 return;
             }
@@ -384,21 +458,36 @@ namespace EchoStem.Utils
             EndBubbleDrag(state);
         }
 
+        private static void OnBubbleLostTouchCapture(ScrollBarState state, TouchEventArgs e)
+        {
+            // Only stop the drag when the finger that started it is gone. Other contacts (a second
+            // finger, a palm, the pen) must not be able to reset the drag to its starting point.
+            if (state.DraggingBubble && IsDragTouchDevice(state, e.TouchDevice))
+            {
+                EndBubbleDrag(state);
+            }
+        }
+
+        private static bool IsDragTouchDevice(ScrollBarState state, TouchDevice device)
+        {
+            return state.DragTouchDevice != null && ReferenceEquals(state.DragTouchDevice, device);
+        }
+
         private static void OnBubbleMouseDown(ScrollBarState state, MouseButtonEventArgs e)
         {
-            if (state.Bubble == null || !state.Standby)
+            if (state.Bubble == null || !state.Standby || state.DraggingBubble)
             {
                 return;
             }
 
             e.Handled = true;
-            BeginBubbleDrag(state, e.GetPosition(state.Bar).Y);
+            BeginBubbleDrag(state, e.GetPosition(state.Bar).Y, null, true);
             state.Bubble.CaptureMouse();
         }
 
         private static void OnBubbleMouseMove(ScrollBarState state, MouseEventArgs e)
         {
-            if (!state.DraggingBubble || state.Bubble == null)
+            if (!state.DraggingBubble || state.Bubble == null || !state.DragIsMouse)
             {
                 return;
             }
@@ -409,7 +498,7 @@ namespace EchoStem.Utils
 
         private static void OnBubbleMouseUp(ScrollBarState state, MouseButtonEventArgs e)
         {
-            if (!state.DraggingBubble || state.Bubble == null)
+            if (!state.DraggingBubble || state.Bubble == null || !state.DragIsMouse)
             {
                 return;
             }
@@ -418,9 +507,11 @@ namespace EchoStem.Utils
             EndBubbleDrag(state);
         }
 
-        private static void BeginBubbleDrag(ScrollBarState state, double positionY)
+        private static void BeginBubbleDrag(ScrollBarState state, double positionY, TouchDevice touchDevice, bool isMouse)
         {
             state.DraggingBubble = true;
+            state.DragIsMouse = isMouse;
+            state.DragTouchDevice = touchDevice;
             state.DragStartY = positionY;
             state.DragStartValue = state.Viewer == null
                 ? state.Bar.Value
@@ -441,17 +532,46 @@ namespace EchoStem.Utils
             double value = Clamp(state.DragStartValue + deltaValue, bar.Minimum, bar.Maximum);
 
             ScrollToValue(state, value);
-            NotifyScrolled(state, value);
+
+            // While dragging, the drag handler is the only writer of the bubble position. ScrollChanged/
+            // ValueChanged events can still carry the previous offset for a moment; if they updated the
+            // bubble too, it would visibly jump back and forth (seen on some touch screens).
+            UpdateBubblePosition(state, value);
+            ScheduleLetterUpdate(state);
         }
 
         private static void EndBubbleDrag(ScrollBarState state)
         {
             state.DraggingBubble = false;
+            state.DragIsMouse = false;
+            state.DragTouchDevice = null;
 
             if (state.Bubble != null)
             {
                 state.Bubble.ReleaseMouseCapture();
             }
+        }
+
+        private static void SuspendPanning(ScrollBarState state)
+        {
+            if (state.Viewer == null || state.SavedPanningMode.HasValue)
+            {
+                return;
+            }
+
+            state.SavedPanningMode = state.Viewer.PanningMode;
+            state.Viewer.PanningMode = PanningMode.None;
+        }
+
+        private static void RestorePanning(ScrollBarState state)
+        {
+            if (state.Viewer == null || !state.SavedPanningMode.HasValue)
+            {
+                return;
+            }
+
+            state.Viewer.PanningMode = state.SavedPanningMode.Value;
+            state.SavedPanningMode = null;
         }
 
         private static void JumpToPosition(ScrollBarState state, double positionY)
@@ -528,6 +648,13 @@ namespace EchoStem.Utils
                 return;
             }
 
+            if (state.DraggingBubble)
+            {
+                // The bubble drag handler owns the position while dragging (see ContinueBubbleDrag).
+                ScheduleLetterUpdate(state);
+                return;
+            }
+
             // The position is calculated from the scroll value: it does not depend on layout, so the
             // bubble keeps up with the thumb while it is being dragged.
             UpdateBubblePosition(state, valueOverride);
@@ -554,7 +681,13 @@ namespace EchoStem.Utils
             double centerY = range.Top + fraction * range.Height;
             double y = Clamp(centerY - BubbleDiameter / 2.0, 0, Math.Max(0, state.Bar.ActualHeight - BubbleDiameter));
 
-            state.Adorner.SetBubbleOffset(-(BubbleDiameter + BubbleGap), y);
+            var translate = state.Bubble.RenderTransform as TranslateTransform;
+
+            if (translate != null)
+            {
+                translate.X = -(BubbleDiameter + BubbleGap);
+                translate.Y = y;
+            }
         }
 
         private static void ScheduleLetterUpdate(ScrollBarState state)
@@ -756,6 +889,13 @@ namespace EchoStem.Utils
                 return;
             }
 
+            // Do not collapse while the bubble is being dragged: a second contact (palm, another
+            // finger) outside the bar would otherwise collapse the standby state mid drag.
+            if (state.DraggingBubble)
+            {
+                return;
+            }
+
             Collapse(state);
         }
 
@@ -885,6 +1025,9 @@ namespace EchoStem.Utils
             public bool Standby { get; set; }
             public bool UpdatePending { get; set; }
             public bool DraggingBubble { get; set; }
+            public bool DragIsMouse { get; set; }
+            public TouchDevice DragTouchDevice { get; set; }
+            public PanningMode? SavedPanningMode { get; set; }
             public double DragStartY { get; set; }
             public double DragStartValue { get; set; }
         }
@@ -893,8 +1036,6 @@ namespace EchoStem.Utils
         private sealed class BubbleAdorner : Adorner
         {
             private readonly Border bubble;
-            private double bubbleX;
-            private double bubbleY;
 
             public BubbleAdorner(UIElement adornedElement, Border bubble)
                 : base(adornedElement)
@@ -915,13 +1056,6 @@ namespace EchoStem.Utils
                 return this.bubble;
             }
 
-            public void SetBubbleOffset(double x, double y)
-            {
-                this.bubbleX = x;
-                this.bubbleY = y;
-                this.InvalidateArrange();
-            }
-
             protected override Size MeasureOverride(Size constraint)
             {
                 this.bubble.Measure(new Size(BubbleDiameter, BubbleDiameter));
@@ -930,7 +1064,7 @@ namespace EchoStem.Utils
 
             protected override Size ArrangeOverride(Size finalSize)
             {
-                this.bubble.Arrange(new Rect(this.bubbleX, this.bubbleY, BubbleDiameter, BubbleDiameter));
+                this.bubble.Arrange(new Rect(0, 0, BubbleDiameter, BubbleDiameter));
                 return finalSize;
             }
         }
