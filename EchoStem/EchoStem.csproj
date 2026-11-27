@@ -248,6 +248,7 @@
     <Compile Include="Controls\SpectrumAnalyzer.cs" />
     <Compile Include="Utils\BindingProxy.cs" />
     <Compile Include="Utils\TouchOptimization.cs" />
+    <Compile Include="Utils\TouchScrollBarBehavior.cs" />
     <Compile Include="Utils\WindowMaterialHelper.cs" />
     <Compile Include="Utils\OpenFileUtils.cs" />
     <Compile Include="Utils\ResponsiveLayout.cs" />

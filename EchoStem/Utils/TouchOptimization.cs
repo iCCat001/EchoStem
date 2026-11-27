@@ -1,4 +1,4 @@
-﻿using Digimezzo.Foundation.Core.Settings;
+using Digimezzo.Foundation.Core.Settings;
 using System;
 using System.Runtime.CompilerServices;
 using System.Windows;
@@ -81,6 +81,12 @@ namespace EchoStem.Utils
             resources["Touch_DataGridRowSelectedBrush"] = on
                 ? (Brush)Brushes.Transparent
                 : (Application.Current.TryFindResource("Brush_ItemSelected") as Brush);
+
+            // Collapse the touch scroll bar standby state when the feature is turned off.
+            if (!on)
+            {
+                TouchScrollBarBehavior.DeactivateAll();
+            }
         }
 
         /// <summary>
