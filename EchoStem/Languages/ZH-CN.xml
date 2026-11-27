@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Language Code="ZH-CN" Name="Chinese (Simplified)">
   <Text Key="ISO639-1">ZH</Text>
   <Text Key="Ok">确认</Text>
@@ -429,6 +429,8 @@
   <Text Key="Update_Available">发现新版本</Text>
   <Text Key="Current_Version_Is_Latest">当前已是最新版本</Text>
   <Text Key="Update_Now">更新</Text>
+  <Text Key="Update_Install_Quick">快速安装</Text>
+  <Text Key="Update_Install_Full">下载完整更新包进行更新</Text>
   <Text Key="Not_Now">暂不更新</Text>
   <Text Key="Update_Release_Notes">更新内容</Text>
   <Text Key="Downloading_Update">正在下载更新...</Text>

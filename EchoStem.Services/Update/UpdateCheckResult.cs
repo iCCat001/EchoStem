@@ -26,6 +26,8 @@ namespace EchoStem.Services.Update
 
         public GitHubReleaseAsset PortableAsset { get; set; }
 
+        public GitHubReleaseAsset InstallerAsset { get; set; }
+
         public string ErrorMessage { get; set; }
     }
 }

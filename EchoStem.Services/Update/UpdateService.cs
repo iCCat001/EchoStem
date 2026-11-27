@@ -6,7 +6,6 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,8 +17,16 @@ namespace EchoStem.Services.Update
         // The repository which publishes the releases and the portable packages.
         private const string RepositoryOwner = "iCCat001";
         private const string RepositoryName = "EchoStem";
-        private const string PortableAssetPrefix = "EchoStem-Portable-";
         private const string PortableAssetExtension = ".zip";
+
+        // The assets of the current releases are named EchoStem-Portable-*.zip and
+        // EchoStem-Setup-*.exe. Releases from before the rename still carry the old Dopamine names,
+        // so those are accepted as a fallback while such a release is the latest one.
+        private static readonly string[] PortableAssetPrefixes = { "EchoStem-Portable-", "Dopamine-Portable-" };
+        private static readonly string[] InstallerAssetPrefixes = { "EchoStem-Setup-", "Dopamine-Setup-" };
+        private const string InstallerAssetExtension = ".exe";
+        private const string PortableFolderName = "EchoStem";
+        private const string LegacyPortableFolderName = "Dopamine";
 
         private const string InstalledVersionSetting = "InstalledVersion";
 
@@ -50,14 +57,15 @@ namespace EchoStem.Services.Update
 
                 LogClient.Info("Update check: online version = {0} (tag {1})", result.OnlineVersion, release.TagName);
 
-                result.PortableAsset = release.Assets?
-                    .FirstOrDefault(a => a.Name != null &&
-                                         a.Name.StartsWith(PortableAssetPrefix, StringComparison.OrdinalIgnoreCase) &&
-                                         a.Name.EndsWith(PortableAssetExtension, StringComparison.OrdinalIgnoreCase));
+                result.PortableAsset = FindPortableAsset(release);
+                result.InstallerAsset = FindInstallerAsset(release);
 
-                if (result.PortableAsset == null)
+                LogClient.Info("Update check: portable asset = {0}, installer asset = {1}",
+                    result.PortableAsset?.Name ?? "(none)", result.InstallerAsset?.Name ?? "(none)");
+
+                if (result.PortableAsset == null && result.InstallerAsset == null)
                 {
-                    return this.CreateError(result, "The release does not contain a portable package.");
+                    return this.CreateError(result, "The release does not contain an update package.");
                 }
 
                 result.Status = result.OnlineVersion.CompareTo(result.InstalledVersion) > 0
@@ -94,43 +102,12 @@ namespace EchoStem.Services.Update
 
                 string packagePath = Path.Combine(updateFolder, portableAsset.Name);
 
-                using (var client = new HttpClient())
-                using (var response = await client.GetAsync(portableAsset.DownloadUrl, HttpCompletionOption.ResponseHeadersRead))
-                {
-                    response.EnsureSuccessStatusCode();
-
-                    long totalSize = response.Content.Headers.ContentLength ?? portableAsset.Size;
-                    long receivedSize = 0;
-
-                    using (var input = await response.Content.ReadAsStreamAsync())
-                    using (var output = System.IO.File.Create(packagePath))
-                    {
-                        var buffer = new byte[81920];
-                        int read;
-
-                        while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
-                        {
-                            await output.WriteAsync(buffer, 0, read);
-                            receivedSize += read;
-
-                            if (totalSize > 0)
-                            {
-                                progress?.Report((double)receivedSize / totalSize);
-                            }
-                        }
-                    }
-                }
+                await DownloadAssetAsync(portableAsset, packagePath, progress);
 
                 string extractedFolder = Path.Combine(updateFolder, "Extracted");
                 ZipFile.ExtractToDirectory(packagePath, extractedFolder);
 
-                // The portable package contains the application in an "EchoStem" folder.
-                string applicationFolder = Path.Combine(extractedFolder, "EchoStem");
-
-                if (!Directory.Exists(applicationFolder))
-                {
-                    applicationFolder = extractedFolder;
-                }
+                string applicationFolder = GetApplicationFolderFromExtractedPackage(extractedFolder);
 
                 return applicationFolder;
             }
@@ -206,6 +183,148 @@ namespace EchoStem.Services.Update
             }
         }
 
+        /// <summary>
+        /// Downloads the full installer of the release and returns its path, or null when it failed.
+        /// </summary>
+        public async Task<string> DownloadInstallerAsync(GitHubReleaseAsset installerAsset, IProgress<double> progress)
+        {
+            if (installerAsset == null || string.IsNullOrEmpty(installerAsset.DownloadUrl))
+            {
+                return null;
+            }
+
+            string installerFolder = Path.Combine(Path.GetTempPath(), "EchoStemUpdateInstaller");
+
+            try
+            {
+                Directory.CreateDirectory(installerFolder);
+
+                string installerPath = Path.Combine(installerFolder, installerAsset.Name);
+
+                if (System.IO.File.Exists(installerPath))
+                {
+                    System.IO.File.Delete(installerPath);
+                }
+
+                await DownloadAssetAsync(installerAsset, installerPath, progress);
+
+                return installerPath;
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("Update: could not download the installer. Exception: {0}", ex.Message);
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Starts the downloaded installer. The caller shuts the application down so the installer
+        /// can replace the installed files.
+        /// </summary>
+        public bool StartInstaller(string installerPath)
+        {
+            try
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = installerPath,
+                    UseShellExecute = true
+                });
+
+                LogClient.Info("Update: the installer was started.");
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("Update: could not start the installer. Exception: {0}", ex.Message);
+                return false;
+            }
+        }
+
+        internal static GitHubReleaseAsset FindPortableAsset(GitHubRelease release)
+        {
+            return FindAsset(release, PortableAssetPrefixes, PortableAssetExtension);
+        }
+
+        internal static GitHubReleaseAsset FindInstallerAsset(GitHubRelease release)
+        {
+            return FindAsset(release, InstallerAssetPrefixes, InstallerAssetExtension);
+        }
+
+        /// <summary>
+        /// The portable zip contains the application in an "EchoStem" folder (older packages used
+        /// "Dopamine"). Falls back to the extracted folder itself.
+        /// </summary>
+        internal static string GetApplicationFolderFromExtractedPackage(string extractedFolder)
+        {
+            string applicationFolder = Path.Combine(extractedFolder, PortableFolderName);
+
+            if (!Directory.Exists(applicationFolder))
+            {
+                applicationFolder = Path.Combine(extractedFolder, LegacyPortableFolderName);
+            }
+
+            if (!Directory.Exists(applicationFolder))
+            {
+                applicationFolder = extractedFolder;
+            }
+
+            return applicationFolder;
+        }
+
+        private static GitHubReleaseAsset FindAsset(GitHubRelease release, string[] prefixes, string extension)
+        {
+            if (release?.Assets == null)
+            {
+                return null;
+            }
+
+            foreach (string prefix in prefixes)
+            {
+                foreach (GitHubReleaseAsset asset in release.Assets)
+                {
+                    if (asset.Name != null &&
+                        asset.Name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase) &&
+                        asset.Name.EndsWith(extension, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return asset;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private static async Task DownloadAssetAsync(GitHubReleaseAsset asset, string destinationPath, IProgress<double> progress)
+        {
+            using (var client = new HttpClient())
+            using (var response = await client.GetAsync(asset.DownloadUrl, HttpCompletionOption.ResponseHeadersRead))
+            {
+                response.EnsureSuccessStatusCode();
+
+                long totalSize = response.Content.Headers.ContentLength ?? asset.Size;
+                long receivedSize = 0;
+
+                using (var input = await response.Content.ReadAsStreamAsync())
+                using (var output = System.IO.File.Create(destinationPath))
+                {
+                    var buffer = new byte[81920];
+                    int read;
+
+                    while ((read = await input.ReadAsync(buffer, 0, buffer.Length)) > 0)
+                    {
+                        await output.WriteAsync(buffer, 0, read);
+                        receivedSize += read;
+
+                        if (totalSize > 0)
+                        {
+                            progress?.Report((double)receivedSize / totalSize);
+                        }
+                    }
+                }
+            }
+        }
         private static bool IsFolderWritable(string folder)
         {
             try

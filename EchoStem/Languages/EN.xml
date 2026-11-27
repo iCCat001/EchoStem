@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Language Code="EN" Name="English">
   <Text Key="ISO639-1">EN</Text>
   <Text Key="Ok">Ok</Text>
@@ -429,6 +429,8 @@
   <Text Key="Update_Available">Update available</Text>
   <Text Key="Current_Version_Is_Latest">You are using the latest version</Text>
   <Text Key="Update_Now">Update</Text>
+  <Text Key="Update_Install_Quick">Quick install</Text>
+  <Text Key="Update_Install_Full">Download the full installer</Text>
   <Text Key="Not_Now">Not now</Text>
   <Text Key="Update_Release_Notes">What's new</Text>
   <Text Key="Downloading_Update">Downloading the update...</Text>
