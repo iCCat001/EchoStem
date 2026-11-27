@@ -6,6 +6,6 @@
 // Revision: 4000 = Release
 [assembly: AssemblyCompany("C-Cat")]
 [assembly: AssemblyCopyright("Copyright © Digimezzo 2014 - 2024; fork modifications © C-Cat 2026")]
-[assembly: AssemblyVersion("2.0.12.1001")]
-[assembly: AssemblyFileVersion("2.0.12.1001")]
-[assembly: AssemblyInformationalVersion("2.0.12.1001")]
+[assembly: AssemblyVersion("2.0.12.2001")]
+[assembly: AssemblyFileVersion("2.0.12.2001")]
+[assembly: AssemblyInformationalVersion("2.0.12.2001")]
