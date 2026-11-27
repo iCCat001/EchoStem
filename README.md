@@ -25,6 +25,7 @@ EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-
 - **更换播放内核**：从 CSCore + FFmpeg 迁移到 [NAudio](https://github.com/naudio/NAudio)。
 - **强化的歌词体验**：支持来自网易云的双语（带翻译）歌词、本地歌词，以及控制栏歌词。
 - **稳定性与性能**：彻底解决内存泄漏问题，带来性能提升，并修复了多项稳定性问题。
+- **更名与品牌更新**：项目从 Dopamine 更名为 EchoStem，采用全新的矢量 Logo、Poppins 字体与应用图标；首次启动会询问是否迁移旧版数据（音乐库、播放列表、设置与封面缓存）。
 
 > 以上所有改动均基于个人使用习惯。
 
@@ -32,11 +33,11 @@ EchoStem 是 [digimezzo/Dopamine-Windows](https://github.com/digimezzo/Dopamine-
 
 本项目为传统的非 SDK 格式 `.csproj`（`packages.config`），请使用 **Visual Studio / MSBuild** 构建，而非 `dotnet build`。
 
-所需的 WinRT 引用（`Windows.winmd`、`System.Runtime.WindowsRuntime.dll`）已随仓库内置在 `Dopamine/Libraries/`，**无需额外安装 Windows SDK**。使用 MSBuild 构建：
+所需的 WinRT 引用（`Windows.winmd`、`System.Runtime.WindowsRuntime.dll`）已随仓库内置在 `EchoStem/Libraries/`，**无需额外安装 Windows SDK**。使用 MSBuild 构建：
 
 ```powershell
-nuget restore Dopamine.sln
-msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
+nuget restore EchoStem.sln
+msbuild EchoStem/EchoStem.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 ```
 
 ## 自动发布
@@ -46,12 +47,12 @@ msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 - 推送形如 `v2.0.10` / `v2.0.10-beta1` 的 **tag** 时自动触发（也可手动 `workflow_dispatch`）。
 - 在 CI 中自动还原 NuGet 包、以 Release 配置编译主程序，并用 **Inno Setup** 生成安装程序。
 - 产出并附带以下文件，自动创建标记为 **Latest** 的 GitHub Release：
-  - **安装版**：`Dopamine-Setup-<版本>.exe`（单文件安装程序，含开始菜单 / 桌面快捷方式与卸载）
-  - **便携版**：`Dopamine-Portable-<版本>.zip`
+  - **安装版**：`EchoStem-Setup-<版本>.exe`（单文件安装程序，含开始菜单 / 桌面快捷方式与卸载）
+  - **便携版**：`EchoStem-Portable-<版本>.zip`
 
 ## 安装
 
-运行 `Dopamine-Setup-<版本>.exe` 即可（需要管理员权限，用于写入 Program Files）；安装时会自动结束正在运行的 Dopamine，完成后可勾选立即启动。便携版解压即用。
+运行 `EchoStem-Setup-<版本>.exe` 即可（需要管理员权限，用于写入 Program Files）；安装时会自动结束正在运行的 EchoStem；如果检测到旧版 Dopamine，会先询问是否卸载（你的音乐库与设置会保留）。完成后可勾选立即启动。便携版解压即用。
 
 ## 免责声明
 
@@ -80,6 +81,7 @@ It is based on Dopamine and licensed under the **GNU GPL v3**. All original copy
 - **New audio engine**: migrated from CSCore + FFmpeg to [NAudio](https://github.com/naudio/NAudio).
 - **Enhanced lyrics experience**: bilingual NetEase lyrics (with translations), local lyrics, and control-bar lyrics.
 - **Stability & performance**: memory leaks fully resolved, performance improved, and many stability issues fixed.
+- **New name and branding**: renamed from Dopamine to EchoStem, with a new vector logo, the Poppins font and new application icons. The first start offers to migrate the data of the previous installation (library, playlists, settings and artwork cache).
 
 > All of these changes are based on my personal usage habits.
 
@@ -87,19 +89,19 @@ It is based on Dopamine and licensed under the **GNU GPL v3**. All original copy
 
 Legacy non-SDK `.csproj` (`packages.config`) — build with **Visual Studio / MSBuild**, not `dotnet build`.
 
-The required WinRT references (`Windows.winmd`, `System.Runtime.WindowsRuntime.dll`) are **vendored under `Dopamine/Libraries/`**, so no Windows SDK installation is required.
+The required WinRT references (`Windows.winmd`, `System.Runtime.WindowsRuntime.dll`) are **vendored under `EchoStem/Libraries/`**, so no Windows SDK installation is required.
 
 ```powershell
-nuget restore Dopamine.sln
-msbuild Dopamine/Dopamine.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
+nuget restore EchoStem.sln
+msbuild EchoStem/EchoStem.csproj /p:Configuration=Release /p:Platform=AnyCPU /m
 ```
 
 ### Automated release
 
 The [`.github/workflows/build-release.yml`](.github/workflows/build-release.yml) workflow compiles the app in Release, builds an installer with **Inno Setup**, and creates a **Latest** GitHub Release with:
 
-- **Installer**: `Dopamine-Setup-<version>.exe` (single-file setup with Start Menu / desktop shortcuts and uninstaller)
-- **Portable**: `Dopamine-Portable-<version>.zip`
+- **Installer**: `EchoStem-Setup-<version>.exe` (single-file setup with Start Menu / desktop shortcuts and uninstaller)
+- **Portable**: `EchoStem-Portable-<version>.zip`
 
 ### Disclaimer
 

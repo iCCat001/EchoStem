@@ -1,7 +1,9 @@
 ## I'm submitting a...
-<!-- 
-Check one of the following options with "x". DO NOT log support requests here. 
-For support requests, use this contact form: https://www.digimezzo.com/contact/ 
+
+<!--
+Check one of the following options with "x". This repository is a personal fork.
+For questions and support, use the issue tracker:
+https://github.com/iCCat001/EchoStem/issues
 -->
 <pre><code>
 [ ] Regression <!-- A behavior that used to work and stopped working in a new release -->
@@ -9,22 +11,21 @@ For support requests, use this contact form: https://www.digimezzo.com/contact/
 [ ] Feature request
 </code></pre>
 
-<!-- 
-For feature requests: delete the rest of the form which comes BELOW this text and describe your requirements. 
+<!--
+For feature requests: delete the rest of the form which comes BELOW this text and describe your requirements.
 For bug reports: FILL IN the form below. Bug reports missing important information may be closed without investigation.
 -->
 
 ## I'm using these versions
-<!-- 
-Provide the Windows and Dopamine version that you are using below.
+<!--
+Provide the Windows and EchoStem version that you are using below.
 -->
 * Windows version:
-* Dopamine version:
+* EchoStem version:
 
 ## Reproduction steps
 <!--
-Add simple steps to reproduce this bug. Please add as many details as possible. 
-That helps us reproduce the issue on our computers.
+Add simple steps to reproduce this bug. Please add as many details as possible.
 -->
 * Step 1
 * Step 2
@@ -32,15 +33,16 @@ That helps us reproduce the issue on our computers.
 
 ## Observed behavior
 <!--
-Describe how Dopamine acts.
+Describe how EchoStem acts.
 -->
 
 ## Desired behavior
 <!--
-Describe how Dopamine should act.
+Describe how EchoStem should act.
 -->
 
 ## Log file
 <!--
-Add the relevant piece of the log file. The Dopamine log file can be found in this directory: %appdata%\Dopamine\Log
+Add the relevant piece of the log file. The EchoStem log file can be found in this directory:
+%appdata%\EchoStem\Log
 -->

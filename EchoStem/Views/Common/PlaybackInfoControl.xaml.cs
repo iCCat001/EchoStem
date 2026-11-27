@@ -1,0 +1,168 @@
+﻿using EchoStem.Core.Base;
+using System;
+using System.Windows;
+using System.Windows.Controls;
+
+namespace EchoStem.Views.Common
+{
+    public partial class PlaybackInfoControl : UserControl
+    {
+        public static readonly DependencyProperty LoveFontSizeProperty =
+            DependencyProperty.Register(nameof(LoveFontSize), typeof(double), typeof(PlaybackInfoControl), new PropertyMetadata(null));
+        public static readonly DependencyProperty RatingFontSizeProperty =
+           DependencyProperty.Register(nameof(RatingFontSize), typeof(double), typeof(PlaybackInfoControl), new PropertyMetadata(null));
+        public static readonly DependencyProperty TextAlignmentProperty = 
+            DependencyProperty.Register(nameof(TextAlignment), typeof(TextAlignment), typeof(PlaybackInfoControl), new PropertyMetadata(TextAlignment.Left));
+        public static readonly DependencyProperty TitleFontSizeProperty = 
+            DependencyProperty.Register(nameof(TitleFontSize), typeof(double), typeof(PlaybackInfoControl), new PropertyMetadata(Constants.GlobalFontSize));
+        public static readonly DependencyProperty TitleFontWeightProperty = 
+            DependencyProperty.Register(nameof(TitleFontWeight), typeof(FontWeight), typeof(PlaybackInfoControl), new PropertyMetadata(FontWeights.Normal));
+        public static readonly DependencyProperty ArtistFontSizeProperty = 
+            DependencyProperty.Register(nameof(ArtistFontSize), typeof(double), typeof(PlaybackInfoControl), new PropertyMetadata(Constants.GlobalFontSize));
+        public static readonly DependencyProperty ArtistFontWeightProperty = 
+            DependencyProperty.Register(nameof(ArtistFontWeight), typeof(FontWeight), typeof(PlaybackInfoControl), new PropertyMetadata(FontWeights.Normal));
+        public static readonly DependencyProperty AlbumFontSizeProperty = 
+            DependencyProperty.Register(nameof(AlbumFontSize), typeof(double), typeof(PlaybackInfoControl), new PropertyMetadata(Constants.GlobalFontSize));
+        public static readonly DependencyProperty AlbumFontWeightProperty = 
+            DependencyProperty.Register(nameof(AlbumFontWeight), typeof(FontWeight), typeof(PlaybackInfoControl), new PropertyMetadata(FontWeights.Normal));
+        public static readonly DependencyProperty TimeFontSizeProperty = 
+            DependencyProperty.Register(nameof(TimeFontSize), typeof(double), typeof(PlaybackInfoControl), new PropertyMetadata(Constants.GlobalFontSize));
+        public static readonly DependencyProperty ShowAlbumInfoProperty = 
+            DependencyProperty.Register(nameof(ShowAlbumInfo), typeof(bool), typeof(PlaybackInfoControl), new PropertyMetadata(false));
+        public static readonly DependencyProperty ShowQualityInfoProperty =
+            DependencyProperty.Register(nameof(ShowQualityInfo), typeof(bool), typeof(PlaybackInfoControl), new PropertyMetadata(false));
+        public static readonly DependencyProperty QualityFontSizeProperty =
+            DependencyProperty.Register(nameof(QualityFontSize), typeof(double), typeof(PlaybackInfoControl), new PropertyMetadata(Constants.GlobalFontSize));
+        public static readonly DependencyProperty ShowLoveAndRatingProperty =
+            DependencyProperty.Register(nameof(ShowLoveAndRating), typeof(bool), typeof(PlaybackInfoControl), new PropertyMetadata(false));
+        public static readonly DependencyProperty IsBottomAlignedProperty = 
+            DependencyProperty.Register(nameof(IsBottomAligned), typeof(bool), typeof(PlaybackInfoControl), new PropertyMetadata(false));
+        public static readonly DependencyProperty LoveAndRatingAlignmentProperty =
+            DependencyProperty.Register(nameof(LoveAndRatingAlignment), typeof(HorizontalAlignment), typeof(PlaybackInfoControl), new PropertyMetadata(HorizontalAlignment.Left));
+    
+        public new object DataContext
+        {
+            get { return base.DataContext; }
+            set { base.DataContext = value; }
+        }
+
+        public double LoveFontSize
+        {
+            get { return Convert.ToDouble(GetValue(LoveFontSizeProperty)); }
+            set { SetValue(LoveFontSizeProperty, value); }
+        }
+
+        public double RatingFontSize
+        {
+            get { return Convert.ToDouble(GetValue(RatingFontSizeProperty)); }
+            set { SetValue(RatingFontSizeProperty, value); }
+        }
+
+        public TextAlignment TextAlignment
+        {
+            get { return (TextAlignment)GetValue(TextAlignmentProperty); }
+
+            set { SetValue(TextAlignmentProperty, value); }
+        }
+
+        public double TitleFontSize
+        {
+            get { return Convert.ToDouble(GetValue(TitleFontSizeProperty)); }
+
+            set { SetValue(TitleFontSizeProperty, value); }
+        }
+
+        public FontWeight TitleFontWeight
+        {
+            get { return (FontWeight)GetValue(TitleFontWeightProperty); }
+
+            set { SetValue(TitleFontWeightProperty, value); }
+        }
+
+        public double ArtistFontSize
+        {
+            get { return Convert.ToDouble(GetValue(ArtistFontSizeProperty)); }
+
+            set { SetValue(ArtistFontSizeProperty, value); }
+        }
+
+        public FontWeight ArtistFontWeight
+        {
+            get { return (FontWeight)GetValue(ArtistFontWeightProperty); }
+
+            set { SetValue(ArtistFontWeightProperty, value); }
+        }
+
+        public double AlbumFontSize
+        {
+            get { return Convert.ToDouble(GetValue(AlbumFontSizeProperty)); }
+
+            set { SetValue(AlbumFontSizeProperty, value); }
+        }
+
+        public FontWeight AlbumFontWeight
+        {
+            get { return (FontWeight)GetValue(AlbumFontWeightProperty); }
+
+            set { SetValue(AlbumFontWeightProperty, value); }
+        }
+
+        public double TimeFontSize
+        {
+            get { return Convert.ToDouble(GetValue(TimeFontSizeProperty)); }
+
+            set { SetValue(TimeFontSizeProperty, value); }
+        }
+
+        public bool ShowAlbumInfo
+        {
+            get { return Convert.ToBoolean(GetValue(ShowAlbumInfoProperty)); }
+
+            set { SetValue(ShowAlbumInfoProperty, value); }
+        }
+
+        public bool ShowQualityInfo
+        {
+            get { return Convert.ToBoolean(GetValue(ShowQualityInfoProperty)); }
+
+            set { SetValue(ShowQualityInfoProperty, value); }
+        }
+
+        public double QualityFontSize
+        {
+            get { return Convert.ToDouble(GetValue(QualityFontSizeProperty)); }
+
+            set { SetValue(QualityFontSizeProperty, value); }
+        }
+
+        public bool ShowLoveAndRating
+        {
+            get { return Convert.ToBoolean(GetValue(ShowLoveAndRatingProperty)); }
+
+            set { SetValue(ShowLoveAndRatingProperty, value); }
+        }
+
+        public bool IsBottomAligned
+        {
+            get { return Convert.ToBoolean(GetValue(IsBottomAlignedProperty)); }
+
+            set { SetValue(IsBottomAlignedProperty, value); }
+        }
+
+        /// <summary>
+        /// Horizontal alignment of the Love/Rating row. Centered when the text is centered below the
+        /// cover art; left aligned in the side-by-side layout.
+        /// </summary>
+        public HorizontalAlignment LoveAndRatingAlignment
+        {
+            get { return (HorizontalAlignment)GetValue(LoveAndRatingAlignmentProperty); }
+
+            set { SetValue(LoveAndRatingAlignmentProperty, value); }
+        }
+     
+        public PlaybackInfoControl()
+        {
+            InitializeComponent();
+        }
+    }
+}

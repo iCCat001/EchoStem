@@ -15,8 +15,8 @@ jobs:
     runs-on: windows-latest
 
     env:
-      SOLUTION: Dopamine.sln
-      PROJECT: Dopamine\Dopamine.csproj
+      SOLUTION: EchoStem.sln
+      PROJECT: EchoStem\EchoStem.csproj
       BUILD_CONFIGURATION: Release
       BUILD_PLATFORM: AnyCPU
 
@@ -47,7 +47,7 @@ jobs:
 
       # Build only the application project. The reference assemblies the app needs
       # (Windows.winmd and System.Runtime.WindowsRuntime.dll) are vendored under
-      # Dopamine\Libraries, so no Windows SDK installation is required on the runner.
+      # EchoStem\Libraries, so no Windows SDK installation is required on the runner.
       - name: Build
         shell: pwsh
         run: |
@@ -81,17 +81,16 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
 
-          $src = Join-Path $env:GITHUB_WORKSPACE 'Dopamine\bin\Release'
+          $src = Join-Path $env:GITHUB_WORKSPACE 'EchoStem\bin\Release'
           if (-not (Test-Path -LiteralPath $src)) { throw "Build output not found at $src" }
 
-          $stage = Join-Path $env:GITHUB_WORKSPACE 'package\Dopamine'
+          $stage = Join-Path $env:GITHUB_WORKSPACE 'package\EchoStem'
           New-Item -ItemType Directory -Force -Path $stage | Out-Null
 
+          # Files that are only needed for reference builds, not at runtime (same list as the installer).
           $excludeNames = @(
-            'Dopamine.Packager.exe',
-            'Dopamine.Packager.exe.config',
-            'Dopamine.Packager.pdb',
-            'PackagerConfiguration.xml'
+            'Windows.winmd',
+            'System.Runtime.WindowsRuntime.dll'
           )
 
           $srcFull = (Resolve-Path -LiteralPath $src).Path
@@ -105,11 +104,11 @@ jobs:
             Copy-Item -LiteralPath $_.FullName -Destination $dest -Force
           }
 
-          $zipName = "Dopamine-Portable-${{ steps.version.outputs.value }}.zip"
+          $zipName = "EchoStem-Portable-${{ steps.version.outputs.value }}.zip"
           $zipPath = Join-Path $env:GITHUB_WORKSPACE $zipName
 
           if (Test-Path -LiteralPath $zipPath) { Remove-Item -LiteralPath $zipPath -Force }
-          Compress-Archive -Path (Join-Path $env:GITHUB_WORKSPACE 'package\Dopamine') -DestinationPath $zipPath -Force
+          Compress-Archive -Path (Join-Path $env:GITHUB_WORKSPACE 'package\EchoStem') -DestinationPath $zipPath -Force
 
           Write-Host "Created $zipPath"
           "path=$zipPath" >> $env:GITHUB_OUTPUT
@@ -130,22 +129,22 @@ jobs:
           if (-not $iscc) { throw 'ISCC.exe not found after installing Inno Setup.' }
 
           $version = '${{ steps.version.outputs.value }}'
-          $src = Join-Path $env:GITHUB_WORKSPACE 'Dopamine\bin\Release'
+          $src = Join-Path $env:GITHUB_WORKSPACE 'EchoStem\bin\Release'
 
-          & $iscc "/DMyAppVersion=$version" "/DSourceDir=$src" (Join-Path $env:GITHUB_WORKSPACE 'installer\Dopamine.iss')
+          & $iscc "/DMyAppVersion=$version" "/DSourceDir=$src" (Join-Path $env:GITHUB_WORKSPACE 'installer\EchoStem.iss')
           if ($LASTEXITCODE -ne 0) { throw "Inno Setup compilation failed (exit $LASTEXITCODE)." }
 
-          $setup = Join-Path $env:GITHUB_WORKSPACE "installer\Output\Dopamine-Setup-$version.exe"
+          $setup = Join-Path $env:GITHUB_WORKSPACE "installer\Output\EchoStem-Setup-$version.exe"
           if (-not (Test-Path -LiteralPath $setup)) { throw "Installer not found: $setup" }
 
           Write-Host "Created $setup"
           "path=$setup" >> $env:GITHUB_OUTPUT
-          "name=Dopamine-Setup-$version.exe" >> $env:GITHUB_OUTPUT
+          "name=EchoStem-Setup-$version.exe" >> $env:GITHUB_OUTPUT
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Dopamine-${{ steps.version.outputs.value }}
+          name: EchoStem-${{ steps.version.outputs.value }}
           path: |
             ${{ steps.package.outputs.path }}
             ${{ steps.installer.outputs.path }}

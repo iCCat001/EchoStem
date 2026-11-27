@@ -1,0 +1,57 @@
+﻿using EchoStem.Services.Entities;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using LyricsModel = EchoStem.Core.Api.Lyrics.Lyrics;
+
+namespace EchoStem.Services.Lyrics
+{
+    public interface ILyricsService
+    {
+        /// <summary>
+        /// Raised when the lyrics of a track were refreshed (e.g. re-fetched from the online
+        /// sources), so other places which show lyrics can update themselves. The argument is
+        /// the path of the track.
+        /// </summary>
+        event EventHandler<string> LyricsChanged;
+
+        IList<LyricsLineViewModel> ParseLyrics(LyricsModel lyrics);
+
+        /// <summary>
+        /// Gets the lyrics for the given track. When they were already fetched (for example by
+        /// the background prefetch that runs when a track starts playing), they are returned
+        /// straight from the cache. Set <paramref name="forceRefresh"/> to bypass the cache.
+        /// </summary>
+        Task<LyricsModel> GetLyricsAsync(TrackViewModel track, bool forceRefresh = false);
+
+        /// <summary>
+        /// Returns the cached lyrics for the given path, if any, without doing any I/O.
+        /// </summary>
+        bool TryGetLyrics(string path, out LyricsModel lyrics);
+
+        /// <summary>
+        /// Forces a fetch from the online lyrics sources, ignoring any local lyrics. When lyrics
+        /// are found they are stored as the local .lrc file (overwriting it when it already
+        /// exists) and the cache is updated.
+        /// </summary>
+        Task<LyricsModel> GetLyricsFromOnlineAsync(TrackViewModel track);
+
+        /// <summary>
+        /// Fetches the lyrics from the online sources without any side effect (nothing is written to
+        /// disk and the cache is left untouched) and returns them as plain text, with LRC tags
+        /// (timestamps, ...) removed. Used to fill the lyrics tag in the song information editor.
+        /// </summary>
+        Task<string> GetPlainOnlineLyricsAsync(string artist, string title);
+
+        /// <summary>
+        /// Starts fetching lyrics in the background (audio tags, local .lrc file, then online)
+        /// and caches the result, so they are available immediately when needed.
+        /// </summary>
+        void PrefetchLyrics(TrackViewModel track);
+
+        /// <summary>
+        /// Removes the cached lyrics for the given path.
+        /// </summary>
+        void InvalidateLyrics(string path);
+    }
+}

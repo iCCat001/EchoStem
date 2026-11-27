@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="EchoStem.Controls.FullLogoSmall"
+             x:Name="This"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:controls="clr-namespace:EchoStem.Controls"
+             mc:Ignorable="d">
+
+    <StackPanel Orientation="Horizontal">
+        <controls:BrandMark Width="48" Height="48" Panel.ZIndex="0"
+                            Accent="{Binding Accent, ElementName=This}"/>
+        <Label Margin="15,0,0,0" Padding="0" Foreground="{Binding Foreground,ElementName=This}" 
+               FontFamily="/EchoStem;component/Resources/Fonts/Poppins-Light.ttf#Poppins Light" FontSize="36"
+               Content="{Binding ApplicationName,ElementName=This}" />
+    </StackPanel>
+</UserControl>

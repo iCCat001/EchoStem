@@ -1,0 +1,156 @@
+﻿using Digimezzo.Foundation.Core.Logging;
+using Digimezzo.Foundation.Core.Utils;
+using EchoStem.Core.Base;
+using EchoStem.Core.Utils;
+using EchoStem.Data.Metadata;
+using EchoStem.Data.Metadata;
+using EchoStem.Utils;
+using EchoStem.Services.Cache;
+using Prism.Commands;
+using Prism.Mvvm;
+using System;
+using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
+using System.Collections.Generic;
+using EchoStem.Services.InfoDownload;
+
+namespace EchoStem.ViewModels.Common.Base
+{
+    public class EditMetadataBase : BindableBase
+    {
+        private bool isBusy;
+        private MetadataArtworkValue artwork;
+        private string artworkSize;
+        private BitmapImage artworkThumbnail;
+        private ICacheService cacheService;
+        private IInfoDownloadService infoDownloadService;
+
+        public DelegateCommand DownloadArtworkCommand { get; set; }
+        public DelegateCommand ExportArtworkCommand { get; set; }
+
+        public string ArtworkSize
+        {
+            get { return this.artworkSize; }
+            set { SetProperty<string>(ref this.artworkSize, value); }
+        }
+
+        public bool HasArtwork
+        {
+            get { return Artwork?.Value != null; }
+        }
+
+        public bool IsBusy
+        {
+            get { return this.isBusy; }
+            set { SetProperty<bool>(ref this.isBusy, value); }
+        }
+
+        public BitmapImage ArtworkThumbnail
+        {
+            get { return this.artworkThumbnail; }
+            set { SetProperty<BitmapImage>(ref this.artworkThumbnail, value); }
+        }
+
+        public MetadataArtworkValue Artwork
+        {
+            get { return this.artwork; }
+            set { SetProperty<MetadataArtworkValue>(ref this.artwork, value); }
+        }
+
+        public EditMetadataBase(ICacheService cacheService, IInfoDownloadService infoDownloadService)
+        {
+            this.cacheService = cacheService;
+            this.infoDownloadService = infoDownloadService;
+
+            this.artwork = new MetadataArtworkValue();
+
+            this.ExportArtworkCommand = new DelegateCommand(async () => await this.ExportArtworkAsync(), () => this.CanExportArtwork());
+        }
+
+        private async Task ExportArtworkAsync()
+        {
+            if (this.HasArtwork)
+            {
+                await SaveFileUtils.SaveImageFileAsync("cover", this.Artwork.Value);
+            }
+        }
+
+        private bool CanExportArtwork()
+        {
+            return this.HasArtwork;
+        }
+
+        private void VisualizeArtwork(byte[] imageData)
+        {
+            this.ArtworkThumbnail = ImageUtils.ByteToBitmapImage(imageData, 0, 0, Convert.ToInt32(Constants.CoverLargeSize));
+
+            // Size of the artwork
+            if (imageData != null && this.ArtworkThumbnail != null)
+            {
+                // Use PixelWidth and PixelHeight instead of Width and Height:
+                // Width and Height take DPI into account. We don't want that here.
+                this.ArtworkSize = this.ArtworkThumbnail.PixelWidth + "x" + this.ArtworkThumbnail.PixelHeight;
+            }
+            else
+            {
+                this.ArtworkSize = string.Empty;
+            }
+
+            RaisePropertyChanged(nameof(this.HasArtwork));
+        }
+
+        protected virtual void ShowArtwork(byte[] imageData)
+        {
+            this.Artwork = new MetadataArtworkValue(imageData); // Create new artwork data, so IsValueChanged is not triggered.
+            this.VisualizeArtwork(imageData); // Visualize the artwork
+            this.ExportArtworkCommand.RaiseCanExecuteChanged();
+        }
+
+        protected virtual void UpdateArtwork(byte[] imageData)
+        {
+            this.Artwork.Value = imageData; // Update existing artwork data, so IsValueChanged is triggered.
+            this.VisualizeArtwork(imageData); // Visualize the artwork
+            this.ExportArtworkCommand.RaiseCanExecuteChanged();
+        }
+
+        // Downloads the artwork at the given URL (e.g. a NetEase cover) and shows it as the current
+        // artwork, marking it as changed so it gets written on save. The image is used exactly as
+        // served online: it must not be resized or re-encoded, so the full-size original is stored.
+        protected async Task UpdateArtworkFromUrlAsync(string urlString)
+        {
+            if (string.IsNullOrEmpty(urlString))
+            {
+                return;
+            }
+
+            string temporaryFile = await this.cacheService.DownloadFileToTemporaryCacheAsync(urlString);
+
+            if (!string.IsNullOrEmpty(temporaryFile))
+            {
+                this.UpdateArtwork(System.IO.File.ReadAllBytes(temporaryFile));
+            }
+        }
+
+        protected async Task DownloadArtworkAsync(string title, IList<string> artists, string alternateTitle = "", IList<string> alternateArtists = null)
+        {
+            this.IsBusy = true;
+
+            try
+            {
+                string artworkUriString = await this.infoDownloadService.GetAlbumImageAsync(title, artists, alternateTitle, alternateArtists);
+
+                if(!string.IsNullOrEmpty(artworkUriString))
+                {
+                    string temporaryFile = await this.cacheService.DownloadFileToTemporaryCacheAsync(artworkUriString);
+                    this.UpdateArtwork(ImageUtils.Image2ByteArray(temporaryFile, 0, 0));
+                }
+            }
+            catch (Exception ex)
+            {
+                LogClient.Error("An error occurred while downloading artwork. Exception: {0}", ex.Message);
+            }
+
+            this.IsBusy = false;
+        }
+    }
+}

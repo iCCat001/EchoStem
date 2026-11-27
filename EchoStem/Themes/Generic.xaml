@@ -1,0 +1,19 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/EchoStem;component/Themes/AccentTextBox.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/CombiLabel.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/CrossFadeContentControl.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/IconButton.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/IconMenuButton.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/IconTextButton.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/ListCheckBox.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/LoveButton.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/RatingButton.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/SearchBox.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/SplitViewRadioButton.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/SyncRing.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/Tile.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Themes/TotalsInformation.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>
