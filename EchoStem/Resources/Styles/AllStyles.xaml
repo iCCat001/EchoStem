@@ -1,0 +1,43 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/Animations.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/Buttons.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ColorSchemeButtons.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ContextMenu.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ContextMenuButton.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/DataGridTracks.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/FontStyles.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/Geometries.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/HotKey.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/LinkButton.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxAlbums.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxArtists.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxBlacklistTracks.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxFolders.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxFolderTracks.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxGenres.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxNowPlayingTracks.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxPlaylists.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxPlaylistTracks.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxSemanticZoom.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxSimilarArtists.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxSmartPlaylistRules.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxSubfolderBreadCrumbs.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxSubfolders.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListBoxTracks.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ListHeaderComboBox.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/MetroCheckBox.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/MetroComboBox.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/MetroListBox.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/MetroTextBox.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/MenuPivot.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/SpectrumAnalyzer.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/Texts.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/Tooltip.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/WindowButton.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/ScrollBar.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/PlaybackIndicator.xaml" />
+        <ResourceDictionary Source="/EchoStem;component/Resources/Styles/StackPanelConditionEnabled.xaml" />
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

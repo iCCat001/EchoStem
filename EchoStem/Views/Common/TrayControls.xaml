@@ -1,0 +1,54 @@
+﻿<Window x:Class="EchoStem.Views.Common.TrayControls"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="TrayControls"
+        xmlns:base="clr-namespace:EchoStem.Core.Base;assembly=EchoStem.Core"
+        xmlns:cp="clr-namespace:EchoStem.Core.Prism;assembly=EchoStem.Core" 
+        xmlns:shell="clr-namespace:System.Windows.Shell;assembly=PresentationFramework"
+        xmlns:commonviews="clr-namespace:EchoStem.Views.Common"
+        xmlns:pv="clr-namespace:EchoStem.Views"
+        Height="{x:Static base:Constants.TrayControlsHeight}" 
+        Width="{x:Static base:Constants.TrayControlsWidth}" 
+        Deactivated="Window_Deactivated"
+        WindowStyle="None"
+        ShowInTaskbar="False"
+        Background="Transparent">
+
+    <Window.Style>
+        <Style TargetType="{x:Type Window}">
+            <Setter Property="shell:WindowChrome.WindowChrome">
+                <Setter.Value>
+                    <shell:WindowChrome CaptionHeight="0"
+                                        CornerRadius="0"
+                                        GlassFrameThickness="0.1"
+                                        NonClientFrameEdges="None"
+                                        ResizeBorderThickness="0"
+                                        UseAeroCaptionButtons="False"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Style>
+
+    <Grid>
+        <Border x:Name="WindowBackground" Panel.ZIndex="0" BorderThickness="0" Background="{DynamicResource Brush_WindowHeaderBackground}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <DockPanel Panel.ZIndex="1">
+            <!-- Playback information -->
+            <DockPanel x:Name="PlaybackInfoPanel" DockPanel.Dock="Top" HorizontalAlignment="Left" Height="60" Width="260" Margin="10,10,10,15">
+                <commonviews:CoverArtControl DockPanel.Dock="Left" Width="60" Height="60"/>
+                <commonviews:PlaybackInfoControl Height="60" Margin="10,0,0,0" TitleFontSize="22" TitleFontWeight="Light" VerticalAlignment="Bottom"/>
+            </DockPanel>
+            <StackPanel VerticalAlignment="Bottom">
+                <!-- Volume control -->
+                <commonviews:HorizontalVolumeControls HorizontalAlignment="Left" Margin="51,0,0,20" SliderLength="120"/>
+                <!-- Progress control -->
+                <commonviews:ProgressControlsWithTime HorizontalAlignment="Stretch" Margin="19,0,0,20" SliderLength="120"/>
+                <!-- Playback controls -->
+                <pv:PlaybackControls UseLayoutRounding="True" SnapsToDevicePixels="True" HorizontalAlignment="Left" Margin="48,0,0,20"/>
+                <Button HorizontalAlignment="Right" Margin="0,0,10,10" Content="{DynamicResource Language_Show_App}" Style="{StaticResource TextButton}" Foreground="{DynamicResource Brush_Accent}" Command="{x:Static cp:ApplicationCommands.ShowMainWindowCommand}"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

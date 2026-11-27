@@ -1,0 +1,614 @@
+2026-11-23: EchoStem 2.0.12
+---------------------------
+
+- [Changed] Renamed the application from Dopamine to EchoStem: new product name, new application id, new data folder (%AppData%\EchoStem) and new file names.
+- [Added] First-run wizard offers to migrate the data of the previous Dopamine installation (music library, playlists, settings, providers, colour schemes, equalizer presets, custom languages and the album artwork cache). The old data is left untouched.
+- [Changed] New vector logo (follows the accent colour of the theme) and new application, tray and installer icons.
+- [Changed] The logo wordmark now uses the Poppins font (SIL Open Font License) instead of the old handwritten font.
+- [Changed] New album-tile placeholder: only the spectrum bars, without the filled background tile.
+- [Changed] The installer detects and offers to uninstall an existing Dopamine installation; user data is kept and can be migrated.
+- [Changed] External control: new shared memory/mutex names (EchoStemFftDataMemory*). The old Dopamine names are still written for one version for compatibility.
+- [Fixed] A crash during shutdown caused by an exception in the Discord rich presence finalizer.
+- [Fixed] A crash in the accent colour interpolation when the theme was re-applied at the same time.
+2025-03-15: Dopamine 2.0.11
+---------------------------
+
+- [Fixed] When there are a lot of playlists, the list of playlists is not scrollable, making some playlists inaccessible.
+- [Changed] Updated the Kurdish translation
+
+2024-08-10: Dopamine 2.0.10
+---------------------------
+
+- [Added] Added a Catalan translation
+- [Added] Added a Farsi translation
+- [Changed] Links to website and social networks have been updated
+- [Changed] Update checker now points to GitHub
+- [Changed] Updated the Chinese (Traditional) translation
+- [Changed] Updated the Indonesian translation
+- [Changed] Updated the Italian translation
+- [Changed] Updated the Portuguese translation
+- [Changed] Updated the Russian translation
+- [Changed] Updated the Serbian (Cyrillic) translation
+- [Changed] Updated the Serbian (Latin) translation
+- [Changed] Updated the Swedish translation
+- [Changed] Updated the Spanish translation
+
+2022-02-08: Dopamine 2.0.9
+--------------------------
+
+- [Added] Added a Blacklist
+- [Added] Added a Kurdish translation
+- [Changed] Updated the Chinese (Simplified) translation
+- [Changed] Updated the Finnish translation
+- [Changed] Updated the Indonesian translation
+- [Changed] Updated the Portuguese (Brazil) translation
+- [Changed] Updated the Portuguese (Portugal) translation
+
+2020-04-10: Dopamine 2.0.8
+--------------------------
+
+- [Fixed] Progress bar goes to zero when a song is paused
+- [Changed] Updated the Bulgarian translation
+- [Changed] Updated the Chinese Traditional translation
+- [Changed] Updated the Spanish translation
+
+2020-04-03: Dopamine 2.0.7
+--------------------------
+
+- [Fixed] Dopamine prevents Windows from sleeping when a song is paused
+- [Fixed] Overriding screensaver should be optional
+- [Changed] Updated the Danish translation
+
+2020-04-02: Dopamine 2.0.6
+--------------------------
+
+- [Added] Added Discord Rich Presence
+- [Added] Added a Finnish translation
+- [Fixed] Fixed Folder screen compatibility issue with the Dopamine 3 database
+- [Fixed] Fixed volume tooltip overlaps volume control numbers
+- [Changed] Removed support for LyricsWiki. The site was shut down.
+- [Changed] Updated the Bulgarian translation
+- [Changed] Updated the French translation
+- [Changed] Updated the German translation
+- [Changed] Updated the Indonesian translation
+- [Changed] Updated the Korean translation
+- [Changed] Updated the Serbian (Cyrillic) translation
+- [Changed] Updated the Serbian (Latin) translation
+
+2020-09-22: Dopamine 2.0.5
+--------------------------
+
+- [Added] Added support for the APE file format
+- [Added] Added support for ModernFlyouts (https://github.com/ShankarBUS/ModernFlyouts/)
+- [Changed] Updated the Portuguese (Portugal) translation
+- [Changed] Updated the Chinese (Simplified) translation
+
+2020-09-05: Dopamine 2.0.4
+--------------------------
+
+- [Fixed] Playlists now load slightly faster
+- [Fixed] Album list does not always reflect the choice of artist type (Song artists, Album artists or All artists)
+- [Fixed] Audio is resampled to lower quality instead of playing at full quality
+- [Changed] Updated the Hungarian translation
+
+2020-07-11: Dopamine 2.0.3
+--------------------------
+
+- [Added] The "Songs" screen now remembers your sorting preferences!
+- [Fixed] Fixed a crash that occurs when using WinDock
+- [Fixed] The order of artists is not respected on now playing screens (Remove and re-add collection folders to apply this fix)
+- [Changed] Updated the Bulgarian translation
+- [Changed] Updated the Chinese translation
+- [Changed] Updated the Indonesian translation
+- [Changed] Updated the Portuguese (Brazil) translation
+- [Changed] Updated the Russian translation
+- [Changed] Updated the Serbian (Cyrillic)
+- [Changed] Updated the Serbian (Latin)
+- [Changed] Updated the Spanish translation
+- [Changed] Updated the Swedish translation
+- [Changed] Updated the Ukranian translation
+
+2020-06-17: Dopamine 2.0.2
+--------------------------
+
+- [Added] It is now possible to sort albums by year ascending or descending
+- [Added] Added a smart playlist rule "does not contain"
+- [Added] Added an Indonesian translation
+- [Added] Added Serbian translations
+- [Fixed] Startup crash which is caused by the spectrum analyzer
+- [Fixed] ".opus" files are ignored
+- [Fixed] ".aif" files are ignored
+- [Fixed] When double-clicking a playlist, it is not enqueued.
+- [Fixed] A crash which occurs when creating a new playlist after deleting the playlists folder
+- [Fixed] PC goes to sleep while playing music
+- [Fixed] Fixed a focus stealing issue when skipping inside songs using the arrow keys
+- [Changed] Updated the Japanese translation
+- [Changed] Updated the Polish translation
+
+
+2020-01-12: Dopamine 2.0.1
+--------------------------
+
+- [Changed] Reverted some changes to audio decoding. This hopefully removes lag when decoding high bitrate files.
+- [Added] Added support for m3u8 playlists
+
+
+2020-01-11: Dopamine 2.0
+------------------------
+
+- [Added] Added a setting to remove songs from disk in the Now Playing context menu
+- [Added] Added folder view
+- [Added] Added smart playlists
+- [Added] It is now possible to sort songs by album, even when no album is selected.
+- [Added] The search field can now be activated by pressing CTRL+F
+- [Added] Added sort by "date added" and "date created" in the song screen
+- [Added] It is now possible to drop files on now playing, when no songs are playing.
+- [Added] It is now possible to drop folders on the playlists screen
+- [Added] Added rating and love to the bottom left now playing pane on the main screen
+- [Fixed] Added an extra button to access Now Playing
+- [Added] Added a Japanese translation
+- [Added] Added a Norwegian translation
+- [Changed] Changed the overall design
+- [Changed] Removed song covers in playlists. Loading images in memory causes a huge memory footprint for large playlists.
+- [Changed] Tweaked the now playing screen
+- [Changed] Removed the "Frequent" page
+- [Changed] Updated the Bulgarian translation
+- [Changed] Updated the Chinese (Simplified) translation
+- [Changed] Updated the Chinese (Traditional) translation
+- [Changed] Updated the Croatian translation
+- [Changed] Updated the German translation
+- [Changed] Updated the Greek translation
+- [Changed] Updated the Hungarian translation
+- [Changed] Updated the Italian translation
+- [Changed] Updated the Japanese translation
+- [Changed] Updated the Korean translation
+- [Changed] Updated the Polish translation
+- [Changed] Updated the Portuguese (Portugal) translation
+- [Changed] Updated the Russian translation
+- [Changed] Updated the Spanish translation
+- [Changed] Updated the Swedish translation
+- [Changed] Updated the Ukrainian translation
+- [Changed] Updated the Vietnamese translation
+- [Fixed] Multiple memory leaks
+- [Fixed] Lyrics scrolling doesn't work correctly for lyrics which have no timestamps
+- [Fixed] It is impossible to fetch lyrics from LyricWikia when song artist or title have special casing and special characters
+- [Fixed] The spectrum analyzer causes crashes
+- [Fixed] Artists or genres which are identical, but use a different casing, are shown as multiple artists or genres.
+- [Fixed] Enabling the system notification on Windows 10 N causes a crash
+- [Fixed] Rating songs makes the UI non-responsive
+- [Fixed] Songs which are enqueued from Explorer, are enqueued in the wrong order.
+- [Fixed] It is impossible to delete songs from playlists, for which the song files have been removed from or renamed on disk.
+- [Fixed] Pressing multimedia keys causes glitches when the spectrum analyzer is enabled
+- [Fixed] System notifications causes a crash when playing a song which has a malformed track number
+- [Fixed] Artists and Genres screens don't show songs for the Cyrillic alphabet
+- [Fixed] Artists info pane displays white stars instead of actual artist pictures
+- [Fixed] Lyrics "Search again" does not work
+- [Fixed] Lowered CPU and memory usage
+- [Fixed] Short sound after starting up
+- [Fixed] Zero-sized images which are embedded in audio files, are mistakenly treated as valid images.
+- [Fixed] Queued songs which are not in the collection (e.g. from playlists), are not resumed after a restart.
+- [Fixed] Playlists containing the same song multiple times, confuses play previous and play next.
+- [Fixed] Incorrect ordering of timed lyrics which contain duplicate timestamps
+- [Fixed] Tray icon is not visible when using light system theme in Windows 10
+- [Fixed] It is not possible to type + and - in the last.fm password box
+- [Fixed] Removing all songs from Now Playing causes a crash
+- [Fixed] Discs are ordered wrong when an album has more than 10 discs
+- [Fixed] Pressing the keyboard left arrow doesn't jump a song back to the beginning when it has been playing for less than 15 seconds
+- [Fixed] Lyrics are not saved to the audio files
+- [Fixed] Lyrics are not displayed the 1st time the lyrics page is shown 
+- [Fixed] File size information in the songs lists is rounded down
+- [Fixed] It is not possible to add songs to playlists from the Now Playing screen
+- [Fixed] Playback order is not reset when song order is changed on the songs list and songs are enqueued again
+- [Fixed] Multimedia play and pause keys are not always working
+- [Fixed] External control server fails to retrieve the current track
+
+
+2018-05-16: Dopamine 1.5.14
+---------------------------
+
+- [Changed] Updated the Chinese (Simplified) translation
+- [Changed] Updated the Korean translation
+- [Changed] Updated the Swedish translation
+- [Changed] Decreased the minimum window size for people using narrow or vertical monitors
+- [Changed] Before adding a collection folder, a check is now performed to ensure its content is accessible.
+- [Changed] Improved parsing of lyrics
+- [Fixed] We now don't crash anymore when a collection folder's content is not accessible.
+- [Fixed] Indexing stops when encountering an unreadable file or folder
+- [Fixed] Fixed another issue playing files which contain special characters
+- [Fixed] Fixed multiple crashes when searching for lyrics and when editing lyrics
+- [Fixed] Fixed a crash which occurs when indexing MP3 files which have corrupt headers
+- [Fixed] Fixed a small issue displaying lyrics download timeout settings
+
+
+2018-04-18: Dopamine 1.5.13
+---------------------------
+
+- [Changed] Improved parsing of timestamped lyrics
+- [Changed] Updated the Chinese (Simplified) translation
+- [Changed] Updated the Korean translation
+- [Changed] Updated the Portuguese (Portugal) translation
+- [Changed] Updated the Vietnamese translation
+- [Changed] Updated the Spanish translation
+- [Changed] Updated the Swedish translation
+- [Fixed] Fixed MetroLyrics parsing issues
+- [Fixed] Spectrum styles are not localized
+
+
+2018-04-02: Dopamine 1.5.12
+---------------------------
+
+- [Added] Songs can now be added to Now Playing by dragging audio and playlist files from Explorer
+- [Changed] Updated the Russian translation
+- [Changed] Updated the Vietnamese translation
+- [Fixed] Files cannot be enqueued from Windows Explorer since version 1.5.11
+
+
+2018-03-21: Dopamine 1.5.11
+---------------------------
+
+- [Added] Added support for N editions of Windows (Even without Media Feature Pack)
+- [Changed] Updated the Chinese (Simplified) translation
+- [Changed] Updated the Croatian translation
+- [Changed] Updated the Greek translation
+- [Changed] Updated the Korean translation
+- [Changed] Updated the Portuguese (Portugal) translation
+- [Changed] Updated the Swedish translation
+- [Fixed] Fixed a crash which happens just after startup on some editions of Windows 10
+- [Fixed] Playback fails on 32 bit Windows versions
+
+
+2018-02-10: Dopamine 1.5.10
+----------------------------
+
+- [Added] Added option to center lyrics
+- [Fixed] Fixed an issue where indexing fails completely if at least 1 subdirectory is inaccessible
+- [Fixed] Fixed checkboxes to show/hide folders from collection are not displayed
+- [Fixed] Fixed high memory usage when shuffling a lot of songs
+
+
+2018-01-28: Dopamine 1.5.9
+--------------------------
+
+- [Fixed] Fixed albums not being displayed for artists and genres which only have 1 album
+
+
+2018-01-23: Dopamine 1.5.8
+--------------------------
+
+- [Added] Added support for the WMA Lossless file format
+- [Changed] Updated the Bulgarian translation
+- [Changed] Updated the Chinese (Simplified) translation
+- [Changed] Updated the Portuguese (Brazil) translation
+- [Fixed] Fixed a problem playing folders and playlists from Windows Explorer
+- [Fixed] Fixed sorting by track number in the songs screen
+- [Fixed] Fixed possible crash when drawing the list of albums
+
+
+2018-01-12: Dopamine 1.5.7
+--------------------------
+
+- [Changed] Updated the Portuguese (Brazil) translation
+- [Changed] Updated the Spanish translation
+- [Changed] Updated the Vietnamese translation
+- [Fixed] Fixed multiple issues concerning lyrics support
+
+
+2018-01-06: Dopamine 1.5.6
+--------------------------
+
+- [Added] Added Croatian translation
+- [Added] Added an option to use all speakers on multi-speaker systems
+- [Changed] Updated the Spanish translation
+- [Fixed] Fixed strange behaviour when playing files from Windows Explorer
+- [Fixed] Fixed wrong Play and Skip count order on the Songs screen
+- [Fixed] Fixed bad album cover quality on 4K displays with 250% scaling
+
+
+2017-12-06: Dopamine 1.5.5
+--------------------------
+
+- [Added] Added support for the Opus file format
+- [Added] Added optional automatic download of album covers from the Internet
+- [Added] Added optional enqueue of other audio files which are in the same folder as a double-clicked audio file
+- [Added] Added button to download covers from the edit song window
+- [Added] Added Vietnamese translation
+- [Changed] Updated the French translation
+- [Changed] Updated the Korean translation
+- [Changed] Updated the Portuguese (Portugal) translation
+- [Fixed] Fixed another conflict between playing a file from Explorer and loading of saved queued songs
+- [Fixed] Fixed a potential issue when changing album covers
+
+
+2017-11-24: Dopamine 1.5.4
+--------------------------
+
+- [Changed] Updated the Spanish translation
+- [Fixed] A conflict between playing a file from Explorer and loading of saved queued songs
+- [Fixed] User interface becomes unresponsive when a collection folder contains the characters "{" and/or "}"
+- [Fixed] Click to play from the Frequent screen doesn't work anymore
+- [Fixed] Fixed missing lyrics editor in song edit window
+- [Fixed] Media keys don't work since the last release
+
+
+2017-11-22: Dopamine 1.5.3
+--------------------------
+
+- [Changed] Updated the French translation
+- [Changed] Updated the German translation
+- [Changed] Updated the Swedish translation
+- [Changed] Updated the Turkish translation
+- [Fixed] Korean language file is missing in installable version
+- [Fixed] Indexing fails for all files if 1 of the files has a path which is too long
+- [Fixed] Some broken files generate faulty artists, genres and albums in the collection during indexing
+- [Fixed] Portable version update notification forwards the user to the installer instead of download location
+- [Fixed] Files with special characters fail to play
+- [Fixed] Buttons don't work on the system notification
+- [Fixed] A thick accented window border is displayed when maximized with a hidden Windows Taskbar
+- [Fixed] Last selected settings page is not remembered when going back to Settings from the Collection or Information pages
+
+
+2017-11-21: Dopamine 1.5.2
+--------------------------
+
+- [Changed] Updated the Korean translation
+- [Fixed] Crash on startup when using a non-English language
+- [Fixed] Menu texts not updated when switching language
+
+
+2017-11-20: Dopamine 1.5.1
+--------------------------
+
+- [Fixed] Potential database issues while indexing album covers in the background
+
+
+2017-11-16: Dopamine 1.5
+------------------------
+
+- [Added] Added a Context Menu option to play (enqueue) selected tracks
+- [Added] Added option to use native Windows 10 notifications
+- [Added] The artists information screen now shows an image for similar artists
+- [Added] Added option to toggle display of song covers in playlists and Now playing
+- [Added] Added support for Monkey's Audio APE file format
+- [Added] Added an external control API (Remote control can be enabled in Settings > Playback > External control). 
+          For developers, see https://github.com/Magentaize/Dopamine-ExternalControl-Support
+- [Changed] Updated audio engine to CSCore 1.2.1.2 and changed the audio decoder.
+- [Changed] Updated the Russian translation
+- [Changed] Updated the Spanish translation
+- [Changed] Updated the Swedish translation
+- [Changed] Updated the Chinese (Simplified)
+- [Changed] Updated the German translation
+- [Changed] Updated the Portuguese (Portugal) translation
+- [Changed] Updated the Korean translation
+- [Changed] Removed the splash screen
+- [Changed] When double clicking files in Windows Explorer, we now start in Mini Player mode
+- [Changed] Re-introduced automatic loop when performing shuffled playback. There is now an option to disable it.
+- [Changed] Album covers are updated in the background
+- [Changed] Added some options for reloading of album covers
+- [Changed] It's now possible to check for updates at startup only (without periodic update check)
+- [Fixed] Some WAV files fail to play
+- [Fixed] Multichannel FLAC files fail to play
+- [Fixed] Indexer starts even when disabled in the settings
+- [Fixed] Indexer starts too often due to corrupt or unreadable files
+- [Fixed] Window is restored behind the task bar when double clicking tray icon
+- [Fixed] "Unknown artist", "Unknown album", "Unknown genre" are not translated
+- [Fixed] Fixed multiple issues when removing songs from Now Playing
+- [Fixed] Fixed a crash when moving mini players around when the playlist window is opened
+- [Fixed] It is possible to scrobble tracks by skipping to the end of the track
+- [Fixed] Tracks on the playlists screen are not cleared when the last playlist is deleted
+- [Fixed] Unable to type underscore in Last.fm user field
+- [Fixed] Crash when attempting to jump to albums using key presses
+- [Fixed] Renaming a playlist does not update the playlist name in the context menus
+
+
+2017-07-07: Dopamine 1.3
+------------------------
+
+Disclaimer:  
+
+Playlist support was rewritten from scratch. Your existing playlists will not be migrated. 
+Save your playlists to files manually before upgrading to this version. Import your saved
+playlists after upgrading to this version.
+
+- [Added] Added a button to export album and song covers to files
+- [Added] Added an option to switch between 4 styles of spectrum analyzers
+- [Added] Smoother list animations
+- [Added] Added extra album sorting option "By date created"
+- [Added] Added optional play count, skip count and date last played column to the songs screen
+- [Added] Added a context menu option to add the playing song to a playlist
+- [Added] Left and right arrow keys allow jumping 5 or 15 seconds backward or forward (Information > help for hotkeys)
+- [Added] Added an option to follow the album cover color
+- [Added] Added support for local lyrics files (LRC)
+- [Added] Added audio device selection
+- [Added] Changes to the collection folders are now detected automatically
+- [Added] Changes to the Music\Dopamine\Playlists folder are now detected automatically
+- [Added] Added NeteaseLyrics support
+- [Added] Added XiamiLyrics support
+- [Added] Double clicking a playlist queues and plays the songs of that playlist
+- [Added] The keyboard space bar now toggles play and pause
+- [Changed] Lyrics are not downloaded anymore when the lyrics screen is not visible
+- [Changed] When using "Loop one", pressing Previous or Next now skips to the previous or next song.
+- [Changed] Playlists support has been rewritten: playlists are now saved to files automatically.
+- [Changed] The 'Cloud' screen was renamed to 'Frequent' and the layout was changed
+- [Changed] The song title on playback info panes now scales to the available width
+- [Changed] Updated the Swedish translation
+- [Changed] Updated the Spanish translation
+- [Changed] Updated the French translation
+- [Changed] Updated the Turkish translation
+- [Changed] Updated the Bulgarian translation
+- [Changed] Updated the Greek translation
+- [Changed] Updated the Polish translation
+- [Changed] Updated the German translation
+- [Changed] Updated the Russian translation
+- [Fixed] Automatic install or download button for updates is confusing for some users
+- [Fixed] Improved sizing of time indicator on the main window
+- [Fixed] A potential crash when trying to figure out the Windows version at startup.
+- [Fixed] Blurry context menu, notification window and tooltips at desktop scaling higher as 100%
+- [Fixed] Timestamped lyrics for songs longer than 1 hour don't work
+- [Fixed] Audio files which reside on a NAS cannot be played from playlists
+- [Fixed] Dopamine process remains active in Task Manager after a crash
+- [Fixed] Tray controls are positioned outside of the screen when using desktop scaling > 100%
+- [Fixed] Fixed an occasional crash which happened when automatically scrolling to the playing song
+- [Fixed] Mini player windows are buggy in Windows 10 tablet mode
+- [Fixed] A possible startup crash caused by the tray icon
+- [Fixed] A conflict with the search box when changing the volume by pressing - or +
+- [Fixed] Tray controls don't respect the position of the Windows Taskbar.
+- [Fixed] Added optional 'Remove from disk' option to the song context menu
+- [Fixed] Date in the Song Information window is not localized
+- [Fixed] WASAPI Exclusive mode plays high pitched sound
+- [Fixed] Play next doesn't work correctly when shuffle is enabled
+
+
+2017-01-03: Dopamine 1.2.4
+--------------------------
+
+- [Fixed] Artists are not sorted alphabetically
+- [Fixed] "Shuffle all" doesn't shuffle
+
+
+2017-01-01: Dopamine 1.2.3
+--------------------------
+
+- [Fixed] Instability on 32-bit Windows versions
+- [Fixed] Fixed a bug in the Artists sorting
+
+
+2016-12-30: Dopamine 1.2.2
+--------------------------
+
+Disclaimer: 
+
+This release requires unpinning and pinning Dopamine from and to the Windows Taskbar. 
+That is expected, and caused by changes to the installer, see (*). Please don't e-mail about this.
+
+- [Added] Added MetroLyrics as extra automatic lyrics provider (because Chartlyrics went dead)
+- [Added] Added an option to enable/disable automatic lyrics providers individually and an option to set a lyrics download timeout
+- [Added] Mouse XButton1 plays the previous song, XButton2 plays the next song.
+- [Fixed] Artists sorting (song, album, all) was restored after an unmanageable amount of complaints about its removal.
+- [Fixed] Lyrics search stops if querying 1 lyrics provider fails, even if there are still other providers to left to use.
+- [Fixed] Mute doesn't stick when the next song starts playing
+- [Fixed] (*) Hopefully fixed an issue with the installer, which caused missing files on some computers (I hate Windows installer).
+
+
+2016-12-24: Dopamine 1.2.1
+--------------------------
+
+- [Fixed] A bug where the installer fails to upgrade from a previous version
+
+
+2016-12-24: Dopamine 1.2
+------------------------
+
+- [Added] The last played song and its progress is now optionally remembered on next start
+- [Added] Added "Play next" feature
+- [Added] Songs screen has an optional column that shows if a song has lyrics
+- [Added] Possibility to re-order songs by drag and drop in playlists and Now Playing screen
+- [Added] A more visible tray icon for systems which are not running Windows 10
+- [Added] It is now possible to edit tags in Now Playing screen and Mini Player
+- [Added] Added options to show a notification when pausing and resuming a song
+- [Added] Added Last.fm scrobbling
+- [Added] Added a 'Love' button which can send 'Love' and 'Unlove' requests to Last.fm
+- [Added] Added lyrics support (automatic lyrics download, edit lyrics, and screen to display lyrics while playing)
+- [Added] Added an option to modify how much the volume changes when scrolling with the mouse on the volume bar
+- [Added] Collection refresh on startup is now optional
+- [Added] Added an Artist information screen
+- [Added] Added download of album covers from the Internet
+- [Added] Added "Play with Dopamine" to the Windows folder context menu
+- [Added] Added "Add to playlist > New playlist..." on the context menu of all screens
+- [Added] Added download of cover art for albums
+- [Changed] When enabling "Open the last selected page at startup", the last selected Now Playing page is now also remembered.
+- [Changed] Upgraded to the latest version of the CSCore Audio Library
+- [Changed] Changed the album selection box, as it wasn't visible enough.
+- [Changed] The notification window now puts emphasis on the song title instead of the artist name
+- [Changed] Sorting by album on the Songs screen now respects the track order inside an album
+- [Changed] The "Columns..." button on Songs screen was moved to right-click menu
+- [Changed] The playback controls pane is now narrower
+- [Changed] Improved the quality of the cloud screen covers
+- [Changed] Improved the "Follow song" description as it was confusing
+- [Changed] "See you later" screen when closing is only displayed when there are background tasks remaining
+- [Changed] Removed song covers from playlists. They were in fact albums covers and were confusing for users. 
+- [Changed] Updated the Chinese Traditional translation
+- [Changed] Updated the Chinese Simplified translation
+- [Changed] Updated the Spanish translation
+- [Changed] Updated the Greek translation
+- [Changed] The comment field is now multiline
+- [Changed] Moved the "Shuffle all" button to a more logical place
+- [Fixed] Improved sorting on the Songs screen
+- [Fixed] The same audio files are added multiple times to the collection in some cases
+- [Fixed] Removed the blurry background when semantic zoom is visible. It made semantic zoom harder to read.
+- [Fixed] The main window is still visible in the ALT-TAB menu when minimized or closed to the tray
+- [Fixed] Multiple issues when switching audio devices
+- [Fixed] Notifications cause closing of tray controls
+- [Fixed] Opening a playlist causes a crash
+- [Fixed] A lot of bugs in processing of metadata
+- [Fixed] Unrating a song is now easier
+- [Fixed] Refreshing of covers is more fluid
+- [Fixed] Song covers are more accurate. Covers stored in or with the audio files have higher priority than album covers.
+- [Fixed] Fixed now playing information not updated when metadata changes
+- [Fixed] MusicBee ratings are not read from MP3's
+- [Fixed] "Follow the Windows color", which was broken since version 1.1.
+- [Fixed] A big memory leak
+- [Fixed] Search field not always visible when coming back from Settings or Information pages
+- [Fixed] Album art is not displayed on the background of the Now playing screen when double-clicking files from explorer
+- [Fixed] The Manual equalizer preset is not translated when selected
+- [Fixed] Chinese metadata is garbled
+- [Fixed] Clicking a scrollbar plays the selected item
+- [Fixed] Rating to MP3 files doesn't work if the file is not in the collection
+- [Fixed] Windows case insensitivity for files and folder names isn't respected
+
+
+2016-09-11: Dopamine 1.1.1
+--------------------------
+
+- [Changed] Updated the Portuguese translation
+- [Fixed] Dopamine is not running as a 64 bit application on 64 bit systems
+
+
+2016-09-09: Dopamine 1.1
+------------------------
+
+- [Changed] Dopamine was translated from VB.NET to C# and is now Open Source Software! Source code: https://github.com/digimezzo/Dopamine
+- [Changed] This version requires .NET Framework 4.6.1
+- [Changed] Updated to the latest release of the CSCore audio library
+- [Changed] Shuffle doesn't perform a loop anymore. It is now possible to enable shuffle and loop individually.
+- [Changed] Removed the search field on the Cloud screen
+- [Changed] Updated the Russian translation
+- [Changed] Updated the Greek translation
+- [Changed] Updated the Portuguese translation
+- [Added] Added a 10 band Equalizer with 17 built-in presets and possibility to create and save custom presets
+- [Added] Added a customizable online search for videos and lyrics
+- [Added] Added a confirmation dialog when enabling WASAPI Exclusive mode
+- [Added] Added a shuffle all button
+- [Added] Added a Bitrate column on the Songs screen
+- [Added] Added importing of .wpl playlists
+- [Added] Added Italian translation
+- [Added] Added Polish translation
+- [Added] Added Ukrainian translation
+- [Fixed] Impossible to import some .m3u and .zpl playlists
+- [Fixed] Collection updating incorrectly when a new collection folder is added just after removing another
+- [Fixed] Songs having a white space as Genre cause the Genres list to be empty (A refresh of the collection is required to apply this fix)
+- [Fixed] Updating album metadata causes an album with title 'Multiple Values' to appear
+- [Fixed] Files removed in Windows are not removed from the collection
+- [Fixed] Album art is cut off on lower left playback information pane on the main screen
+- [Fixed] Dialogs show a 1px bottom border at some resolutions
+- [Fixed] Duplicate semantic Artist and Genre groups appear after performing a search
+- [Fixed] Removed songs can still be played when pressing the play button
+- [Fixed] Bluetooth headset play/pause button not detected
+
+
+2016-06-29: Dopamine 1.0
+------------------------
+
+- Final 1.0 release!
+- Modern design with dynamic User Interface
+- Light and dark theme
+- Color schemes: 6 built-in color schemes, supports adding custom color schemes
+- Plays wav, mp3, ogg vorbis, flac, wma and m4a/aac.
+- Organizes music by Artist, Genre and Album.
+- Tag editor
+- Supports playlist creation (m3u) and import (m3u, zpl)
+- Multimedia key support
+- Multilanguage
+- Notification area controls
+- Notifications with optional audio controls
+- Multiple modes: Full, Cover player, Micro player, Nano Player.
+- Now playing screen
