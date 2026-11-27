@@ -40,6 +40,11 @@ namespace EchoStem.ViewModels.Common
         private TrackViewModel previousTrack;
         private int contentSlideInFrom;
         private Timer highlightTimer = new Timer();
+
+        // The highlighted line is refreshed every 100 ms. Publishing the scroll request on every tick
+        // made the UI scroll continuously and also hid genuine user scrolling from the view, so the
+        // event is only published when the highlighted line really changes.
+        private int lastHighlightedLyricsLineIndex = -1;
         private int highlightTimerIntervalMilliseconds = 100;
         private IEventAggregator eventAggregator;
         private Object lockObject = new Object();
@@ -214,6 +219,7 @@ namespace EchoStem.ViewModels.Common
 
         private void ClearLyrics(TrackViewModel track)
         {
+            this.lastHighlightedLyricsLineIndex = -1;
             this.LyricsViewModel = new LyricsViewModel(this.container, track);
         }
 
@@ -269,6 +275,7 @@ namespace EchoStem.ViewModels.Common
         {
             await Task.Run(() =>
             {
+                this.lastHighlightedLyricsLineIndex = -1;
                 this.LyricsViewModel = new LyricsViewModel(container, track);
                 this.LyricsViewModel.SetLyrics(lyrics);
             });
@@ -371,6 +378,7 @@ namespace EchoStem.ViewModels.Common
 
             if (this.LyricsViewModel == null || this.LyricsViewModel.LyricsLines == null)
             {
+                this.lastHighlightedLyricsLineIndex = -1;
                 return;
             }
 
@@ -408,7 +416,15 @@ namespace EchoStem.ViewModels.Common
 
                             if (this.LyricsViewModel.AutomaticScrolling & this.canHighlight)
                             {
-                                this.eventAggregator.GetEvent<ScrollToHighlightedLyricsLine>().Publish(null);
+                                if (this.lastHighlightedLyricsLineIndex != i)
+                                {
+                                    this.lastHighlightedLyricsLineIndex = i;
+                                    this.eventAggregator.GetEvent<ScrollToHighlightedLyricsLine>().Publish(null);
+                                }
+                            }
+                            else
+                            {
+                                this.lastHighlightedLyricsLineIndex = -1;
                             }
                         }
                         else
