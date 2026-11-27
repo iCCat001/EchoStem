@@ -479,4 +479,5 @@
   <Text Key="Migration_Error">Migration failed. You can try again, or start fresh.</Text>
   <Text Key="Update_Install_Quick">Quick install</Text>
   <Text Key="Update_Install_Full">Download the full installer</Text>
+  <Text Key="Update_Check_No_Update_Package">The latest release does not contain an update package. Please try again later.</Text>
 </Language>

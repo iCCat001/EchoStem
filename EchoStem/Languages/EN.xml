@@ -436,6 +436,7 @@
   <Text Key="Downloading_Update">Downloading the update...</Text>
   <Text Key="Update_Download_Failed">Could not download the update. Please try again later.</Text>
   <Text Key="Update_Check_Failed">Could not check for updates. Please check your network connection.</Text>
+  <Text Key="Update_Check_No_Update_Package">The latest release does not contain an update package. Please try again later.</Text>
   <Text Key="Refresh_Collection_Now">Refresh the collection now</Text>
   <Text Key="Album_Covers">Album covers</Text>
   <Text Key="Reload_All_Covers">Reload all covers</Text>

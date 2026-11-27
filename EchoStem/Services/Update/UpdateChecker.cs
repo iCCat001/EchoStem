@@ -1,4 +1,4 @@
-﻿using Digimezzo.Foundation.Core.Logging;
+using Digimezzo.Foundation.Core.Logging;
 using Digimezzo.Foundation.Core.Utils;
 using EchoStem.Services.Dialog;
 using EchoStem.ViewModels.Common;
@@ -70,11 +70,22 @@ namespace EchoStem.Services.Update
                 default:
                     if (!silent)
                     {
+                        // A release without assets is not a network problem: say so instead of
+                        // showing the generic "check your connection" message.
+                        string message = result.IsPackageMissing
+                            ? ResourceUtils.GetString("Language_Update_Check_No_Update_Package")
+                            : ResourceUtils.GetString("Language_Update_Check_Failed");
+
+                        if (!result.IsPackageMissing && !string.IsNullOrWhiteSpace(result.ErrorMessage))
+                        {
+                            message = message + Environment.NewLine + Environment.NewLine + result.ErrorMessage;
+                        }
+
                         this.dialogService.ShowNotification(
                             0xe711,
                             16,
                             ResourceUtils.GetString("Language_Check_For_Updates"),
-                            ResourceUtils.GetString("Language_Update_Check_Failed"),
+                            message,
                             ResourceUtils.GetString("Language_Close"),
                             false,
                             string.Empty);
