@@ -1,7 +1,24 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
-    xmlns:base="clr-namespace:EchoStem.Core.Base;assembly=EchoStem.Core">
+    xmlns:base="clr-namespace:EchoStem.Core.Base;assembly=EchoStem.Core"
+    xmlns:utils="clr-namespace:EchoStem.Utils">
+
+    <!--
+        Scroll bars of the whole application.
+
+        This dictionary is the single place where the scroll bar appearance and interaction live:
+        the implicit ScrollBar style (line ~242) and the implicit ScrollViewer style (line ~261) are
+        applied to every list, DataGrid, page and control template in the application.
+
+        Touch mode values come from TouchOptimization.Apply():
+          Touch_ScrollBarWidth            - width/height of the whole bar (the touch hit area)
+          Touch_ScrollBarThumbThickness   - thickness of the visible thumb
+          Touch_ScrollBarOpacity          - opacity of the bar when it is not hovered
+
+        When the touch scroll bar interaction is redesigned, the changes belong here (thumb
+        templates, show/hide triggers) and in TouchOptimization.cs (new Touch_ScrollBar* resources).
+    -->
 
     <Style x:Key="ScrollBarLineButton" TargetType="{x:Type RepeatButton}">
         <Setter Property="OverridesDefaultStyle" Value="true"/>
@@ -115,6 +132,22 @@
           BorderBrush="{TemplateBinding BorderBrush}"
           BorderThickness="0" />
                     <ControlTemplate.Triggers>
+                        <!-- Keep both thumbs consistent: the horizontal thumb fades in on hover the
+                             same way the vertical one does. -->
+                        <EventTrigger RoutedEvent="UIElement.MouseEnter">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Duration="0:0:0.15" To="0.7" Storyboard.TargetProperty="Opacity" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
+                        <EventTrigger RoutedEvent="UIElement.MouseLeave">
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation Duration="0:0:0.15" To="1" Storyboard.TargetProperty="Opacity" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger>
                         <Trigger Property="IsDragging" Value="true">
                             <Setter TargetName="Border" Property="Opacity" Value="0.7" />
                         </Trigger>
@@ -239,10 +272,14 @@
         </Grid>
     </ControlTemplate>
 
+    <!-- Implicit style: applies to every ScrollBar in the application. Hand orientation-specific
+         sizing and template selection. Touch sizes come from Touch_ScrollBarWidth. -->
     <Style x:Key="{x:Type ScrollBar}" TargetType="{x:Type ScrollBar}">
         <Setter Property="UseLayoutRounding" Value="True"/>
         <Setter Property="OverridesDefaultStyle" Value="true"/>
         <Setter Property="Cursor" Value="Hand"/>
+        <!-- Enables the touch scroll bar interaction (standby bubble + expand on the first touch). -->
+        <Setter Property="utils:TouchScrollBarBehavior.IsAttached" Value="True"/>
         <Setter Property="Background" Value="Transparent"/>
         <Style.Triggers>
             <Trigger Property="Orientation" Value="Horizontal">
@@ -258,6 +295,9 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Implicit style: applies to every ScrollViewer in the application (lists, pages, menus,
+         text boxes). The opacity triggers below are the current "hide when the mouse is away" logic;
+         the touch scroll bar redesign will extend these triggers. -->
     <Style x:Key="{x:Type ScrollViewer}" TargetType="{x:Type ScrollViewer}">
         <Setter Property="FrameworkElement.OverridesDefaultStyle" Value="True" />
         <Setter Property="Control.Template">
@@ -291,6 +331,8 @@
         </Setter>
     </Style>
 
+    <!-- DataGrid has its own ScrollViewer template (column headers, frozen columns). Keep its scroll
+         bar names/opacity behaviour in sync with the implicit ScrollViewer style above. -->
     <ControlTemplate x:Key="DataGridScrollViewerTemplate" TargetType="{x:Type ScrollViewer}">
         <Grid>
             <Grid.ColumnDefinitions>
