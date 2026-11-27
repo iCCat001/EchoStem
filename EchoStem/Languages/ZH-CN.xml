@@ -436,6 +436,7 @@
   <Text Key="Downloading_Update">正在下载更新...</Text>
   <Text Key="Update_Download_Failed">更新下载失败，请稍后重试</Text>
   <Text Key="Update_Check_Failed">检查更新失败，请检查网络连接</Text>
+  <Text Key="Update_Check_No_Update_Package">最新的发布中没有可用的更新包，请稍后再试。</Text>
   <Text Key="Refresh_Collection_Now">立即刷新音乐库</Text>
   <Text Key="Album_Covers">专辑封面</Text>
   <Text Key="Reload_All_Covers">重载所有专辑封面</Text>

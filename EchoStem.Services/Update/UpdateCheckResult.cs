@@ -28,6 +28,9 @@ namespace EchoStem.Services.Update
 
         public GitHubReleaseAsset InstallerAsset { get; set; }
 
+        /// <summary>True when the release exists but has no downloadable update package.</summary>
+        public bool IsPackageMissing { get; set; }
+
         public string ErrorMessage { get; set; }
     }
 }

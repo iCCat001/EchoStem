@@ -57,6 +57,7 @@ namespace EchoStem.Services.Update
 
                 LogClient.Info("Update check: online version = {0} (tag {1})", result.OnlineVersion, release.TagName);
 
+
                 result.PortableAsset = FindPortableAsset(release);
                 result.InstallerAsset = FindInstallerAsset(release);
 
@@ -65,6 +66,7 @@ namespace EchoStem.Services.Update
 
                 if (result.PortableAsset == null && result.InstallerAsset == null)
                 {
+                    result.IsPackageMissing = true;
                     return this.CreateError(result, "The release does not contain an update package.");
                 }
 
@@ -342,6 +344,8 @@ namespace EchoStem.Services.Update
 
         private UpdateCheckResult CreateError(UpdateCheckResult result, string message)
         {
+            LogClient.Error("Update check: {0}", message);
+
             result.Status = UpdateCheckStatus.Error;
             result.ErrorMessage = message;
 
