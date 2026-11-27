@@ -30,7 +30,6 @@ namespace EchoStem.ViewModels
 
         public DelegateCommand GoBackCommand { get; set; }
         public DelegateCommand GoForwardCommand { get; set; }
-        public DelegateCommand<string> OpenLinkCommand { get; set; }
         public DelegateCommand MigrateCommand { get; set; }
         public DelegateCommand SkipMigrationCommand { get; set; }
 
@@ -148,17 +147,7 @@ namespace EchoStem.ViewModels
             this.MigrateCommand = new DelegateCommand(() => this.MigrateAsync());
             this.SkipMigrationCommand = new DelegateCommand(() => this.SkipMigration());
 
-            this.OpenLinkCommand = new DelegateCommand<string>((url) =>
-            {
-                try
-                {
-                    Actions.TryOpenLink(url);
-                }
-                catch (Exception ex)
-                {
-                    LogClient.Error("Could not open link {0}. Exception: {1}", url, ex.Message);
-                }
-            });
+
         }
 
         private void MigrateAsync()
@@ -207,11 +196,8 @@ namespace EchoStem.ViewModels
                 case OobePage.Collection:
                     this.SelectedOobePage = OobePage.Appearance;
                     break;
-                case OobePage.Donate:
-                    this.SelectedOobePage = OobePage.Collection;
-                    break;
                 case OobePage.Finish:
-                    this.SelectedOobePage = OobePage.Donate;
+                    this.SelectedOobePage = OobePage.Collection;
                     break;
                 default:
                     break;
@@ -235,9 +221,6 @@ namespace EchoStem.ViewModels
                     this.SelectedOobePage = OobePage.Collection;
                     break;
                 case OobePage.Collection:
-                    this.SelectedOobePage = OobePage.Donate;
-                    break;
-                case OobePage.Donate:
                     this.SelectedOobePage = OobePage.Finish;
                     break;
                 case OobePage.Finish:

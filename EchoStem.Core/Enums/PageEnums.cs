@@ -1,4 +1,4 @@
-namespace EchoStem.Core.Enums
+﻿namespace EchoStem.Core.Enums
 {
     public enum OobePage
     {
@@ -8,8 +8,7 @@ namespace EchoStem.Core.Enums
         Language = 2,
         Appearance = 3,
         Collection = 4,
-        Donate = 5,
-        Finish = 6
+        Finish = 5
     }
 
     public enum NowPlayingPage

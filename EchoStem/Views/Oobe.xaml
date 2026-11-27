@@ -80,7 +80,7 @@
                 <dc:PageIndicator DockPanel.Dock="Bottom" ItemSize="8" ItemSpacing="10" 
                                   ItemFill="{Binding Path=Background,ElementName=proxyborder,Converter={StaticResource BrushOpacityConverter},ConverterParameter=0.3}" 
                                   SelectedItemFill="{DynamicResource Brush_Accent}" Margin="10"
-                                  NumberOfItems="7" ActiveItem="{Binding SelectedIndex,ElementName=oobewizard}"/>
+                                  NumberOfItems="6" ActiveItem="{Binding SelectedIndex,ElementName=oobewizard}"/>
                 <dc:Pivot x:Name="oobewizard" SelectedIndex="{Binding SelectedOobePage,Mode=TwoWay,Converter={StaticResource EnumConverter},ConverterParameter={x:Type enums:OobePage}}" 
                           DisableTabKey="True" AnimationType="SlideHorizontal" FeatheringRadius="24" HeaderVisibility="Collapsed">
                     <!-- Migration (only when data from the old Dopamine installation was found) -->
@@ -130,15 +130,6 @@
                             <TextBlock DockPanel.Dock="Top" Margin="0,5,0,0" Text="{DynamicResource Language_Lets_Set_Up_Your_Collection}" FontWeight="Light" FontSize="{Binding Source={x:Static base:Constants.OobeTextFontSize}}" Foreground="{DynamicResource Brush_PrimaryText}" TextWrapping="Wrap"/>
                             <commonviews:CollectionFoldersSettings Margin="0,15,0,15" ShowControls="False"/>
                         </DockPanel>
-                    </dc:PivotItem>
-                    <!-- Donate -->
-                    <dc:PivotItem>
-                        <StackPanel  Margin="30,0,30,0">
-                            <Label Padding="0" Content="{DynamicResource Language_Donate}" FontWeight="Light" FontSize="{Binding Source={x:Static base:Constants.OobeTitleFontSize}}" Foreground="{DynamicResource Brush_Accent}"/>
-                            <TextBlock Margin="0,5,0,0" Text="{DynamicResource Language_If_You_Like_EchoStem_Please_Donate}" FontWeight="Light" FontSize="{Binding Source={x:Static base:Constants.OobeTextFontSize}}" Foreground="{DynamicResource Brush_PrimaryText}" TextWrapping="Wrap"/>
-                            <TextBlock Margin="0,10,0,0" Text="{DynamicResource Language_Donate_To_Original_Project}" FontWeight="Light" FontSize="{Binding Source={x:Static base:Constants.OobeTextFontSize}}" Foreground="{DynamicResource Brush_SecondaryText}" TextWrapping="Wrap"/>
-                            <Button Style="{StaticResource LinkButton}" Margin="0,10,0,0" HorizontalAlignment="Left" Content="{DynamicResource Language_Donate}" ToolTip="{DynamicResource Language_Donate_With_PayPal}" Command="{Binding OpenLinkCommand}" CommandParameter="{x:Static base:ContactInformation.DonateLink}" />
-                        </StackPanel>
                     </dc:PivotItem>
                     <!-- Finish -->
                     <dc:PivotItem>
